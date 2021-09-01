@@ -19,29 +19,23 @@ public class UserDetails {
 
     private String surname;
 
-    private String stravaAccessToken;
-
-    private long stravaAccessTokenExpiration;
-
-    private String stravaRefreshToken;
-
-    private boolean stravaUploadActivity;
-
     private Set<String> fcmTokens;
+
+    private UUID currentTrackId;
+
+    private UUID selectedTrackId;
 
     public UserDetails() {
     }
 
-    public UserDetails(UUID id, UUID userId, String firstName, String surname, String stravaAccessToken, long stravaAccessTokenExpiration, String stravaRefreshToken, boolean stravaUploadActivity, Set<String> fcmTokens) {
+    public UserDetails(UUID id, UUID userId, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
         this.id = id;
         this.userId = userId;
         this.firstName = firstName;
         this.surname = surname;
-        this.stravaAccessToken = stravaAccessToken;
-        this.stravaAccessTokenExpiration = stravaAccessTokenExpiration;
-        this.stravaRefreshToken = stravaRefreshToken;
-        this.stravaUploadActivity = stravaUploadActivity;
         this.fcmTokens = fcmTokens;
+        this.currentTrackId = currentTrackId;
+        this.selectedTrackId = selectedTrackId;
     }
 
     public UUID getId() {
@@ -76,48 +70,28 @@ public class UserDetails {
         this.surname = surname;
     }
 
-    public String getStravaAccessToken() {
-        return this.stravaAccessToken;
-    }
-
-    public void setStravaAccessToken(String stravaAccessToken) {
-        this.stravaAccessToken = stravaAccessToken;
-    }
-
-    public long getStravaAccessTokenExpiration() {
-        return this.stravaAccessTokenExpiration;
-    }
-
-    public void setStravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
-        this.stravaAccessTokenExpiration = stravaAccessTokenExpiration;
-    }
-
-    public String getStravaRefreshToken() {
-        return this.stravaRefreshToken;
-    }
-
-    public void setStravaRefreshToken(String stravaRefreshToken) {
-        this.stravaRefreshToken = stravaRefreshToken;
-    }
-
-    public boolean isStravaUploadActivity() {
-        return this.stravaUploadActivity;
-    }
-
-    public boolean getStravaUploadActivity() {
-        return this.stravaUploadActivity;
-    }
-
-    public void setStravaUploadActivity(boolean stravaUploadActivity) {
-        this.stravaUploadActivity = stravaUploadActivity;
-    }
-
     public Set<String> getFcmTokens() {
         return this.fcmTokens;
     }
 
     public void setFcmTokens(Set<String> fcmTokens) {
         this.fcmTokens = fcmTokens;
+    }
+
+    public UUID getCurrentTrackId() {
+        return this.currentTrackId;
+    }
+
+    public void setCurrentTrackId(UUID currentTrackId) {
+        this.currentTrackId = currentTrackId;
+    }
+
+    public UUID getSelectedTrackId() {
+        return this.selectedTrackId;
+    }
+
+    public void setSelectedTrackId(UUID selectedTrackId) {
+        this.selectedTrackId = selectedTrackId;
     }
 
     public UserDetails id(UUID id) {
@@ -140,28 +114,18 @@ public class UserDetails {
         return this;
     }
 
-    public UserDetails stravaAccessToken(String stravaAccessToken) {
-        setStravaAccessToken(stravaAccessToken);
-        return this;
-    }
-
-    public UserDetails stravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
-        setStravaAccessTokenExpiration(stravaAccessTokenExpiration);
-        return this;
-    }
-
-    public UserDetails stravaRefreshToken(String stravaRefreshToken) {
-        setStravaRefreshToken(stravaRefreshToken);
-        return this;
-    }
-
-    public UserDetails stravaUploadActivity(boolean stravaUploadActivity) {
-        setStravaUploadActivity(stravaUploadActivity);
-        return this;
-    }
-
     public UserDetails fcmTokens(Set<String> fcmTokens) {
         setFcmTokens(fcmTokens);
+        return this;
+    }
+
+    public UserDetails currentTrackId(UUID currentTrackId) {
+        setCurrentTrackId(currentTrackId);
+        return this;
+    }
+
+    public UserDetails selectedTrackId(UUID selectedTrackId) {
+        setSelectedTrackId(selectedTrackId);
         return this;
     }
 
@@ -173,12 +137,12 @@ public class UserDetails {
             return false;
         }
         UserDetails userDetails = (UserDetails) o;
-        return Objects.equals(id, userDetails.id) && Objects.equals(userId, userDetails.userId) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(stravaAccessToken, userDetails.stravaAccessToken) && stravaAccessTokenExpiration == userDetails.stravaAccessTokenExpiration && Objects.equals(stravaRefreshToken, userDetails.stravaRefreshToken) && stravaUploadActivity == userDetails.stravaUploadActivity && Objects.equals(fcmTokens, userDetails.fcmTokens);
+        return Objects.equals(id, userDetails.id) && Objects.equals(userId, userDetails.userId) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, firstName, surname, stravaAccessToken, stravaAccessTokenExpiration, stravaRefreshToken, stravaUploadActivity, fcmTokens);
+        return Objects.hash(id, userId, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
     }
 
     @Override
@@ -188,11 +152,9 @@ public class UserDetails {
             ", userId='" + getUserId() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
-            ", stravaAccessToken='" + getStravaAccessToken() + "'" +
-            ", stravaAccessTokenExpiration='" + getStravaAccessTokenExpiration() + "'" +
-            ", stravaRefreshToken='" + getStravaRefreshToken() + "'" +
-            ", stravaUploadActivity='" + isStravaUploadActivity() + "'" +
             ", fcmTokens='" + getFcmTokens() + "'" +
+            ", currentTrackId='" + getCurrentTrackId() + "'" +
+            ", selectedTrackId='" + getSelectedTrackId() + "'" +
             "}";
     }
 
