@@ -11,9 +11,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 public class UserDetails {
     
     @PrimaryKey
-    private UUID id;
-
-    private String userEmail;
+    private String email;
 
     private String firstName;
 
@@ -28,9 +26,8 @@ public class UserDetails {
     public UserDetails() {
     }
 
-    public UserDetails(UUID id, String userEmail, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
-        this.id = id;
-        this.userEmail = userEmail;
+    public UserDetails(String email, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
+        this.email = email;
         this.firstName = firstName;
         this.surname = surname;
         this.fcmTokens = fcmTokens;
@@ -38,20 +35,12 @@ public class UserDetails {
         this.selectedTrackId = selectedTrackId;
     }
 
-    public UUID getId() {
-        return this.id;
+    public String getEmail() {
+        return this.email;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getUserEmail() {
-        return this.userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -94,13 +83,8 @@ public class UserDetails {
         this.selectedTrackId = selectedTrackId;
     }
 
-    public UserDetails id(UUID id) {
-        setId(id);
-        return this;
-    }
-
-    public UserDetails userEmail(String userEmail) {
-        setUserEmail(userEmail);
+    public UserDetails email(String email) {
+        setEmail(email);
         return this;
     }
 
@@ -137,19 +121,18 @@ public class UserDetails {
             return false;
         }
         UserDetails userDetails = (UserDetails) o;
-        return Objects.equals(id, userDetails.id) && Objects.equals(userEmail, userDetails.userEmail) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
+        return Objects.equals(email, userDetails.email) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userEmail, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
+        return Objects.hash(email, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " id='" + getId() + "'" +
-            ", userEmail='" + getUserEmail() + "'" +
+            " email='" + getEmail() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
             ", fcmTokens='" + getFcmTokens() + "'" +
