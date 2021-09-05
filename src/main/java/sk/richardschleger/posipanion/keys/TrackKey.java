@@ -9,8 +9,8 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 @PrimaryKeyClass
 public class TrackKey {
     
-    @PrimaryKeyColumn(name = "userid", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    private UUID userId;
+    @PrimaryKeyColumn(name = "useremail", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    private String userEmail;
 
     @PrimaryKeyColumn(name = "id", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     private UUID trackId;

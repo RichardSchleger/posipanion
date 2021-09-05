@@ -13,7 +13,7 @@ public class UserDetails {
     @PrimaryKey
     private UUID id;
 
-    private UUID userId;
+    private String userEmail;
 
     private String firstName;
 
@@ -28,9 +28,9 @@ public class UserDetails {
     public UserDetails() {
     }
 
-    public UserDetails(UUID id, UUID userId, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
+    public UserDetails(UUID id, String userEmail, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
         this.id = id;
-        this.userId = userId;
+        this.userEmail = userEmail;
         this.firstName = firstName;
         this.surname = surname;
         this.fcmTokens = fcmTokens;
@@ -46,12 +46,12 @@ public class UserDetails {
         this.id = id;
     }
 
-    public UUID getUserId() {
-        return this.userId;
+    public String getUserEmail() {
+        return this.userEmail;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getFirstName() {
@@ -99,8 +99,8 @@ public class UserDetails {
         return this;
     }
 
-    public UserDetails userId(UUID userId) {
-        setUserId(userId);
+    public UserDetails userEmail(String userEmail) {
+        setUserEmail(userEmail);
         return this;
     }
 
@@ -137,19 +137,19 @@ public class UserDetails {
             return false;
         }
         UserDetails userDetails = (UserDetails) o;
-        return Objects.equals(id, userDetails.id) && Objects.equals(userId, userDetails.userId) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
+        return Objects.equals(id, userDetails.id) && Objects.equals(userEmail, userDetails.userEmail) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
+        return Objects.hash(id, userEmail, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
     }
 
     @Override
     public String toString() {
         return "{" +
             " id='" + getId() + "'" +
-            ", userId='" + getUserId() + "'" +
+            ", userEmail='" + getUserEmail() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
             ", fcmTokens='" + getFcmTokens() + "'" +
