@@ -1,6 +1,14 @@
 package sk.richardschleger.posipanion.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.Notification;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +26,6 @@ import sk.richardschleger.posipanion.entities.UserDetails;
 import sk.richardschleger.posipanion.keys.TrackKey;
 import sk.richardschleger.posipanion.keys.TrackPointKey;
 import sk.richardschleger.posipanion.models.LocationModel;
-import sk.richardschleger.posipanion.repositories.TrackPointRepository;
 import sk.richardschleger.posipanion.services.TrackPointService;
 import sk.richardschleger.posipanion.services.TrackService;
 import sk.richardschleger.posipanion.services.UserDetailsService;
@@ -106,6 +113,32 @@ public class UserController {
             trackPointService.saveTrackPoint(trackPoint);
         }
 
+    }
+
+    @PostMapping("/fall")
+    public void fallDetected(@RequestBody LocationModel location){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        List<String> tokens = new ArrayList<>();
+
+        MulticastMessage message = MulticastMessage.builder()
+            .putData("latitude", String.valueOf(location.getLatitude()))
+            .putData("longitude", String.valueOf(location.getLatitude()))
+            .setNotification(Notification.builder()
+                .setTitle("Detekovaný možný pád!")
+                .setBody(email)
+                .build()
+            )
+            .addAllTokens(tokens)
+            .build();
+        try {
+            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+            System.out.println(response.getSuccessCount() + " messages were sent successfully");
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
     }
 
 }
