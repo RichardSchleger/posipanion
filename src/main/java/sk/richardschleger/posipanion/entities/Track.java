@@ -2,45 +2,65 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import sk.richardschleger.posipanion.keys.TrackKey;
-
-@Table
+@Entity
+@Table(name = "tracks")
 public class Track {
-    
-    @PrimaryKey
-    private TrackKey key;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "track_id")
+    private int id;
+
+    @Column(name = "strava_id")
     private long stravaId;
 
     private String name;
 
     private double distance;
 
+    @Column(name = "elevation_gain")
     private double elevationGain;
 
-    private long movingTime;
+    @Column(name = "estimated_moving_time")
+    private long estimatedMovingTime;
+
+    @Column(name = "gpx_path")
+    private String gpxPath;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Track() {
     }
 
-    public Track(TrackKey key, long stravaId, String name, double distance, double elevationGain, long movingTime) {
-        this.key = key;
+    public Track(int id, long stravaId, String name, double distance, double elevationGain, long estimatedMovingTime, String gpxPath, User user) {
+        this.id = id;
         this.stravaId = stravaId;
         this.name = name;
         this.distance = distance;
         this.elevationGain = elevationGain;
-        this.movingTime = movingTime;
+        this.estimatedMovingTime = estimatedMovingTime;
+        this.gpxPath = gpxPath;
+        this.user = user;
     }
 
-    public TrackKey getKey() {
-        return this.key;
+    public int getId() {
+        return this.id;
     }
 
-    public void setKey(TrackKey key) {
-        this.key = key;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public long getStravaId() {
@@ -75,16 +95,32 @@ public class Track {
         this.elevationGain = elevationGain;
     }
 
-    public long getMovingTime() {
-        return this.movingTime;
+    public long getEstimatedMovingTime() {
+        return this.estimatedMovingTime;
     }
 
-    public void setMovingTime(long movingTime) {
-        this.movingTime = movingTime;
+    public void setEstimatedMovingTime(long estimatedMovingTime) {
+        this.estimatedMovingTime = estimatedMovingTime;
     }
 
-    public Track key(TrackKey key) {
-        setKey(key);
+    public String getGpxPath() {
+        return this.gpxPath;
+    }
+
+    public void setGpxPath(String gpxPath) {
+        this.gpxPath = gpxPath;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Track id(int id) {
+        setId(id);
         return this;
     }
 
@@ -108,8 +144,18 @@ public class Track {
         return this;
     }
 
-    public Track movingTime(long movingTime) {
-        setMovingTime(movingTime);
+    public Track estimatedMovingTime(long estimatedMovingTime) {
+        setEstimatedMovingTime(estimatedMovingTime);
+        return this;
+    }
+
+    public Track gpxPath(String gpxPath) {
+        setGpxPath(gpxPath);
+        return this;
+    }
+
+    public Track user(User user) {
+        setUser(user);
         return this;
     }
 
@@ -121,23 +167,25 @@ public class Track {
             return false;
         }
         Track track = (Track) o;
-        return Objects.equals(key, track.key) && stravaId == track.stravaId && Objects.equals(name, track.name) && distance == track.distance && elevationGain == track.elevationGain && movingTime == track.movingTime;
+        return id == track.id && stravaId == track.stravaId && Objects.equals(name, track.name) && distance == track.distance && elevationGain == track.elevationGain && estimatedMovingTime == track.estimatedMovingTime && Objects.equals(gpxPath, track.gpxPath) && Objects.equals(user, track.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, stravaId, name, distance, elevationGain, movingTime);
+        return Objects.hash(id, stravaId, name, distance, elevationGain, estimatedMovingTime, gpxPath, user);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " key='" + getKey() + "'" +
+            " id='" + getId() + "'" +
             ", stravaId='" + getStravaId() + "'" +
             ", name='" + getName() + "'" +
             ", distance='" + getDistance() + "'" +
             ", elevationGain='" + getElevationGain() + "'" +
-            ", movingTime='" + getMovingTime() + "'" +
+            ", estimatedMovingTime='" + getEstimatedMovingTime() + "'" +
+            ", gpxPath='" + getGpxPath() + "'" +
+            ", user='" + getUser() + "'" +
             "}";
     }
 

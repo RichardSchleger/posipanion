@@ -2,14 +2,22 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-@Table
-public class UserStrava {
+@Entity
+@Table(name = "strava_users")
+public class StravaUser {
     
-    @PrimaryKey
-    private String userEmail;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     private long stravaId;
 
@@ -21,24 +29,29 @@ public class UserStrava {
 
     private boolean stravaUploadActivity;
 
-    public UserStrava() {
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
+
+    public StravaUser() {
     }
 
-    public UserStrava(String userEmail, long stravaId, String stravaAccessToken, long stravaAccessTokenExpiration, String stravaRefreshToken, boolean stravaUploadActivity) {
-        this.userEmail = userEmail;
+    public StravaUser(int id, long stravaId, String stravaAccessToken, long stravaAccessTokenExpiration, String stravaRefreshToken, boolean stravaUploadActivity, User user) {
+        this.id = id;
         this.stravaId = stravaId;
         this.stravaAccessToken = stravaAccessToken;
         this.stravaAccessTokenExpiration = stravaAccessTokenExpiration;
         this.stravaRefreshToken = stravaRefreshToken;
         this.stravaUploadActivity = stravaUploadActivity;
+        this.user = user;
     }
 
-    public String getUserEmail() {
-        return this.userEmail;
+    public int getId() {
+        return this.id;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public long getStravaId() {
@@ -85,33 +98,46 @@ public class UserStrava {
         this.stravaUploadActivity = stravaUploadActivity;
     }
 
-    public UserStrava userEmail(String userEmail) {
-        setUserEmail(userEmail);
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public StravaUser id(int id) {
+        setId(id);
         return this;
     }
 
-    public UserStrava stravaId(long stravaId) {
+    public StravaUser stravaId(long stravaId) {
         setStravaId(stravaId);
         return this;
     }
 
-    public UserStrava stravaAccessToken(String stravaAccessToken) {
+    public StravaUser stravaAccessToken(String stravaAccessToken) {
         setStravaAccessToken(stravaAccessToken);
         return this;
     }
 
-    public UserStrava stravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
+    public StravaUser stravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
         setStravaAccessTokenExpiration(stravaAccessTokenExpiration);
         return this;
     }
 
-    public UserStrava stravaRefreshToken(String stravaRefreshToken) {
+    public StravaUser stravaRefreshToken(String stravaRefreshToken) {
         setStravaRefreshToken(stravaRefreshToken);
         return this;
     }
 
-    public UserStrava stravaUploadActivity(boolean stravaUploadActivity) {
+    public StravaUser stravaUploadActivity(boolean stravaUploadActivity) {
         setStravaUploadActivity(stravaUploadActivity);
+        return this;
+    }
+
+    public StravaUser user(User user) {
+        setUser(user);
         return this;
     }
 
@@ -119,27 +145,28 @@ public class UserStrava {
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof UserStrava)) {
+        if (!(o instanceof StravaUser)) {
             return false;
         }
-        UserStrava userStrava = (UserStrava) o;
-        return Objects.equals(userEmail, userStrava.userEmail) && stravaId == userStrava.stravaId && Objects.equals(stravaAccessToken, userStrava.stravaAccessToken) && stravaAccessTokenExpiration == userStrava.stravaAccessTokenExpiration && Objects.equals(stravaRefreshToken, userStrava.stravaRefreshToken) && stravaUploadActivity == userStrava.stravaUploadActivity;
+        StravaUser stravaUser = (StravaUser) o;
+        return id == stravaUser.id && stravaId == stravaUser.stravaId && Objects.equals(stravaAccessToken, stravaUser.stravaAccessToken) && stravaAccessTokenExpiration == stravaUser.stravaAccessTokenExpiration && Objects.equals(stravaRefreshToken, stravaUser.stravaRefreshToken) && stravaUploadActivity == stravaUser.stravaUploadActivity && Objects.equals(user, stravaUser.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userEmail, stravaId, stravaAccessToken, stravaAccessTokenExpiration, stravaRefreshToken, stravaUploadActivity);
+        return Objects.hash(id, stravaId, stravaAccessToken, stravaAccessTokenExpiration, stravaRefreshToken, stravaUploadActivity, user);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " userEmail='" + getUserEmail() + "'" +
+            " id='" + getId() + "'" +
             ", stravaId='" + getStravaId() + "'" +
             ", stravaAccessToken='" + getStravaAccessToken() + "'" +
             ", stravaAccessTokenExpiration='" + getStravaAccessTokenExpiration() + "'" +
             ", stravaRefreshToken='" + getStravaRefreshToken() + "'" +
             ", stravaUploadActivity='" + isStravaUploadActivity() + "'" +
+            ", user='" + getUser() + "'" +
             "}";
     }
 

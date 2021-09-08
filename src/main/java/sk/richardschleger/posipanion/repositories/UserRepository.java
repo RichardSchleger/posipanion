@@ -1,9 +1,13 @@
 package sk.richardschleger.posipanion.repositories;
 
-import org.springframework.data.cassandra.repository.CassandraRepository;
+import java.util.Optional;
+
+import org.springframework.data.repository.CrudRepository;
 
 import sk.richardschleger.posipanion.entities.User;
 
-public interface UserRepository extends CassandraRepository<User, String>{
+public interface UserRepository extends CrudRepository<User, Integer> {
+    
+    Optional<User> findByEmail(String email);
 
 }

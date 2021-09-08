@@ -2,45 +2,54 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-@Table
+@Entity
+@Table(name = "user_details")
 public class UserDetails {
     
-    @PrimaryKey
-    private String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
+    @Column(name = "first_name")
     private String firstName;
 
     private String surname;
 
+    @Column(name = "fcm_tokens")
     private Set<String> fcmTokens;
 
-    private UUID currentTrackId;
-
-    private UUID selectedTrackId;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
 
     public UserDetails() {
     }
 
-    public UserDetails(String email, String firstName, String surname, Set<String> fcmTokens, UUID currentTrackId, UUID selectedTrackId) {
-        this.email = email;
+    public UserDetails(int id, String firstName, String surname, Set<String> fcmTokens, User user) {
+        this.id = id;
         this.firstName = firstName;
         this.surname = surname;
         this.fcmTokens = fcmTokens;
-        this.currentTrackId = currentTrackId;
-        this.selectedTrackId = selectedTrackId;
+        this.user = user;
     }
 
-    public String getEmail() {
-        return this.email;
+    public int getId() {
+        return this.id;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -67,24 +76,16 @@ public class UserDetails {
         this.fcmTokens = fcmTokens;
     }
 
-    public UUID getCurrentTrackId() {
-        return this.currentTrackId;
+    public User getUser() {
+        return this.user;
     }
 
-    public void setCurrentTrackId(UUID currentTrackId) {
-        this.currentTrackId = currentTrackId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public UUID getSelectedTrackId() {
-        return this.selectedTrackId;
-    }
-
-    public void setSelectedTrackId(UUID selectedTrackId) {
-        this.selectedTrackId = selectedTrackId;
-    }
-
-    public UserDetails email(String email) {
-        setEmail(email);
+    public UserDetails id(int id) {
+        setId(id);
         return this;
     }
 
@@ -103,13 +104,8 @@ public class UserDetails {
         return this;
     }
 
-    public UserDetails currentTrackId(UUID currentTrackId) {
-        setCurrentTrackId(currentTrackId);
-        return this;
-    }
-
-    public UserDetails selectedTrackId(UUID selectedTrackId) {
-        setSelectedTrackId(selectedTrackId);
+    public UserDetails user(User user) {
+        setUser(user);
         return this;
     }
 
@@ -121,23 +117,22 @@ public class UserDetails {
             return false;
         }
         UserDetails userDetails = (UserDetails) o;
-        return Objects.equals(email, userDetails.email) && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(currentTrackId, userDetails.currentTrackId) && Objects.equals(selectedTrackId, userDetails.selectedTrackId);
+        return id == userDetails.id && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(user, userDetails.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email, firstName, surname, fcmTokens, currentTrackId, selectedTrackId);
+        return Objects.hash(id, firstName, surname, fcmTokens, user);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " email='" + getEmail() + "'" +
+            " id='" + getId() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
             ", fcmTokens='" + getFcmTokens() + "'" +
-            ", currentTrackId='" + getCurrentTrackId() + "'" +
-            ", selectedTrackId='" + getSelectedTrackId() + "'" +
+            ", user='" + getUser() + "'" +
             "}";
     }
 

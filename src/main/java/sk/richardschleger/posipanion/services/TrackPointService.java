@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import sk.richardschleger.posipanion.entities.TrackPoint;
+import sk.richardschleger.posipanion.entities.CurrentTrackPoint;
 import sk.richardschleger.posipanion.repositories.TrackPointRepository;
 
 @Service
@@ -20,7 +20,7 @@ public class TrackPointService {
         return trackPointRepository.countByTrackId(trackId);
     }
 
-    public void saveTrackPoint(TrackPoint trackPoint){
+    public void saveTrackPoint(CurrentTrackPoint trackPoint){
         trackPointRepository.save(trackPoint);
     }
 }

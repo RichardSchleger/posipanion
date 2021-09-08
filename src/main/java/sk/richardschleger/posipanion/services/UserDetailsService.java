@@ -14,8 +14,8 @@ public class UserDetailsService {
         this.userDetailsRepository = userDetailsRepository;
     }
 
-    public UserDetails getUserDetailsByEmail(String email){
-        return userDetailsRepository.findById(email).orElse(null);
+    public UserDetails getUserDetailsByUserId(int id){
+        return userDetailsRepository.findByUserId(id).orElse(null);
     }
 
     public void saveUserDetails(UserDetails userDetails){

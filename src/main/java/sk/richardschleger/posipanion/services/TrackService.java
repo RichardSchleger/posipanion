@@ -16,7 +16,7 @@ public class TrackService {
         this.trackRepository = trackRepository;
     }
 
-    public Track getTrackById(UUID id){
+    public Track getTrackById(int id){
         return trackRepository.findById(id).orElse(null);
     }
 

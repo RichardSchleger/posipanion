@@ -21,29 +21,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import sk.richardschleger.posipanion.entities.Track;
-import sk.richardschleger.posipanion.entities.TrackPoint;
+import sk.richardschleger.posipanion.entities.User;
 import sk.richardschleger.posipanion.entities.UserDetails;
-import sk.richardschleger.posipanion.keys.TrackKey;
 import sk.richardschleger.posipanion.keys.TrackPointKey;
 import sk.richardschleger.posipanion.models.LocationModel;
 import sk.richardschleger.posipanion.services.TrackPointService;
 import sk.richardschleger.posipanion.services.TrackService;
 import sk.richardschleger.posipanion.services.UserDetailsService;
+import sk.richardschleger.posipanion.services.UserService;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
     
+    private final UserService userService;
+
     private final UserDetailsService userDetailsService;
 
     private final TrackService trackService;
 
     private final TrackPointService trackPointService;
 
-    public UserController(UserDetailsService userDetailsService,
-                          TrackService trackService,
-                          TrackPointService trackPointService){
+    public UserController(UserService userService, 
+                          UserDetailsService userDetailsService, 
+                          TrackService trackService, 
+                          TrackPointService trackPointService) {
+        this.userService = userService;
         this.userDetailsService = userDetailsService;
         this.trackService = trackService;
         this.trackPointService = trackPointService;
@@ -52,22 +56,10 @@ public class UserController {
     @PutMapping("/start/{id}")
     public void startExistingTrack(@PathVariable("id") UUID trackId){
         if(trackId != null){
-            if(trackService.getTrackById(trackId) != null){
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                String email = authentication.getName();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = userService.getUserByEmail(authentication.getName());
+            if(user != null){
         
-                UserDetails userDetails = userDetailsService.getUserDetailsByEmail(email);
-                userDetails.setSelectedTrackId(trackId);
-
-                UUID uuid = UUID.randomUUID();
-                Track currentTrack = new Track();
-                TrackKey key = new TrackKey(email, uuid);
-                currentTrack.setKey(key);
-
-                userDetails.currentTrackId(uuid);
-
-                trackService.saveTrack(currentTrack);
-                userDetailsService.saveUserDetails(userDetails);
             }
         }
     }
@@ -76,42 +68,14 @@ public class UserController {
     public void startNewTrack(){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        UserDetails userDetails = userDetailsService.getUserDetailsByEmail(email);
-
-        UUID uuid = UUID.randomUUID();
-        Track currentTrack = new Track();
-        TrackKey key = new TrackKey(email, uuid);
-        currentTrack.setKey(key);
-
-        userDetails.currentTrackId(uuid);
-
-        trackService.saveTrack(currentTrack);
-        userDetailsService.saveUserDetails(userDetails);
-
+        User user = userService.getUserByEmail(authentication.getName());
+        if(user != null){
+    
+        }
     }
 
     @PostMapping("/location")
     public void saveLocation(@RequestBody LocationModel location){
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        UserDetails userDetails = userDetailsService.getUserDetailsByEmail(email);
-
-        Track track = trackService.getTrackById(userDetails.getCurrentTrackId());
-        if(track != null){
-            UUID uuid = UUID.randomUUID();
-            TrackPointKey key = new TrackPointKey(userDetails.getCurrentTrackId(), uuid);
-            TrackPoint trackPoint = new TrackPoint();
-            trackPoint.setKey(key);
-            trackPoint.setLatitude(location.getLatitude());
-            trackPoint.setLongitude(location.getLongitude());
-            trackPoint.setElevation(location.getElevation());
-            trackPoint.setOrder(trackPointService.getNumberOfPointsForTrackId(userDetails.getCurrentTrackId()));
-            trackPointService.saveTrackPoint(trackPoint);
-        }
 
     }
 
