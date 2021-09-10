@@ -1,7 +1,5 @@
 package sk.richardschleger.posipanion.services;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 
 import sk.richardschleger.posipanion.entities.Track;
