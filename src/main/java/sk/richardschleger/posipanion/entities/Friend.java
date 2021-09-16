@@ -2,47 +2,48 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 
-import javax.persistence.EmbeddedId;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import sk.richardschleger.posipanion.keys.UserUserId;
 
 @Entity
 @Table(name = "friends")
-public class Friends {
+public class Friend {
     
-    @EmbeddedId
-    private UserUserId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("user1_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user1_id", referencedColumnName = "user_id")
     private User user1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("user2_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user2_id", referencedColumnName = "user_id")
     private User user2;
 
     private boolean confirmed;
 
-    public Friends() {
+    public Friend() {
     }
 
-    public Friends(UserUserId id, User user1, User user2, boolean confirmed) {
+    public Friend(int id, User user1, User user2, boolean confirmed) {
         this.id = id;
         this.user1 = user1;
         this.user2 = user2;
         this.confirmed = confirmed;
     }
 
-    public UserUserId getId() {
+    public int getId() {
         return this.id;
     }
 
-    public void setId(UserUserId id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -74,22 +75,22 @@ public class Friends {
         this.confirmed = confirmed;
     }
 
-    public Friends id(UserUserId id) {
+    public Friend id(int id) {
         setId(id);
         return this;
     }
 
-    public Friends user1(User user1) {
+    public Friend user1(User user1) {
         setUser1(user1);
         return this;
     }
 
-    public Friends user2(User user2) {
+    public Friend user2(User user2) {
         setUser2(user2);
         return this;
     }
 
-    public Friends confirmed(boolean confirmed) {
+    public Friend confirmed(boolean confirmed) {
         setConfirmed(confirmed);
         return this;
     }
@@ -98,11 +99,11 @@ public class Friends {
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof Friends)) {
+        if (!(o instanceof Friend)) {
             return false;
         }
-        Friends userFriend = (Friends) o;
-        return Objects.equals(id, userFriend.id) && Objects.equals(user1, userFriend.user1) && Objects.equals(user2, userFriend.user2) && confirmed == userFriend.confirmed;
+        Friend friend = (Friend) o;
+        return id == friend.id && Objects.equals(user1, friend.user1) && Objects.equals(user2, friend.user2) && confirmed == friend.confirmed;
     }
 
     @Override

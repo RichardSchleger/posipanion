@@ -1,5 +1,7 @@
 package sk.richardschleger.posipanion.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import sk.richardschleger.posipanion.entities.CurrentTrackPoint;
@@ -20,5 +22,13 @@ public class TrackPointService {
         key.setOrder(trackPointRepository.countByUserId(trackPoint.getKey().getUserId()));
         trackPoint.setKey(key);
         trackPointRepository.save(trackPoint);
+    }
+
+    public void removeTrackPointsForUserId(int id){
+        trackPointRepository.deleteByUserId(id);
+    }
+
+    public List<CurrentTrackPoint> getTrackPointsForUserId(int id){
+        return trackPointRepository.findByUserId(id);
     }
 }

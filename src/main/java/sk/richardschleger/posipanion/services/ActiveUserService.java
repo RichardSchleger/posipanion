@@ -21,4 +21,14 @@ public class ActiveUserService {
         activeUserRepository.save(user);
     }
 
+    @Transactional
+    public ActiveUser getActiveUserByUserId(int id){
+        return activeUserRepository.findByUserId(id).orElse(null);
+    }
+
+    @Transactional
+    public void removeActiveUser(ActiveUser user){
+        activeUserRepository.delete(user);
+    }
+
 }
