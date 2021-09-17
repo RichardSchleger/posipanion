@@ -17,6 +17,7 @@ import com.google.firebase.messaging.Notification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,17 +28,23 @@ import org.springframework.web.bind.annotation.RestController;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.TrackSegment;
 import io.jenetics.jpx.WayPoint;
+import sk.richardschleger.posipanion.comparators.FriendModelComparator;
 import sk.richardschleger.posipanion.comparators.TrackPointComparator;
 import sk.richardschleger.posipanion.entities.ActiveUser;
 import sk.richardschleger.posipanion.entities.CurrentTrackPoint;
+import sk.richardschleger.posipanion.entities.Friend;
 import sk.richardschleger.posipanion.entities.Track;
 import sk.richardschleger.posipanion.entities.User;
+import sk.richardschleger.posipanion.entities.UserDetails;
 import sk.richardschleger.posipanion.keys.TrackPointKey;
+import sk.richardschleger.posipanion.models.FriendModel;
 import sk.richardschleger.posipanion.models.LocationModel;
 import sk.richardschleger.posipanion.models.SaveTrackModel;
 import sk.richardschleger.posipanion.services.ActiveUserService;
+import sk.richardschleger.posipanion.services.FriendService;
 import sk.richardschleger.posipanion.services.TrackPointService;
 import sk.richardschleger.posipanion.services.TrackService;
+import sk.richardschleger.posipanion.services.UserDetailsService;
 import sk.richardschleger.posipanion.services.UserService;
 
 @CrossOrigin
@@ -53,14 +60,22 @@ public class UserController {
 
     private final ActiveUserService activeUserService;
 
+    private final FriendService friendService;
+
+    private final UserDetailsService userDetailsService;
+
     public UserController(UserService userService, 
                           TrackService trackService, 
                           TrackPointService trackPointService,
-                          ActiveUserService activeUserService) {
+                          ActiveUserService activeUserService,
+                          FriendService friendService,
+                          UserDetailsService userDetailsService) {
         this.userService = userService;
         this.trackService = trackService;
         this.trackPointService = trackPointService;
         this.activeUserService = activeUserService;
+        this.friendService = friendService;
+        this.userDetailsService = userDetailsService;
     }
 
     @PutMapping("/start/{id}")
@@ -227,6 +242,38 @@ public class UserController {
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
+    }
+
+    @GetMapping("/friends")
+    public List<FriendModel> getListOfFriends(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+        List<FriendModel> friendModelList = new ArrayList<>();
+        List<Friend> friends = friendService.getFriendsByUserId(user.getId());
+        for (Friend friend : friends) {
+            UserDetails userDetails = null;
+            ActiveUser activeUser = null;
+            if(friend.getUser1().equals(user)){
+                userDetails = userDetailsService.getUserDetailsByUserId(friend.getUser2().getId());
+                activeUser = activeUserService.getActiveUserByUserId(friend.getUser2().getId());
+            }else{
+                userDetails = userDetailsService.getUserDetailsByUserId(friend.getUser2().getId());
+                activeUser = activeUserService.getActiveUserByUserId(friend.getUser2().getId());
+            }
+            FriendModel friendModel = new FriendModel();
+            friendModel.setFirstName(userDetails.getFirstName());
+            friendModel.setSurname(userDetails.getSurname());
+            if(activeUser != null){
+                friendModel.setLastKnownLatitude(activeUser.getLastKnownLatitude());
+                friendModel.setLastKnownLongitude(activeUser.getLastKnownLongitude());
+            }
+            friendModelList.add(friendModel);
+        }
+        Collections.sort(friendModelList, new FriendModelComparator());
+
+        return friendModelList;
     }
 
 }
