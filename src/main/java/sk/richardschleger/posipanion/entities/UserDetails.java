@@ -1,7 +1,6 @@
 package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -26,9 +26,6 @@ public class UserDetails {
 
     private String surname;
 
-    @Column(name = "fcm_tokens")
-    private Set<String> fcmTokens;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
@@ -36,11 +33,10 @@ public class UserDetails {
     public UserDetails() {
     }
 
-    public UserDetails(int id, String firstName, String surname, Set<String> fcmTokens, User user) {
+    public UserDetails(int id, String firstName, String surname, User user) {
         this.id = id;
         this.firstName = firstName;
         this.surname = surname;
-        this.fcmTokens = fcmTokens;
         this.user = user;
     }
 
@@ -68,14 +64,6 @@ public class UserDetails {
         this.surname = surname;
     }
 
-    public Set<String> getFcmTokens() {
-        return this.fcmTokens;
-    }
-
-    public void setFcmTokens(Set<String> fcmTokens) {
-        this.fcmTokens = fcmTokens;
-    }
-
     public User getUser() {
         return this.user;
     }
@@ -99,11 +87,6 @@ public class UserDetails {
         return this;
     }
 
-    public UserDetails fcmTokens(Set<String> fcmTokens) {
-        setFcmTokens(fcmTokens);
-        return this;
-    }
-
     public UserDetails user(User user) {
         setUser(user);
         return this;
@@ -117,12 +100,12 @@ public class UserDetails {
             return false;
         }
         UserDetails userDetails = (UserDetails) o;
-        return id == userDetails.id && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(fcmTokens, userDetails.fcmTokens) && Objects.equals(user, userDetails.user);
+        return id == userDetails.id && Objects.equals(firstName, userDetails.firstName) && Objects.equals(surname, userDetails.surname) && Objects.equals(user, userDetails.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, surname, fcmTokens, user);
+        return Objects.hash(id, firstName, surname, user);
     }
 
     @Override
@@ -131,7 +114,6 @@ public class UserDetails {
             " id='" + getId() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
-            ", fcmTokens='" + getFcmTokens() + "'" +
             ", user='" + getUser() + "'" +
             "}";
     }

@@ -10,10 +10,10 @@ import sk.richardschleger.posipanion.keys.TrackPointKey;
 
 public interface TrackPointRepository extends CassandraRepository<CurrentTrackPoint, TrackPointKey> {
 
-    int countByUserId(@Param("user_id") int userId);
+    int countByKeyUserId(@Param("user_id") int userId);
 
-    List<CurrentTrackPoint> findByUserId(@Param("user_id") int userId);
+    List<CurrentTrackPoint> findByKeyUserId(@Param("user_id") int userId);
 
-    long deleteByUserId(@Param("user_id") int userId);
+    long deleteByKeyUserId(@Param("user_id") int userId);
 
 }
