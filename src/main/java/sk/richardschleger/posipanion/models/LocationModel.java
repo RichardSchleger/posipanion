@@ -10,13 +10,16 @@ public class LocationModel {
 
     private double elevation;
 
+    private long timestamp;
+
     public LocationModel() {
     }
 
-    public LocationModel(double latitude, double longitude, double elevation) {
+    public LocationModel(double latitude, double longitude, double elevation, long timestamp) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.elevation = elevation;
+        this.timestamp = timestamp;
     }
 
     public double getLatitude() {
@@ -43,6 +46,14 @@ public class LocationModel {
         this.elevation = elevation;
     }
 
+    public long getTimestamp() {
+        return this.timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public LocationModel latitude(double latitude) {
         setLatitude(latitude);
         return this;
@@ -58,6 +69,11 @@ public class LocationModel {
         return this;
     }
 
+    public LocationModel timestamp(long timestamp) {
+        setTimestamp(timestamp);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -66,12 +82,12 @@ public class LocationModel {
             return false;
         }
         LocationModel locationModel = (LocationModel) o;
-        return latitude == locationModel.latitude && longitude == locationModel.longitude && elevation == locationModel.elevation;
+        return latitude == locationModel.latitude && longitude == locationModel.longitude && elevation == locationModel.elevation && timestamp == locationModel.timestamp;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(latitude, longitude, elevation);
+        return Objects.hash(latitude, longitude, elevation, timestamp);
     }
 
     @Override
@@ -80,7 +96,8 @@ public class LocationModel {
             " latitude='" + getLatitude() + "'" +
             ", longitude='" + getLongitude() + "'" +
             ", elevation='" + getElevation() + "'" +
+            ", timestamp='" + getTimestamp() + "'" +
             "}";
     }
-    
+
 }

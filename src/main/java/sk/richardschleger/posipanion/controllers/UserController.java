@@ -98,7 +98,12 @@ public class UserController {
                 trackPoint.setLatitude(location.getLatitude());
                 trackPoint.setLongitude(location.getLongitude());
                 trackPoint.setElevation(location.getElevation());
-                trackPoint.setTimestamp(new Date().getTime());
+                if(location.getTimestamp() != 0){
+                    trackPoint.setTimestamp(location.getTimestamp());
+                }else{
+                    trackPoint.setTimestamp(new Date().getTime());
+                }
+                
                 trackPointService.saveTrackPoint(trackPoint);
             }
         }
@@ -122,7 +127,11 @@ public class UserController {
             trackPoint.setLatitude(location.getLatitude());
             trackPoint.setLongitude(location.getLongitude());
             trackPoint.setElevation(location.getElevation());
-            trackPoint.setTimestamp(new Date().getTime());
+            if(location.getTimestamp() != 0){
+                trackPoint.setTimestamp(location.getTimestamp());
+            }else{
+                trackPoint.setTimestamp(new Date().getTime());
+            }
             trackPointService.saveTrackPoint(trackPoint);
         }
     }
@@ -213,7 +222,11 @@ public class UserController {
             trackPoint.setLatitude(location.getLatitude());
             trackPoint.setLongitude(location.getLongitude());
             trackPoint.setElevation(location.getElevation());
-            trackPoint.setTimestamp(new Date().getTime());
+            if(location.getTimestamp() != 0){
+                trackPoint.setTimestamp(location.getTimestamp());
+            }else{
+                trackPoint.setTimestamp(new Date().getTime());
+            }
             trackPointService.saveTrackPoint(trackPoint);
         }
     }
@@ -270,6 +283,38 @@ public class UserController {
                 friendModel.setLastKnownLongitude(activeUser.getLastKnownLongitude());
             }
             friendModelList.add(friendModel);
+        }
+        Collections.sort(friendModelList, new FriendModelComparator());
+
+        return friendModelList;
+    }
+
+    @GetMapping("/friends/active")
+    public List<FriendModel> getListOfActiveFriends(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+        List<FriendModel> friendModelList = new ArrayList<>();
+        List<Friend> friends = friendService.getFriendsByUserId(user.getId());
+        for (Friend friend : friends) {
+            UserDetails userDetails = null;
+            ActiveUser activeUser = null;
+            if(friend.getUser1().equals(user)){
+                userDetails = userDetailsService.getUserDetailsByUserId(friend.getUser2().getId());
+                activeUser = activeUserService.getActiveUserByUserId(friend.getUser2().getId());
+            }else{
+                userDetails = userDetailsService.getUserDetailsByUserId(friend.getUser2().getId());
+                activeUser = activeUserService.getActiveUserByUserId(friend.getUser2().getId());
+            }
+            if(activeUser != null){
+                FriendModel friendModel = new FriendModel();
+                friendModel.setFirstName(userDetails.getFirstName());
+                friendModel.setSurname(userDetails.getSurname());
+                friendModel.setLastKnownLatitude(activeUser.getLastKnownLatitude());
+                friendModel.setLastKnownLongitude(activeUser.getLastKnownLongitude());
+                friendModelList.add(friendModel);
+            }
         }
         Collections.sort(friendModelList, new FriendModelComparator());
 
