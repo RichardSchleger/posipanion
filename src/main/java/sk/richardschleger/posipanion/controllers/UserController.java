@@ -33,15 +33,18 @@ import sk.richardschleger.posipanion.comparators.TrackPointComparator;
 import sk.richardschleger.posipanion.entities.ActiveUser;
 import sk.richardschleger.posipanion.entities.CurrentTrackPoint;
 import sk.richardschleger.posipanion.entities.Friend;
+import sk.richardschleger.posipanion.entities.StravaUser;
 import sk.richardschleger.posipanion.entities.Track;
 import sk.richardschleger.posipanion.entities.User;
 import sk.richardschleger.posipanion.entities.UserDetails;
 import sk.richardschleger.posipanion.keys.TrackPointKey;
 import sk.richardschleger.posipanion.models.FriendModel;
 import sk.richardschleger.posipanion.models.LocationModel;
+import sk.richardschleger.posipanion.models.ProfileModel;
 import sk.richardschleger.posipanion.models.SaveTrackModel;
 import sk.richardschleger.posipanion.services.ActiveUserService;
 import sk.richardschleger.posipanion.services.FriendService;
+import sk.richardschleger.posipanion.services.StravaUserService;
 import sk.richardschleger.posipanion.services.TrackPointService;
 import sk.richardschleger.posipanion.services.TrackService;
 import sk.richardschleger.posipanion.services.UserDetailsService;
@@ -64,18 +67,22 @@ public class UserController {
 
     private final UserDetailsService userDetailsService;
 
+    private final StravaUserService stravaUserService;
+
     public UserController(UserService userService, 
                           TrackService trackService, 
                           TrackPointService trackPointService,
                           ActiveUserService activeUserService,
                           FriendService friendService,
-                          UserDetailsService userDetailsService) {
+                          UserDetailsService userDetailsService,
+                          StravaUserService stravaUserService) {
         this.userService = userService;
         this.trackService = trackService;
         this.trackPointService = trackPointService;
         this.activeUserService = activeUserService;
         this.friendService = friendService;
         this.userDetailsService = userDetailsService;
+        this.stravaUserService = stravaUserService;
     }
 
     @PutMapping("/start/{id}")
@@ -319,6 +326,49 @@ public class UserController {
         Collections.sort(friendModelList, new FriendModelComparator());
 
         return friendModelList;
+    }
+
+    @GetMapping("/profile")
+    public ProfileModel getProfile(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+        UserDetails userDetails = userDetailsService.getUserDetailsByUserId(user.getId());
+        StravaUser stravaUser = stravaUserService.getStravaUserByUserId(user.getId());
+
+        ProfileModel profile = new ProfileModel();
+        if(userDetails != null){
+            profile.setFirstName(userDetails.getFirstName());
+            profile.setSurname(userDetails.getSurname());
+        }
+        if(stravaUser != null){
+            profile.setStravaId(stravaUser.getStravaId());
+            profile.setStravaUploadActivity(stravaUser.getStravaUploadActivity());
+        }
+
+        return profile;
+    }
+
+    @PostMapping("/profile")
+    public void saveProfile(@RequestBody ProfileModel profile){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+        UserDetails userDetails = userDetailsService.getUserDetailsByUserId(user.getId());
+        StravaUser stravaUser = stravaUserService.getStravaUserByUserId(user.getId());
+
+        if(userDetails == null) userDetails = new UserDetails();
+        userDetails.setFirstName(profile.getFirstName());
+        userDetails.setSurname(profile.getSurname());
+        userDetailsService.saveUserDetails(userDetails);
+
+        if(stravaUser != null){
+            stravaUser.setStravaUploadActivity(profile.getStravaUploadActivity());
+            stravaUserService.saveStravaUser(stravaUser);
+        }
+
     }
 
 }

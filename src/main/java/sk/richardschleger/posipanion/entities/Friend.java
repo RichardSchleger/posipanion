@@ -20,11 +20,11 @@ public class Friend {
     private int id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user1_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user1_id", referencedColumnName = "id")
     private User user1;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user2_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user2_id", referencedColumnName = "id")
     private User user2;
 
     private boolean confirmed;
