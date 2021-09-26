@@ -1,6 +1,7 @@
 package sk.richardschleger.posipanion.controllers;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,11 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.jenetics.jpx.GPX;
+import io.jenetics.jpx.Length;
 import io.jenetics.jpx.TrackSegment;
 import io.jenetics.jpx.WayPoint;
+import io.jenetics.jpx.Length.Unit;
 import sk.richardschleger.posipanion.comparators.FriendModelComparator;
 import sk.richardschleger.posipanion.comparators.TrackPointComparator;
 import sk.richardschleger.posipanion.entities.ActiveUser;
@@ -367,6 +372,60 @@ public class UserController {
         if(stravaUser != null){
             stravaUser.setStravaUploadActivity(profile.getStravaUploadActivity());
             stravaUserService.saveStravaUser(stravaUser);
+        }
+
+    }
+
+    @PostMapping("/uploadFile")
+    public void uploadFile(@RequestParam("file") MultipartFile file) {
+
+        try {
+            
+            GPX gpx = GPX.reader().read(file.getInputStream());
+            List<WayPoint> wayPoints = new ArrayList<>();
+            wayPoints = gpx.getTracks().get(0).getSegments().get(0).getPoints();
+            double ele = 0;
+            double dist = 0;
+            if(wayPoints.size() > 0){
+                final int R = 6371;
+                WayPoint lastPoint = null;
+                for (WayPoint wayPoint : wayPoints) {
+                    if(lastPoint != null){
+                        double latDistance = Math.toRadians(lastPoint.getLatitude().doubleValue() - wayPoint.getLatitude().doubleValue());
+                        double lonDistance = Math.toRadians(lastPoint.getLongitude().doubleValue() - wayPoint.getLongitude().doubleValue());
+                        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                                + Math.cos(Math.toRadians(wayPoint.getLongitude().doubleValue())) * Math.cos(Math.toRadians(lastPoint.getLongitude().doubleValue()))
+                                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+                        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        double distance = R * c * 1000; // convert to meters
+
+                        double height = wayPoint.getElevation().get().doubleValue() - lastPoint.getElevation().get().doubleValue();
+
+                        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+                        distance = Math.sqrt(distance);
+
+                        dist += distance;
+                        if(height > 0) ele += height;
+                    }
+                }
+            }
+            String uuid = UUID.randomUUID().toString();
+            String path = "gpx-files/" + uuid + ".gpx";
+            GPX.write(gpx, Paths.get(path).toAbsolutePath().normalize());
+
+            Track newTrack = new Track();
+            newTrack.setDistance(dist);
+            newTrack.setElevationGain(ele);
+            newTrack.setGpxPath(path);
+            newTrack.setName(file.getOriginalFilename());
+            trackService.saveTrack(newTrack);
+
+        } catch (InvalidObjectException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
     }
