@@ -2,16 +2,9 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
-
-import sk.richardschleger.posipanion.keys.TrackPointKey;
-
-@Table
 public class CurrentTrackPoint {
 
-    @PrimaryKey
-    private TrackPointKey key;
+    private int userId;
 
     private double latitude;
 
@@ -24,20 +17,20 @@ public class CurrentTrackPoint {
     public CurrentTrackPoint() {
     }
 
-    public CurrentTrackPoint(TrackPointKey key, double latitude, double longitude, double elevation, long timestamp) {
-        this.key = key;
+    public CurrentTrackPoint(int userId, double latitude, double longitude, double elevation, long timestamp) {
+        this.userId = userId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.elevation = elevation;
         this.timestamp = timestamp;
     }
 
-    public TrackPointKey getKey() {
-        return this.key;
+    public int getUserId() {
+        return this.userId;
     }
 
-    public void setKey(TrackPointKey key) {
-        this.key = key;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public double getLatitude() {
@@ -72,8 +65,8 @@ public class CurrentTrackPoint {
         this.timestamp = timestamp;
     }
 
-    public CurrentTrackPoint key(TrackPointKey key) {
-        setKey(key);
+    public CurrentTrackPoint userId(int userId) {
+        setUserId(userId);
         return this;
     }
 
@@ -105,18 +98,18 @@ public class CurrentTrackPoint {
             return false;
         }
         CurrentTrackPoint currentTrackPoint = (CurrentTrackPoint) o;
-        return Objects.equals(key, currentTrackPoint.key) && latitude == currentTrackPoint.latitude && longitude == currentTrackPoint.longitude && elevation == currentTrackPoint.elevation && timestamp == currentTrackPoint.timestamp;
+        return userId == currentTrackPoint.userId && latitude == currentTrackPoint.latitude && longitude == currentTrackPoint.longitude && elevation == currentTrackPoint.elevation && timestamp == currentTrackPoint.timestamp;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, latitude, longitude, elevation, timestamp);
+        return Objects.hash(userId, latitude, longitude, elevation, timestamp);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " key='" + getKey() + "'" +
+            " userId='" + getUserId() + "'" +
             ", latitude='" + getLatitude() + "'" +
             ", longitude='" + getLongitude() + "'" +
             ", elevation='" + getElevation() + "'" +

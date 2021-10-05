@@ -29,7 +29,7 @@ public class StravaUser {
 
     private boolean stravaUploadActivity;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

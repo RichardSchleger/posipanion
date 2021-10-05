@@ -28,7 +28,6 @@ public class PosipanionApplication {
 	}
 
 	public static void main(String[] args) {
-		System.setProperty("datastax-java-driver.basic.request.timeout", "10 seconds");
 		SpringApplication.run(PosipanionApplication.class, args);
 	}
 
