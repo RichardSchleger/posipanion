@@ -27,7 +27,11 @@ import sk.richardschleger.posipanion.entities.CurrentTrackPoint;
 @PropertySource("influx2.properties")
 public class TrackPointRepositoryImpl implements TrackPointRepository{
 
-    private InfluxDBClient client = InfluxDBClientFactory.create();
+    private InfluxDBClient client;
+
+    private WriteApi writeApi;
+    private DeleteApi deleteApi;
+    private QueryApi queryApi;
 
     @Value("${influx2.bucket}")
     private String bucket;
@@ -37,6 +41,10 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
 
 
     public TrackPointRepositoryImpl() {
+        this.client = InfluxDBClientFactory.create();
+        this.writeApi = client.makeWriteApi();
+        this.deleteApi = client.getDeleteApi();
+        this.queryApi = client.getQueryApi();
     }
 
     @Override
@@ -44,13 +52,14 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
         
         List<CurrentTrackPoint> trackPointList = new ArrayList<>();
 
-        QueryApi queryApi = client.getQueryApi();
-
         String flux = "from(bucket:\"" + bucket + "\") " + 
             "|> range(start: -1mo) " + 
             "|> filter(fn: (r) => " + 
             "r._measurement == \"trackpoints\" and " +
-            "r.userId == " + userId;
+            "r.userId == \"" + userId + "\")" +
+            "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
+
+        
 
         List<FluxTable> tables = queryApi.query(flux);
         for (FluxTable table : tables) {
@@ -78,8 +87,6 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
     @Override
     public void deleteByUserId(int userId) {
 
-        DeleteApi deleteApi = client.getDeleteApi();
-
         DeletePredicateRequest request = new DeletePredicateRequest();
         request.setPredicate("\"_measurement\" = \"trackpoints\" and \"userId\" = \"" + userId + "\"");
         request.setStart(OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.ofHours(0)));
@@ -91,8 +98,6 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
 
     @Override
     public void save(CurrentTrackPoint trackPoint) {
-        
-        WriteApi writeApi = client.makeWriteApi();
         
         Point point = Point
         .measurement("trackpoints")
