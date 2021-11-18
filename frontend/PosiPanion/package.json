@@ -10,10 +10,15 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/react-native-fontawesome": "^0.2.7",
     "react": "17.0.2",
     "react-native": "0.66.0",
-    "react-native-geolocation-service": "^5.3.0-beta.3",
+    "react-native-location": "^2.5.0",
+    "react-native-maps": "^0.29.3",
     "react-native-sensors": "^7.3.3",
+    "react-native-svg": "^12.1.1",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {

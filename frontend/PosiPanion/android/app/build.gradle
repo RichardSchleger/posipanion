@@ -193,6 +193,18 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
+    // For: Better Location
+    // https://github.com/timfpark/react-native-location#3-install-the-google-fused-location-provider-dependency-optional
+    implementation "com.google.android.gms:play-services-base:16.0.1"
+    implementation "com.google.android.gms:play-services-location:16.0.0"
+
+    // For: Background Location NativeModule
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    implementation "com.google.code.gson:gson:2.8.6"
+    // implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.android.support:multidex:1.0.3'
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

@@ -8,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -19,11 +19,11 @@ public class Friend {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user1_id", referencedColumnName = "id")
     private User user1;
 
-    @OneToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user2_id", referencedColumnName = "id")
     private User user2;
 
