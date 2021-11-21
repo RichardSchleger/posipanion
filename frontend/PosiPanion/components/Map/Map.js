@@ -8,6 +8,7 @@ import {useTimingReducer} from './reducer';
 
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import MenuButton from '../MenuButton/MenuButton';
+import Menu from '../Menu/Menu';
 
 RNLocation.configure({
   distanceFilter: 0, // Meters
@@ -45,6 +46,7 @@ export default function Map() {
       <StatusBar barStyle="dark-content" />
       <CurrentLocation state={state} dispatch={dispatch} />
       <MenuButton show={showMenuButton} onPress={onPress} />
+      <Menu show={showMenuButton}></Menu>
     </View>
     // <View style={styles.container}>
     //   <MapView
