@@ -1,19 +1,29 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 import {Animated, Dimensions, StyleSheet} from 'react-native';
+import {first} from 'rxjs';
 
 export default function Menu({show}) {
   useEffect(() => {
-    if (!show) {
-      slideInView();
+    if (show) {
+      slideIntoView();
+    } else {
+      slideOutOfView();
     }
   }, [show]);
 
   const offsetY = useRef(new Animated.Value(0)).current;
 
-  const slideInView = () => {
+  const slideIntoView = () => {
     Animated.timing(offsetY, {
       toValue: -((Dimensions.get('window').height / 3) * 2 - 50),
+      duration: 500,
+    }).start();
+  };
+
+  const slideOutOfView = () => {
+    Animated.timing(offsetY, {
+      toValue: 0,
       duration: 500,
     }).start();
   };

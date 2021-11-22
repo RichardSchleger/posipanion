@@ -6,6 +6,8 @@ import {useLocation} from '../hooks';
 import {AppRegistry, StatusBar, StyleSheet, View} from 'react-native';
 import {useTimingReducer} from './reducer';
 
+import {useBackHandler} from '@react-native-community/hooks';
+
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import MenuButton from '../MenuButton/MenuButton';
 import Menu from '../Menu/Menu';
@@ -34,19 +36,27 @@ export default function Map() {
   const [state, dispatch] = useTimingReducer();
   useLocation(state, dispatch);
 
-  const [showMenuButton, setShowMenuButton] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
   const onPress = e => {
     e.preventDefault();
-    setShowMenuButton(false);
+    setShowMenu(true);
   };
+
+  useBackHandler(() => {
+    if (showMenu) {
+      setShowMenu(false);
+      return true;
+    }
+    return false;
+  });
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <CurrentLocation state={state} dispatch={dispatch} />
-      <MenuButton show={showMenuButton} onPress={onPress} />
-      <Menu show={showMenuButton}></Menu>
+      <MenuButton onPress={onPress} />
+      <Menu show={showMenu}></Menu>
     </View>
     // <View style={styles.container}>
     //   <MapView

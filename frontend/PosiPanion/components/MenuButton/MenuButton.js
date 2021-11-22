@@ -4,11 +4,9 @@ import {Dimensions, StyleSheet, TouchableHighlight, View} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faBars} from '@fortawesome/free-solid-svg-icons';
 
-export default function MenuButton({show, onPress}) {
+export default function MenuButton({onPress}) {
   return (
-    <TouchableHighlight
-      style={[styles.menuButton, {display: show ? 'flex' : 'none'}]}
-      onPress={onPress}>
+    <TouchableHighlight style={styles.menuButton} onPress={onPress}>
       <FontAwesomeIcon icon={faBars} style={styles.icon} size={55} />
     </TouchableHighlight>
   );
