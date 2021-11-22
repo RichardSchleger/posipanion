@@ -1,7 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faCog, faUserFriends} from '@fortawesome/free-solid-svg-icons';
+import {
+  faCog,
+  faUserFriends,
+  faSearch,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   Animated,
@@ -91,6 +95,11 @@ export default function Menu({show}) {
       <Pressable style={[styles.button, styles.button_ride]}>
         <Text style={[styles.button_text]}>JAZDA</Text>
       </Pressable>
+      <FontAwesomeIcon
+        style={[styles.icon, styles.search_icon]}
+        icon={faSearch}
+        size={40}
+      />
       <TextInput style={styles.search_bar} />
       <View style={styles.friends_container}>
         <ScrollView>
@@ -200,6 +209,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#109CF1',
     borderBottomStyle: 'solid',
     borderBottomWidth: 3,
+  },
+
+  search_icon: {
+    position: 'absolute',
+    top: '19%',
+    right: '5%',
   },
 
   friends_container: {
