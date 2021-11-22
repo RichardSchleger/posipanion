@@ -1,6 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-import {Animated, Dimensions, StyleSheet} from 'react-native';
+import {
+  Animated,
+  Button,
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import {first} from 'rxjs';
 
 export default function Menu({show}) {
@@ -29,11 +36,17 @@ export default function Menu({show}) {
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.menu,
-        {transform: [{translateY: offsetY}]},
-      ]}></Animated.View>
+    <Animated.View style={[styles.menu, {transform: [{translateY: offsetY}]}]}>
+      <Pressable
+        style={[styles.button, styles.button_map, styles.button_active]}>
+        <Text style={[styles.button_text, styles.button_text_active]}>
+          MAPA
+        </Text>
+      </Pressable>
+      <Pressable style={[styles.button, styles.button_ride]}>
+        <Text style={[styles.button_text]}>JAZDA</Text>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -49,7 +62,50 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     backgroundColor: '#FFFFFF',
     zIndex: 100,
-    alignItems: 'center',
+    display: 'flex',
+    paddingTop: 30,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+
+  button: {
+    width: '45%',
+    borderColor: '#109CF1',
+    borderStyle: 'solid',
+    borderWidth: 3,
+    backgroundColor: '#FFFFFF',
+    height: '10%',
+    display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+  },
+
+  button_map: {
+    position: 'absolute',
+    left: '5%',
+    top: '4%',
+  },
+
+  button_ride: {
+    position: 'absolute',
+    left: '55%',
+    top: '4%',
+  },
+
+  button_active: {
+    borderColor: '#109CF1',
+    borderStyle: 'solid',
+    borderWidth: 3,
+    backgroundColor: '#109CF1',
+  },
+
+  button_text: {
+    fontSize: 20,
+    color: '#109CF1',
+  },
+
+  button_text_active: {
+    color: '#FFFFFF',
   },
 });
