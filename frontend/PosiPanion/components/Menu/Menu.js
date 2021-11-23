@@ -66,6 +66,8 @@ export default function Menu({show}) {
   ]);
   const [shownFriends, setShownFriends] = useState(friends);
 
+  const [mapMenuShown, setMapMenuShown] = useState(true);
+
   const slideIntoView = () => {
     Animated.timing(offsetY, {
       toValue: -((Dimensions.get('window').height / 3) * 2 - 50),
@@ -101,16 +103,47 @@ export default function Menu({show}) {
     }
   };
 
+  const showMapMenu = e => {
+    e.preventDefault();
+    setMapMenuShown(true);
+  };
+
+  const showRideMenu = e => {
+    e.preventDefault();
+    setMapMenuShown(false);
+  };
+
   return (
     <Animated.View style={[styles.menu, {transform: [{translateY: offsetY}]}]}>
       <Pressable
-        style={[styles.button, styles.button_map, styles.button_active]}>
-        <Text style={[styles.button_text, styles.button_text_active]}>
+        style={[
+          styles.button,
+          styles.button_map,
+          mapMenuShown ? styles.button_active : '',
+        ]}
+        onPress={showMapMenu}>
+        <Text
+          style={[
+            styles.button_text,
+            mapMenuShown ? styles.button_text_active : '',
+          ]}>
           MAPA
         </Text>
       </Pressable>
-      <Pressable style={[styles.button, styles.button_ride]}>
-        <Text style={[styles.button_text]}>JAZDA</Text>
+      <Pressable
+        style={[
+          styles.button,
+          styles.button_ride,
+          mapMenuShown ? '' : styles.button_active,
+        ]}
+        onPress={showRideMenu}>
+        <Text
+          style={[
+            styles.button_text,
+            mapMenuShown ? '' : styles.button_text_active,
+          ]}>
+          JAZDA
+        </Text>
       </Pressable>
       <FontAwesomeIcon
         style={[styles.icon, styles.search_icon]}
