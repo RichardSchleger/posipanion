@@ -35,40 +35,36 @@ export default function Menu({show}) {
   const [friends, setFriends] = useState([
     {
       id: 1,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Richard',
+      surname: 'Schléger',
     },
     {
       id: 2,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Nina',
+      surname: 'Schlégerová',
     },
     {
       id: 3,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Dagmar',
+      surname: 'Schlégerová',
     },
     {
       id: 4,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Miroslav',
+      surname: 'Schléger',
     },
     {
       id: 5,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Jakub',
+      surname: 'Majzlík',
     },
     {
       id: 6,
-      name: 'Name',
-      surname: 'Surname',
-    },
-    {
-      id: 7,
-      name: 'Name',
-      surname: 'Surname',
+      name: 'Jiří',
+      surname: 'Hynek',
     },
   ]);
+  const [shownFriends, setShownFriends] = useState(friends);
 
   const slideIntoView = () => {
     Animated.timing(offsetY, {
@@ -82,6 +78,28 @@ export default function Menu({show}) {
       toValue: 0,
       duration: 500,
     }).start();
+  };
+
+  const filterFriendList = text => {
+    if (text == '') {
+      setShownFriends(friends);
+    } else {
+      setShownFriends(
+        friends.filter(friend =>
+          (friend.name + ' ' + friend.surname)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .includes(
+              text
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, ''),
+            ),
+        ),
+      );
+    }
+    console.log(text);
   };
 
   return (
@@ -100,10 +118,13 @@ export default function Menu({show}) {
         icon={faSearch}
         size={40}
       />
-      <TextInput style={styles.search_bar} />
+      <TextInput
+        style={styles.search_bar}
+        onChangeText={text => filterFriendList(text)}
+      />
       <View style={styles.friends_container}>
         <ScrollView>
-          {friends.map(friend => (
+          {shownFriends.map(friend => (
             <View style={styles.friend_container}>
               <Text>
                 {friend.id + ' ' + friend.name + ' ' + friend.surname}
