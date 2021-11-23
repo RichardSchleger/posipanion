@@ -99,7 +99,6 @@ export default function Menu({show}) {
         ),
       );
     }
-    console.log(text);
   };
 
   return (
@@ -230,6 +229,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#109CF1',
     borderBottomStyle: 'solid',
     borderBottomWidth: 3,
+    color: '#109CF1',
+    fontSize: 24,
+    paddingBottom: 5,
   },
 
   search_icon: {
