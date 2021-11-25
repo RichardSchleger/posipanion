@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import type {Node} from 'react';
 
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -23,6 +24,8 @@ import FallDetector from './components/FallDetector';
 import Map from './components/Map/Map';
 import {useTimingReducer} from './components/Map/reducer';
 import {useLocation} from './components/hooks';
+
+import messaging from '@react-native-firebase/messaging';
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -53,6 +56,14 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const [state, dispatch] = useTimingReducer();
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+
+    return unsubscribe;
+  }, []);
 
   useLocation(state, dispatch);
 
