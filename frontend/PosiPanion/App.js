@@ -25,6 +25,9 @@ import Map from './components/Map/Map';
 import {useTimingReducer} from './components/Map/reducer';
 import {useLocation} from './components/hooks';
 
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import PushNotification from 'react-native-push-notification';
+import Firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 
 const Section = ({children, title}): Node => {
@@ -58,16 +61,52 @@ const App: () => Node = () => {
   const [state, dispatch] = useTimingReducer();
 
   useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    Firebase.initializeApp(this);
+    createChannels();
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!', remoteMessage);
     });
+    PushNotification.configure({
+      onRegister: function (token) {
+        console.log('TOKEN:', token);
+      },
 
-    return unsubscribe;
+      onNotification: function (notification) {
+        console.log('NOTIFICATION:', notification);
+
+        if (notification.foreground) {
+          PushNotification.localNotification({
+            channelId: 'posipanion_channel',
+            title: notification.title,
+            message: notification.message,
+          });
+        }
+      },
+
+      senderID: '399407603065',
+
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+
+      popInitialNotification: true,
+
+      requestPermissions: true,
+    });
   }, []);
 
   useLocation(state, dispatch);
 
   const isDarkMode = useColorScheme() === 'dark';
+
+  const createChannels = () => {
+    PushNotification.createChannel({
+      channelId: 'posipanion_channel',
+      channelName: 'PosiPanion Channel',
+    });
+  };
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
