@@ -37,7 +37,7 @@ public class Track {
     @Column(name = "gpx_path")
     private String gpxPath;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

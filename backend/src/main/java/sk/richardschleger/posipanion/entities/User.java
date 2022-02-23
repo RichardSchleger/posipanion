@@ -1,13 +1,9 @@
 package sk.richardschleger.posipanion.entities;
 
+import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -23,6 +19,21 @@ public class User {
     private String email;
 
     private String password;
+
+    @OneToOne(mappedBy = "user")
+    private StravaUser stravaUser;
+
+    @OneToOne(mappedBy = "user")
+    private ActiveUser activeUser;
+
+    @OneToMany(mappedBy = "user")
+    private List<FcmToken> fcmTokens;
+
+    @OneToMany(mappedBy = "user")
+    private List<Track> tracks;
+
+    @OneToOne(mappedBy = "user")
+    private UserDetails userDetails;
 
     public User() {
     }
@@ -57,6 +68,46 @@ public class User {
         this.password = password;
     }
 
+    public StravaUser getStravaUser() {
+        return stravaUser;
+    }
+
+    public void setStravaUser(StravaUser stravaUser) {
+        this.stravaUser = stravaUser;
+    }
+
+    public ActiveUser getActiveUser() {
+        return activeUser;
+    }
+
+    public void setActiveUser(ActiveUser activeUser) {
+        this.activeUser = activeUser;
+    }
+
+    public List<FcmToken> getFcmTokens() {
+        return fcmTokens;
+    }
+
+    public void setFcmTokens(List<FcmToken> fcmTokens) {
+        this.fcmTokens = fcmTokens;
+    }
+
+    public List<Track> getTracks() {
+        return tracks;
+    }
+
+    public void setTracks(List<Track> tracks) {
+        this.tracks = tracks;
+    }
+
+    public UserDetails getUserDetails() {
+        return userDetails;
+    }
+
+    public void setUserDetails(UserDetails userDetails) {
+        this.userDetails = userDetails;
+    }
+
     public User id(int id) {
         setId(id);
         return this;
@@ -74,18 +125,15 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof User)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(password, user.password);
+        return id == user.id && email.equals(user.email) && password.equals(user.password) && Objects.equals(stravaUser, user.stravaUser) && Objects.equals(activeUser, user.activeUser) && Objects.equals(fcmTokens, user.fcmTokens) && Objects.equals(tracks, user.tracks) && userDetails.equals(user.userDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password);
+        return Objects.hash(id, email, password, stravaUser, activeUser, fcmTokens, tracks, userDetails);
     }
 
     @Override

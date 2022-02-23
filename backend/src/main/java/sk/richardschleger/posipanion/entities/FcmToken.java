@@ -18,7 +18,7 @@ public class FcmToken {
 
     private String token;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
