@@ -1,76 +1,83 @@
+/**
+ * @format
+ * @flow
+ */
+
 import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+// import RNLocation from 'react-native-location';
 
-import RNLocation from 'react-native-location';
-import CurrentLocation from './CurrentLocation';
-import {useLocation} from '../hooks';
-import {AppRegistry, StatusBar, StyleSheet, View} from 'react-native';
-import {useTimingReducer} from './reducer';
+// RNLocation.configure({
+//   distanceFilter: 0, // Meters
+//   desiredAccuracy: {
+//     ios: 'best',
+//     android: 'highAccuracy',
+//   },
+//   // Android only
+//   // androidProvider: 'auto',
+//   interval: 1000, // Milliseconds
+//   fastestInterval: 1000, // Milliseconds
+//   maxWaitTime: 1000, // Milliseconds
+//   // iOS Only
+//   activityType: 'fitness',
+//   allowsBackgroundLocationUpdates: true,
+//   headingFilter: 0, // Degrees
+//   headingOrientation: 'portrait',
+//   pausesLocationUpdatesAutomatically: false,
+//   showsBackgroundLocationIndicator: true,
+// });
 
-import {useBackHandler} from '@react-native-community/hooks';
+const Map = ({users}) => {
+  const [firstRun, setFirstRun] = useState(true);
+  const mapview = React.createRef();
 
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import MenuButton from '../MenuButton/MenuButton';
-import Menu from '../Menu/Menu';
+  useEffect(() => {
+    const centerMap = () => {
+      if (users && users.length > 0) {
+        if (mapview && mapview.current) {
+          mapview.current.fitToElements(true);
+        }
+      }
+    };
 
-RNLocation.configure({
-  distanceFilter: 0, // Meters
-  desiredAccuracy: {
-    ios: 'best',
-    android: 'highAccuracy',
-  },
-  // Android only
-  // androidProvider: 'auto',
-  interval: 1000, // Milliseconds
-  fastestInterval: 1000, // Milliseconds
-  maxWaitTime: 1000, // Milliseconds
-  // iOS Only
-  activityType: 'fitness',
-  allowsBackgroundLocationUpdates: true,
-  headingFilter: 0, // Degrees
-  headingOrientation: 'portrait',
-  pausesLocationUpdatesAutomatically: false,
-  showsBackgroundLocationIndicator: true,
-});
-
-export default function Map() {
-  const [state, dispatch] = useTimingReducer();
-  useLocation(state, dispatch);
-
-  const [showMenu, setShowMenu] = useState(false);
-
-  const onPress = e => {
-    e.preventDefault();
-    setShowMenu(true);
-  };
-
-  useBackHandler(() => {
-    if (showMenu) {
-      setShowMenu(false);
-      return true;
+    if (users && users.length > 0) {
+      if (mapview && mapview.current) {
+        if (firstRun) {
+          centerMap();
+          setFirstRun(c => !c);
+        }
+      }
     }
-    return false;
-  });
+  }, [firstRun, mapview, users]);
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <CurrentLocation state={state} dispatch={dispatch} />
-      <MenuButton onPress={onPress} />
-      <Menu show={showMenu}></Menu>
+      <MapView
+        ref={mapview}
+        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+        style={styles.map}>
+        {users &&
+          users.map((user, index) => (
+            <Marker
+              key={'user_' + index}
+              anchor={{x: 0.5, y: 0.5}}
+              coordinate={{
+                latitude: user.lat,
+                longitude: user.lng,
+              }}>
+              <View style={styles.marker}>
+                <Text style={styles.markerText}>
+                  {user.firstName[0].toUpperCase()}
+                </Text>
+              </View>
+            </Marker>
+          ))}
+      </MapView>
     </View>
-    // <View style={styles.container}>
-    //   <MapView
-    //     provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-    //     style={styles.map}
-    //     region={{
-    //       latitude: 37.78825,
-    //       longitude: -122.4324,
-    //       latitudeDelta: 0.015,
-    //       longitudeDelta: 0.0121,
-    //     }}></MapView>
-    // </View>
   );
-}
+};
+
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
@@ -79,6 +86,23 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  marker: {
+    borderColor: '#109CF1',
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderRadius: 25,
+    width: 30,
+    height: 30,
+    backgroundColor: 'white',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  markerText: {
+    fontSize: 18,
+    color: '#109CF1',
+    fontWeight: 'bold',
+  },
 });
 
-AppRegistry.registerComponent('PosiPanion', () => Map);
+export default Map;

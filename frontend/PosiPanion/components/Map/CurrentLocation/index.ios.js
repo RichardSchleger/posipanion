@@ -2,7 +2,7 @@ import type {TimingState, TimingDispatch} from '../../types';
 
 import React from 'react';
 import {useLocationTracking} from '../../hooks';
-import Stats from './Stats';
+import Map from '../Map';
 
 type Props = {
   state: TimingState,
@@ -11,7 +11,7 @@ type Props = {
 
 const CurrentLocation = ({state, dispatch}: Props) => {
   useLocationTracking(state, dispatch);
-  return <Stats state={state} />;
+  return <Map state={state} />;
 };
 
 export default CurrentLocation;

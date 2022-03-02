@@ -5,103 +5,75 @@ import {
   faCog,
   faUserFriends,
   faSearch,
+  faDoorOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
   Animated,
-  Button,
   Dimensions,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import {first} from 'rxjs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Menu({show}) {
+export default function Menu({show, refresh, setRefresh, friends}) {
+  const offsetY = useRef(new Animated.Value(0)).current;
+  const [shownFriends, setShownFriends] = useState([]);
+  const [filterText, setFilterText] = useState('');
+  const [mapMenuShown, setMapMenuShown] = useState(true);
+
   useEffect(() => {
+    const slideIntoView = () => {
+      Animated.timing(offsetY, {
+        toValue: -((Dimensions.get('window').height / 3) * 2 - 50),
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const slideOutOfView = () => {
+      Animated.timing(offsetY, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    };
+
     if (show) {
       slideIntoView();
     } else {
       slideOutOfView();
     }
-  }, [show]);
+  }, [offsetY, show]);
 
-  const offsetY = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const filterFriendList = text => {
+      if (text === '') {
+        setShownFriends(friends);
+      } else {
+        setShownFriends(
+          friends.filter(friend =>
+            (friend.firstName + ' ' + friend.surname)
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .includes(
+                text
+                  .toLowerCase()
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, ''),
+              ),
+          ),
+        );
+      }
+    };
 
-  const [friends, setFriends] = useState([
-    {
-      id: 1,
-      name: 'Richard',
-      surname: 'Schléger',
-    },
-    {
-      id: 2,
-      name: 'Nina',
-      surname: 'Schlégerová',
-    },
-    {
-      id: 3,
-      name: 'Dagmar',
-      surname: 'Schlégerová',
-    },
-    {
-      id: 4,
-      name: 'Miroslav',
-      surname: 'Schléger',
-    },
-    {
-      id: 5,
-      name: 'Jakub',
-      surname: 'Majzlík',
-    },
-    {
-      id: 6,
-      name: 'Jiří',
-      surname: 'Hynek',
-    },
-  ]);
-  const [shownFriends, setShownFriends] = useState(friends);
-
-  const [mapMenuShown, setMapMenuShown] = useState(true);
-
-  const slideIntoView = () => {
-    Animated.timing(offsetY, {
-      toValue: -((Dimensions.get('window').height / 3) * 2 - 50),
-      duration: 500,
-    }).start();
-  };
-
-  const slideOutOfView = () => {
-    Animated.timing(offsetY, {
-      toValue: 0,
-      duration: 500,
-    }).start();
-  };
-
-  const filterFriendList = text => {
-    if (text == '') {
-      setShownFriends(friends);
-    } else {
-      setShownFriends(
-        friends.filter(friend =>
-          (friend.name + ' ' + friend.surname)
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .includes(
-              text
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, ''),
-            ),
-        ),
-      );
-    }
-  };
+    filterFriendList(filterText);
+  }, [filterText, friends]);
 
   const showMapMenu = e => {
     e.preventDefault();
@@ -111,6 +83,16 @@ export default function Menu({show}) {
   const showRideMenu = e => {
     e.preventDefault();
     setMapMenuShown(false);
+  };
+
+  const handleLogout = async e => {
+    e.preventDefault();
+    try {
+      await AsyncStorage.removeItem('AuthToken');
+      setRefresh(!refresh);
+    } catch (error) {
+      // saving error
+    }
   };
 
   return (
@@ -152,15 +134,16 @@ export default function Menu({show}) {
       />
       <TextInput
         style={styles.search_bar}
-        onChangeText={text => filterFriendList(text)}
+        value={filterText}
+        onChangeText={text => {
+          setFilterText(text);
+        }}
       />
       <View style={styles.friends_container}>
         <ScrollView>
-          {shownFriends.map(friend => (
-            <View style={styles.friend_container}>
-              <Text>
-                {friend.id + ' ' + friend.name + ' ' + friend.surname}
-              </Text>
+          {shownFriends.map((friend, index) => (
+            <View style={styles.friend_container} key={'friend_' + index}>
+              <Text>{friend.firstName + ' ' + friend.surname}</Text>
             </View>
           ))}
         </ScrollView>
@@ -170,6 +153,11 @@ export default function Menu({show}) {
       </Pressable>
       <Pressable style={[styles.button, styles.button_friends]}>
         <FontAwesomeIcon style={styles.icon} icon={faUserFriends} size={40} />
+      </Pressable>
+      <Pressable
+        style={[styles.button, styles.button_logout]}
+        onPress={handleLogout}>
+        <FontAwesomeIcon style={styles.icon} icon={faDoorOpen} size={40} />
       </Pressable>
     </Animated.View>
   );
@@ -236,6 +224,14 @@ const styles = StyleSheet.create({
     top: '84%',
   },
 
+  button_logout: {
+    position: 'absolute',
+    width: Dimensions.get('window').width / 7,
+    height: Dimensions.get('window').width / 7,
+    left: '45%',
+    top: '84%',
+  },
+
   icon: {
     color: '#109CF1',
     width: '',
@@ -260,7 +256,6 @@ const styles = StyleSheet.create({
   search_bar: {
     top: '12%',
     borderBottomColor: '#109CF1',
-    borderBottomStyle: 'solid',
     borderBottomWidth: 3,
     color: '#109CF1',
     fontSize: 24,
