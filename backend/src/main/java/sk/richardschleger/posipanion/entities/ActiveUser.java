@@ -2,7 +2,6 @@ package sk.richardschleger.posipanion.entities;
 
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +25,7 @@ public class ActiveUser {
 
     @OneToOne
     @JoinColumn(name = "track_id", referencedColumnName = "track_id")
-    private Track selected_track;
+    private Track selectedTrack;
 
     @Column(name = "last_latitude")
     private double lastKnownLatitude;
@@ -37,10 +36,10 @@ public class ActiveUser {
     public ActiveUser() {
     }
 
-    public ActiveUser(int id, User user, Track selected_track, double lastKnownLatitude, double lastKnownLongitude) {
+    public ActiveUser(int id, User user, Track selectedTrack, double lastKnownLatitude, double lastKnownLongitude) {
         this.id = id;
         this.user = user;
-        this.selected_track = selected_track;
+        this.selectedTrack = selectedTrack;
         this.lastKnownLatitude = lastKnownLatitude;
         this.lastKnownLongitude = lastKnownLongitude;
     }
@@ -61,12 +60,12 @@ public class ActiveUser {
         this.user = user;
     }
 
-    public Track getSelected_track() {
-        return this.selected_track;
+    public Track getSelectedTrack() {
+        return this.selectedTrack;
     }
 
-    public void setSelected_track(Track selected_track) {
-        this.selected_track = selected_track;
+    public void setSelectedTrack(Track selectedTrack) {
+        this.selectedTrack = selectedTrack;
     }
 
     public double getLastKnownLatitude() {
@@ -95,8 +94,8 @@ public class ActiveUser {
         return this;
     }
 
-    public ActiveUser selected_track(Track selected_track) {
-        setSelected_track(selected_track);
+    public ActiveUser selectedTrack(Track selectedTrack) {
+        setSelectedTrack(selectedTrack);
         return this;
     }
 
@@ -118,12 +117,12 @@ public class ActiveUser {
             return false;
         }
         ActiveUser activeUser = (ActiveUser) o;
-        return id == activeUser.id && Objects.equals(user, activeUser.user) && Objects.equals(selected_track, activeUser.selected_track) && lastKnownLatitude == activeUser.lastKnownLatitude && lastKnownLongitude == activeUser.lastKnownLongitude;
+        return id == activeUser.id && Objects.equals(user, activeUser.user) && Objects.equals(selectedTrack, activeUser.selectedTrack) && lastKnownLatitude == activeUser.lastKnownLatitude && lastKnownLongitude == activeUser.lastKnownLongitude;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, selected_track, lastKnownLatitude, lastKnownLongitude);
+        return Objects.hash(id, user, selectedTrack, lastKnownLatitude, lastKnownLongitude);
     }
 
     @Override
@@ -131,7 +130,7 @@ public class ActiveUser {
         return "{" +
             " id='" + getId() + "'" +
             ", user='" + getUser() + "'" +
-            ", selected_track='" + getSelected_track() + "'" +
+            ", selected_track='" + getSelectedTrack() + "'" +
             ", lastKnownLatitude='" + getLastKnownLatitude() + "'" +
             ", lastKnownLongitude='" + getLastKnownLongitude() + "'" +
             "}";

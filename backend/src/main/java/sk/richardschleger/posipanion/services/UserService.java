@@ -17,6 +17,11 @@ public class UserService {
     }
 
     @Transactional
+    public User getUserById(int id){
+        return userRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElse(null);
     }
