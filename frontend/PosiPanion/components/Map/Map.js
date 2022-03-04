@@ -5,7 +5,8 @@
 
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+
 // import RNLocation from 'react-native-location';
 
 // RNLocation.configure({
@@ -28,29 +29,28 @@ import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 //   showsBackgroundLocationIndicator: true,
 // });
 
-const Map = ({users}) => {
+const Map = ({users, detail, showUserDetail}) => {
   const [firstRun, setFirstRun] = useState(true);
   const mapview = React.createRef();
 
   useEffect(() => {
-    const centerMap = () => {
-      if (users && users.length > 0) {
-        if (mapview && mapview.current) {
-          mapview.current.fitToElements(true);
-        }
-      }
-    };
-
     if (users && users.length > 0) {
       if (mapview && mapview.current) {
         if (firstRun) {
-          centerMap();
+          if (users && users.length > 0) {
+            if (mapview && mapview.current) {
+              mapview.current.fitToElements(true);
+            }
+          }
           setFirstRun(c => !c);
         }
       }
     }
   }, [firstRun, mapview, users]);
 
+  useEffect(() => {
+    mapview.current.fitToElements(true);
+  }, [detail, mapview]);
   return (
     <View style={styles.container}>
       <MapView
@@ -58,6 +58,7 @@ const Map = ({users}) => {
         provider={PROVIDER_GOOGLE} // remove if not using Google Maps
         style={styles.map}>
         {users &&
+          detail === null &&
           users.map((user, index) => (
             <Marker
               key={'user_' + index}
@@ -65,6 +66,9 @@ const Map = ({users}) => {
               coordinate={{
                 latitude: user.lat,
                 longitude: user.lng,
+              }}
+              onPress={event => {
+                showUserDetail(event, user.id);
               }}>
               <View style={styles.marker}>
                 <Text style={styles.markerText}>
@@ -73,6 +77,59 @@ const Map = ({users}) => {
               </View>
             </Marker>
           ))}
+        {detail &&
+          detail.track &&
+          detail.track.waypoints.map((waypoint, index) => (
+            <Marker
+              key={'trackpoint_' + index}
+              coordinate={{
+                latitude: waypoint.latitude,
+                longitude: waypoint.longitude,
+              }}
+              opacity={0}
+            />
+          ))}
+        {detail && detail.track && (
+          <Polyline
+            coordinates={detail.track.waypoints}
+            strokeColor={'red'}
+            strokeWidth={3}
+          />
+        )}
+        {detail &&
+          detail.currentRide &&
+          detail.currentRide.waypoints.map((waypoint, index) => (
+            <Marker
+              key={'journeypoint_' + index}
+              coordinate={{
+                latitude: waypoint.latitude,
+                longitude: waypoint.longitude,
+              }}
+              opacity={0}
+            />
+          ))}
+        {detail && detail.currentRide && (
+          <Polyline
+            coordinates={detail.currentRide.waypoints}
+            strokeColor={'#109CF1'}
+            strokeWidth={3}
+          />
+        )}
+        {detail && (
+          <Marker
+            key={'user_detail_marker'}
+            anchor={{x: 0.5, y: 0.5}}
+            coordinate={{
+              latitude: detail.lastKnownLatitude,
+              longitude: detail.lastKnownLongitude,
+            }}>
+            <View style={styles.marker}>
+              <Text style={styles.markerText}>
+                {detail.firstName[0].toUpperCase()}
+              </Text>
+            </View>
+          </Marker>
+        )}
       </MapView>
     </View>
   );
@@ -102,6 +159,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#109CF1',
     fontWeight: 'bold',
+  },
+  trackLine: {
+    color: 'red',
+  },
+  currentRideLine: {
+    color: 'blue',
   },
 });
 

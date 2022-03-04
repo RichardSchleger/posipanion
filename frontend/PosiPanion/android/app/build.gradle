@@ -130,6 +130,14 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    lintOptions {
+            checkReleaseBuilds false
+            // Or, if you prefer, you can continue to check for errors in release builds,
+            // but continue the build even when errors are found:
+            abortOnError false
+    }
+
+
     defaultConfig {
         applicationId "com.posipanion"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -152,6 +160,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+              storeFile file('posipanion.keystore')
+              storePassword 'EpVolaikakTo'
+              keyAlias 'posipanion'
+              keyPassword 'EpVolaikakTo'
+        }
     }
     buildTypes {
         debug {
@@ -165,7 +179,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

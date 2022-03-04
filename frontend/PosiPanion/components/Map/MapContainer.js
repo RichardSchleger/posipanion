@@ -17,6 +17,7 @@ export default function MapContainer({refresh, setRefresh}) {
 
   const [friends, setFriends] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
+  const [detail, setDetail] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -24,6 +25,7 @@ export default function MapContainer({refresh, setRefresh}) {
       setFriends(
         response.map(user => {
           return {
+            id: user.id,
             firstName: user.firstName,
             surname: user.surname,
             lat: user.lastKnownLatitude,
@@ -53,20 +55,40 @@ export default function MapContainer({refresh, setRefresh}) {
     if (showMenu) {
       setShowMenu(false);
       return true;
+    } else if (detail) {
+      setDetail(null);
+      return true;
     }
     return false;
   });
 
+  const showUserDetail = async (e, id) => {
+    e.preventDefault();
+    if (id) {
+      setShowMenu(false);
+      const token = await AuthService.getToken();
+      axios
+        .get(API.url + 'user/detail/' + id, {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => {
+          setDetail(response.data);
+        })
+        .catch(error => console.log(error));
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <Map users={friends} />
+      <Map users={friends} detail={detail} showUserDetail={showUserDetail} />
       <MenuButton onPress={onPress} />
       <Menu
         show={showMenu}
         refresh={refresh}
         setRefresh={setRefresh}
         friends={friends}
+        showUserDetail={showUserDetail}
       />
     </View>
     // <View style={styles.container}>

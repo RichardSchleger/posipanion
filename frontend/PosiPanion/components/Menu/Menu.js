@@ -20,7 +20,13 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Menu({show, refresh, setRefresh, friends}) {
+export default function Menu({
+  show,
+  refresh,
+  setRefresh,
+  friends,
+  showUserDetail,
+}) {
   const offsetY = useRef(new Animated.Value(0)).current;
   const [shownFriends, setShownFriends] = useState([]);
   const [filterText, setFilterText] = useState('');
@@ -143,7 +149,12 @@ export default function Menu({show, refresh, setRefresh, friends}) {
         <ScrollView>
           {shownFriends.map((friend, index) => (
             <View style={styles.friend_container} key={'friend_' + index}>
-              <Text>{friend.firstName + ' ' + friend.surname}</Text>
+              <Text
+                onPress={event => {
+                  showUserDetail(event, friend.id);
+                }}>
+                {friend.firstName + ' ' + friend.surname}
+              </Text>
             </View>
           ))}
         </ScrollView>
