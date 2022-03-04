@@ -50,7 +50,7 @@ const Map = ({users, detail, showUserDetail}) => {
 
   useEffect(() => {
     mapview.current.fitToElements(true);
-  }, [detail, mapview]);
+  }, [detail]);
   return (
     <View style={styles.container}>
       <MapView
