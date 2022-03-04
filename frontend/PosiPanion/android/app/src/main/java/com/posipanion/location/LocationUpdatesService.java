@@ -60,7 +60,7 @@ public class LocationUpdatesService extends Service {
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
 
     /**
      * The fastest rate for active location updates. Updates will never be more frequent
@@ -297,7 +297,7 @@ public class LocationUpdatesService extends Service {
                 new Intent(this, MainActivity.class), 0);
 
         // CharSequence text = Utils.getLocationText(mLocation);
-        CharSequence title = "LocationSample is tracking your movement.";
+        CharSequence title = "PosiPanion má prístup k vašej polohe.";
 
         Notification.Builder builder = new Notification.Builder(this)
                 // .addAction(R.drawable.ic_launch, getString(R.string.launch_activity), activityPendingIntent)
