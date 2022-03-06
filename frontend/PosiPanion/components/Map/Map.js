@@ -6,6 +6,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
 // import RNLocation from 'react-native-location';
 
@@ -51,8 +52,17 @@ const Map = ({users, detail, showUserDetail}) => {
   useEffect(() => {
     mapview.current.fitToElements(true);
   }, [detail]);
-  return (
-    <View style={styles.container}>
+
+  const container = {
+    ...StyleSheet.absoluteFillObject,
+    height: detail ? '80%' : '100%',
+    position: 'absolute',
+    top: detail ? '20%' : 0,
+  };
+
+  return [
+    <ActiveUserDetail detail={detail} />,
+    <View style={container}>
       <MapView
         ref={mapview}
         provider={PROVIDER_GOOGLE} // remove if not using Google Maps
@@ -131,15 +141,11 @@ const Map = ({users, detail, showUserDetail}) => {
           </Marker>
         )}
       </MapView>
-    </View>
-  );
+    </View>,
+  ];
 };
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    height: '100%',
-  },
   map: {
     ...StyleSheet.absoluteFillObject,
   },

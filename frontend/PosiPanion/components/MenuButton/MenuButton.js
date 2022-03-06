@@ -15,7 +15,7 @@ export default function MenuButton({onPress}) {
 const styles = StyleSheet.create({
   menuButton: {
     position: 'absolute',
-    bottom: '2%',
+    bottom: '8%',
     right: '2%',
     width: Dimensions.get('window').width / 6,
     height: Dimensions.get('window').width / 6,
