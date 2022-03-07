@@ -63,10 +63,7 @@ const Map = ({users, detail, showUserDetail}) => {
   return [
     <ActiveUserDetail detail={detail} />,
     <View style={container}>
-      <MapView
-        ref={mapview}
-        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-        style={styles.map}>
+      <MapView ref={mapview} provider={PROVIDER_GOOGLE} style={styles.map}>
         {users &&
           detail === null &&
           users.map((user, index) => (

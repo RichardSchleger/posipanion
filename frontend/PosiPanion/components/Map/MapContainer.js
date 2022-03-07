@@ -10,7 +10,7 @@ import Map from './Map';
 import axios from 'axios';
 import AuthService from '../AuthService/AuthService';
 
-export default function MapContainer({refresh, setRefresh}) {
+export default function MapContainer({setRefresh}) {
   // const [state, dispatch] = useTimingReducer();
   //
   // useLocation(state, dispatch);
@@ -20,6 +20,22 @@ export default function MapContainer({refresh, setRefresh}) {
   const [detail, setDetail] = useState(null);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const token = await AuthService.getToken();
+      return await axios
+        .get(API.url + 'user/friends/active', {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => response.data)
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return fetchData();
+            }
+          }
+        });
+    };
+
     const getData = async () => {
       const response = await fetchData();
       setFriends(
@@ -36,15 +52,6 @@ export default function MapContainer({refresh, setRefresh}) {
     };
     getData();
   }, []);
-
-  const fetchData = async () => {
-    const token = await AuthService.getToken();
-    return await axios
-      .get(API.url + 'user/friends/active', {
-        headers: {Authorization: 'Bearer ' + token},
-      })
-      .then(response => response.data);
-  };
 
   const onPress = e => {
     e.preventDefault();
@@ -74,7 +81,13 @@ export default function MapContainer({refresh, setRefresh}) {
         .then(response => {
           setDetail(response.data);
         })
-        .catch(error => console.log(error));
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return showUserDetail(e, id);
+            }
+          }
+        });
     }
   };
 
@@ -85,23 +98,11 @@ export default function MapContainer({refresh, setRefresh}) {
       <MenuButton onPress={onPress} />
       <Menu
         show={showMenu}
-        refresh={refresh}
         setRefresh={setRefresh}
         friends={friends}
         showUserDetail={showUserDetail}
       />
     </View>
-    // <View style={styles.container}>
-    //   <MapView
-    //     provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-    //     style={styles.map}
-    //     region={{
-    //       latitude: 37.78825,
-    //       longitude: -122.4324,
-    //       latitudeDelta: 0.015,
-    //       longitudeDelta: 0.0121,
-    //     }}></MapView>
-    // </View>
   );
 }
 const styles = StyleSheet.create({
