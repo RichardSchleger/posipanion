@@ -108,7 +108,7 @@ const App: () => Node = () => {
       //     </View>
       //   </ScrollView>
       // </SafeAreaView>
-      <MapContainer refresh={loginRefresh} setRefresh={setLoginRefresh} />
+      <MapContainer setRefresh={setLoginRefresh} />
     );
   } else {
     return <Login refresh={loginRefresh} setRefresh={setLoginRefresh} />;
