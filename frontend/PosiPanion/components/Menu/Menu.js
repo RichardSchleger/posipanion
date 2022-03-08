@@ -7,29 +7,37 @@ import {
   faDoorOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
-import {Animated, Dimensions, Pressable, StyleSheet, Text} from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import AuthService from '../AuthService/AuthService';
 import MapMenu from './MapMenu';
 import RideMenu from './RideMenu';
+import ConfigMenu from './ConfigMenu';
 
 export default function Menu({show, setRefresh, friends, showUserDetail}) {
   const offsetY = useRef(new Animated.Value(0)).current;
-  const [mapMenuShown, setMapMenuShown] = useState(true);
+  const [menuShown, setMenuShown] = useState('map');
   const [newRide, setNewRide] = useState(true);
 
   useEffect(() => {
     if (show) {
-      if (mapMenuShown) {
+      if (menuShown === 'map') {
         slideIntoMapMenuView();
-      } else if (newRide) {
+      } else if (menuShown === 'ride' && newRide) {
         slideIntoNewRideMenuView();
-      } else if (!newRide) {
+      } else if (menuShown === 'ride' && !newRide) {
         slideIntoMapMenuView();
       }
     } else {
       slideOutOfView();
     }
-  }, [offsetY, show, newRide, mapMenuShown]);
+  }, [offsetY, show, newRide, menuShown]);
 
   const slideIntoMapMenuView = () => {
     Animated.timing(offsetY, {
@@ -57,18 +65,23 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
 
   const showMapMenu = e => {
     e.preventDefault();
-    setMapMenuShown(true);
+    setMenuShown('map');
     slideIntoMapMenuView();
   };
 
   const showRideMenu = e => {
     e.preventDefault();
-    setMapMenuShown(false);
+    setMenuShown('ride');
     if (newRide) {
       slideIntoNewRideMenuView();
     } else if (!newRide) {
       slideIntoMapMenuView();
     }
+  };
+
+  const showConfig = e => {
+    e.preventDefault();
+    setMenuShown('config');
   };
 
   const handleLogout = async e => {
@@ -81,7 +94,12 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
     width: Dimensions.get('window').width / 7,
     height: Dimensions.get('window').width / 7,
     left: '5%',
-    top: mapMenuShown ? '84%' : newRide ? '30%' : '84%',
+    top:
+      menuShown === 'map'
+        ? '84%'
+        : menuShown === 'ride' && newRide
+        ? '30%'
+        : '84%',
   };
 
   const button_friends = {
@@ -89,7 +107,12 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
     width: Dimensions.get('window').width / 7,
     height: Dimensions.get('window').width / 7,
     left: '25%',
-    top: mapMenuShown ? '84%' : newRide ? '30%' : '84%',
+    top:
+      menuShown === 'map'
+        ? '84%'
+        : menuShown === 'ride' && newRide
+        ? '30%'
+        : '84%',
   };
 
   const button_logout = {
@@ -97,67 +120,90 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
     width: Dimensions.get('window').width / 7,
     height: Dimensions.get('window').width / 7,
     left: '45%',
-    top: mapMenuShown ? '84%' : newRide ? '30%' : '84%',
+    top:
+      menuShown === 'map'
+        ? '84%'
+        : menuShown === 'ride' && newRide
+        ? '30%'
+        : '84%',
   };
 
   return (
-    <Animated.View style={[styles.menu, {transform: [{translateY: offsetY}]}]}>
-      <Pressable
-        style={[
-          styles.button,
-          styles.button_map,
-          mapMenuShown ? styles.button_active : '',
-        ]}
-        onPress={showMapMenu}>
-        <Text
-          style={[
-            styles.button_text,
-            mapMenuShown ? styles.button_text_active : '',
-          ]}>
-          MAPA
-        </Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.button,
-          styles.button_ride,
-          mapMenuShown ? '' : styles.button_active,
-        ]}
-        onPress={showRideMenu}>
-        <Text
-          style={[
-            styles.button_text,
-            mapMenuShown ? '' : styles.button_text_active,
-          ]}>
-          JAZDA
-        </Text>
-      </Pressable>
-      {mapMenuShown && (
-        <MapMenu friends={friends} showUserDetail={showUserDetail} />
+    <Animated.View
+      style={[styles.menuContainer, {transform: [{translateY: offsetY}]}]}>
+      {(menuShown === 'map' || menuShown === 'ride') && (
+        <View style={styles.menu}>
+          <Pressable
+            style={[
+              styles.button,
+              styles.button_map,
+              menuShown === 'map' ? styles.button_active : '',
+            ]}
+            onPress={showMapMenu}>
+            <Text
+              style={[
+                styles.button_text,
+                menuShown === 'map' ? styles.button_text_active : '',
+              ]}>
+              MAPA
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.button,
+              styles.button_ride,
+              menuShown === 'ride' ? styles.button_active : '',
+            ]}
+            onPress={showRideMenu}>
+            <Text
+              style={[
+                styles.button_text,
+                menuShown === 'ride' ? styles.button_text_active : '',
+              ]}>
+              JAZDA
+            </Text>
+          </Pressable>
+          {menuShown === 'map' && (
+            <MapMenu friends={friends} showUserDetail={showUserDetail} />
+          )}
+          {menuShown === 'ride' && (
+            <RideMenu
+              newRide={newRide}
+              setNewRide={setNewRide}
+              slideIntoNewRideMenuView={slideIntoNewRideMenuView}
+              slideIntoExisitngRideMenuView={slideIntoMapMenuView}
+            />
+          )}
+          <Pressable
+            style={[styles.button, button_config]}
+            onPress={showConfig}>
+            <FontAwesomeIcon style={styles.icon} icon={faCog} size={40} />
+          </Pressable>
+          <Pressable style={[styles.button, button_friends]}>
+            <FontAwesomeIcon
+              style={styles.icon}
+              icon={faUserFriends}
+              size={40}
+            />
+          </Pressable>
+          <Pressable
+            style={[styles.button, button_logout]}
+            onPress={handleLogout}>
+            <FontAwesomeIcon style={styles.icon} icon={faDoorOpen} size={40} />
+          </Pressable>
+        </View>
       )}
-      {!mapMenuShown && (
-        <RideMenu
-          newRide={newRide}
-          setNewRide={setNewRide}
-          slideIntoNewRideMenuView={slideIntoNewRideMenuView}
-          slideIntoExisitngRideMenuView={slideIntoMapMenuView}
-        />
+      {menuShown === 'config' && (
+        <View style={styles.menu}>
+          <ConfigMenu showMapMenu={showMapMenu} />
+        </View>
       )}
-      <Pressable style={[styles.button, button_config]}>
-        <FontAwesomeIcon style={styles.icon} icon={faCog} size={40} />
-      </Pressable>
-      <Pressable style={[styles.button, button_friends]}>
-        <FontAwesomeIcon style={styles.icon} icon={faUserFriends} size={40} />
-      </Pressable>
-      <Pressable style={[styles.button, button_logout]} onPress={handleLogout}>
-        <FontAwesomeIcon style={styles.icon} icon={faDoorOpen} size={40} />
-      </Pressable>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  menu: {
+  menuContainer: {
     position: 'absolute',
     bottom: -(Dimensions.get('window').height / 3) * 2,
     width: Dimensions.get('window').width,
@@ -168,6 +214,11 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     backgroundColor: '#FFFFFF',
     zIndex: 100,
+  },
+
+  menu: {
+    height: '100%',
+    width: '100%',
     display: 'flex',
     paddingTop: 30,
     paddingLeft: 10,

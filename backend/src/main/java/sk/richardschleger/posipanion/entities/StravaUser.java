@@ -1,5 +1,6 @@
 package sk.richardschleger.posipanion.entities;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 import javax.persistence.Entity;
@@ -22,7 +23,7 @@ public class StravaUser {
 
     private String stravaAccessToken;
 
-    private long stravaAccessTokenExpiration;
+    private Timestamp stravaAccessTokenExpiration;
 
     private String stravaRefreshToken;
 
@@ -35,7 +36,7 @@ public class StravaUser {
     public StravaUser() {
     }
 
-    public StravaUser(int id, long stravaId, String stravaAccessToken, long stravaAccessTokenExpiration, String stravaRefreshToken, boolean stravaUploadActivity, User user) {
+    public StravaUser(int id, long stravaId, String stravaAccessToken, Timestamp stravaAccessTokenExpiration, String stravaRefreshToken, boolean stravaUploadActivity, User user) {
         this.id = id;
         this.stravaId = stravaId;
         this.stravaAccessToken = stravaAccessToken;
@@ -69,11 +70,11 @@ public class StravaUser {
         this.stravaAccessToken = stravaAccessToken;
     }
 
-    public long getStravaAccessTokenExpiration() {
+    public Timestamp getStravaAccessTokenExpiration() {
         return this.stravaAccessTokenExpiration;
     }
 
-    public void setStravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
+    public void setStravaAccessTokenExpiration(Timestamp stravaAccessTokenExpiration) {
         this.stravaAccessTokenExpiration = stravaAccessTokenExpiration;
     }
 
@@ -120,7 +121,7 @@ public class StravaUser {
         return this;
     }
 
-    public StravaUser stravaAccessTokenExpiration(long stravaAccessTokenExpiration) {
+    public StravaUser stravaAccessTokenExpiration(Timestamp stravaAccessTokenExpiration) {
         setStravaAccessTokenExpiration(stravaAccessTokenExpiration);
         return this;
     }
@@ -148,7 +149,7 @@ public class StravaUser {
             return false;
         }
         StravaUser stravaUser = (StravaUser) o;
-        return id == stravaUser.id && stravaId == stravaUser.stravaId && Objects.equals(stravaAccessToken, stravaUser.stravaAccessToken) && stravaAccessTokenExpiration == stravaUser.stravaAccessTokenExpiration && Objects.equals(stravaRefreshToken, stravaUser.stravaRefreshToken) && stravaUploadActivity == stravaUser.stravaUploadActivity && Objects.equals(user, stravaUser.user);
+        return id == stravaUser.id && stravaId == stravaUser.stravaId && Objects.equals(stravaAccessToken, stravaUser.stravaAccessToken) && Objects.equals(stravaAccessTokenExpiration, stravaUser.stravaAccessTokenExpiration) && Objects.equals(stravaRefreshToken, stravaUser.stravaRefreshToken) && stravaUploadActivity == stravaUser.stravaUploadActivity && Objects.equals(user, stravaUser.user);
     }
 
     @Override
