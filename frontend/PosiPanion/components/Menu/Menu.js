@@ -1,11 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {
-  faCog,
-  faUserFriends,
-  faDoorOpen,
-} from '@fortawesome/free-solid-svg-icons';
+import {faCog, faUserFriends} from '@fortawesome/free-solid-svg-icons';
 
 import {
   Animated,
@@ -15,7 +11,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import AuthService from '../AuthService/AuthService';
 import MapMenu from './MapMenu';
 import RideMenu from './RideMenu';
 import ConfigMenu from './ConfigMenu';
@@ -95,11 +90,6 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
     slideIntoConfigMenuView();
   };
 
-  const handleLogout = async e => {
-    e.preventDefault();
-    AuthService.logout(setRefresh);
-  };
-
   const button_config = {
     position: 'absolute',
     width: Dimensions.get('window').width / 7,
@@ -126,9 +116,9 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
         : '84%',
   };
 
-  const button_logout = {
+  const button_start_ride = {
     position: 'absolute',
-    width: Dimensions.get('window').width / 7,
+    width: '55%',
     height: Dimensions.get('window').width / 7,
     left: '45%',
     top:
@@ -197,16 +187,16 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
               size={40}
             />
           </Pressable>
-          <Pressable
-            style={[styles.button, button_logout]}
-            onPress={handleLogout}>
-            <FontAwesomeIcon style={styles.icon} icon={faDoorOpen} size={40} />
-          </Pressable>
+          {menuShown === 'ride' && (
+            <Pressable style={[styles.button, button_start_ride]}>
+              <Text style={styles.button_text}>SPUSTIŤ</Text>
+            </Pressable>
+          )}
         </View>
       )}
       {menuShown === 'config' && (
         <View style={styles.menu}>
-          <ConfigMenu showMapMenu={showMapMenu} />
+          <ConfigMenu showMapMenu={showMapMenu} setLoginRefresh={setRefresh} />
         </View>
       )}
     </Animated.View>

@@ -58,9 +58,9 @@ export default function RideMenu({
 const styles = StyleSheet.create({
   rideMenu: {
     top: '10%',
-    left: '-5%',
+    left: '-3%',
     height: '65%',
-    width: '110%',
+    width: '106%',
     paddingLeft: 10,
     paddingRight: 10,
   },
@@ -81,7 +81,6 @@ const styles = StyleSheet.create({
     height: '15%',
     position: 'absolute',
     left: '5%',
-    top: '4%',
   },
 
   button_ride: {
@@ -89,7 +88,6 @@ const styles = StyleSheet.create({
     height: '15%',
     position: 'absolute',
     left: '55%',
-    top: '4%',
   },
 
   button_active: {
