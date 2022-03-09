@@ -10,16 +10,13 @@ public class ProfileModel {
 
     private long stravaId;
 
-    private boolean stravaUploadActivity;
-
     public ProfileModel() {
     }
 
-    public ProfileModel(String firstName, String surname, long stravaId, boolean stravaUploadActivity) {
+    public ProfileModel(String firstName, String surname, long stravaId) {
         this.firstName = firstName;
         this.surname = surname;
         this.stravaId = stravaId;
-        this.stravaUploadActivity = stravaUploadActivity;
     }
 
     public String getFirstName() {
@@ -46,18 +43,6 @@ public class ProfileModel {
         this.stravaId = stravaId;
     }
 
-    public boolean isStravaUploadActivity() {
-        return this.stravaUploadActivity;
-    }
-
-    public boolean getStravaUploadActivity() {
-        return this.stravaUploadActivity;
-    }
-
-    public void setStravaUploadActivity(boolean stravaUploadActivity) {
-        this.stravaUploadActivity = stravaUploadActivity;
-    }
-
     public ProfileModel firstName(String firstName) {
         setFirstName(firstName);
         return this;
@@ -73,11 +58,6 @@ public class ProfileModel {
         return this;
     }
 
-    public ProfileModel stravaUploadActivity(boolean stravaUploadActivity) {
-        setStravaUploadActivity(stravaUploadActivity);
-        return this;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -86,12 +66,12 @@ public class ProfileModel {
             return false;
         }
         ProfileModel profileModel = (ProfileModel) o;
-        return Objects.equals(firstName, profileModel.firstName) && Objects.equals(surname, profileModel.surname) && stravaId == profileModel.stravaId && stravaUploadActivity == profileModel.stravaUploadActivity;
+        return Objects.equals(firstName, profileModel.firstName) && Objects.equals(surname, profileModel.surname) && stravaId == profileModel.stravaId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, surname, stravaId, stravaUploadActivity);
+        return Objects.hash(firstName, surname, stravaId);
     }
 
     @Override
@@ -100,7 +80,6 @@ public class ProfileModel {
             " firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
             ", stravaId='" + getStravaId() + "'" +
-            ", stravaUploadActivity='" + isStravaUploadActivity() + "'" +
             "}";
     }
 

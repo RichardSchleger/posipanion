@@ -13,14 +13,17 @@ public class StravaModel {
 
     private String refreshToken;
 
+    private boolean upload;
+
     public StravaModel() {
     }
 
-    public StravaModel(long id, String accessToken, Timestamp accessTokenExpiration, String refreshToken) {
+    public StravaModel(long id, String accessToken, Timestamp accessTokenExpiration, String refreshToken, boolean upload) {
         this.id = id;
         this.accessToken = accessToken;
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshToken = refreshToken;
+        this.upload = upload;
     }
 
     public long getId() {
@@ -55,6 +58,18 @@ public class StravaModel {
         this.refreshToken = refreshToken;
     }
 
+    public boolean isUpload() {
+        return this.upload;
+    }
+
+    public boolean getUpload() {
+        return this.upload;
+    }
+
+    public void setUpload(boolean upload) {
+        this.upload = upload;
+    }
+
     public StravaModel id(long id) {
         setId(id);
         return this;
@@ -75,6 +90,11 @@ public class StravaModel {
         return this;
     }
 
+    public StravaModel upload(boolean upload) {
+        setUpload(upload);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -83,12 +103,12 @@ public class StravaModel {
             return false;
         }
         StravaModel stravaModel = (StravaModel) o;
-        return id == stravaModel.id && Objects.equals(accessToken, stravaModel.accessToken) && Objects.equals(accessTokenExpiration, stravaModel.accessTokenExpiration) && Objects.equals(refreshToken, stravaModel.refreshToken);
+        return id == stravaModel.id && Objects.equals(accessToken, stravaModel.accessToken) && Objects.equals(accessTokenExpiration, stravaModel.accessTokenExpiration) && Objects.equals(refreshToken, stravaModel.refreshToken) && upload == stravaModel.upload;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accessToken, accessTokenExpiration, refreshToken);
+        return Objects.hash(id, accessToken, accessTokenExpiration, refreshToken, upload);
     }
 
     @Override
@@ -98,6 +118,7 @@ public class StravaModel {
             ", accessToken='" + getAccessToken() + "'" +
             ", accessTokenExpiration='" + getAccessTokenExpiration() + "'" +
             ", refreshToken='" + getRefreshToken() + "'" +
+            ", upload='" + isUpload() + "'" +
             "}";
     }
 

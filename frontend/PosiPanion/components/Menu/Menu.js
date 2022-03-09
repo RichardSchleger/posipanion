@@ -33,6 +33,8 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
         slideIntoNewRideMenuView();
       } else if (menuShown === 'ride' && !newRide) {
         slideIntoMapMenuView();
+      } else if (menuShown === 'config') {
+        slideIntoConfigMenuView();
       }
     } else {
       slideOutOfView();
@@ -50,6 +52,14 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
   const slideIntoNewRideMenuView = () => {
     Animated.timing(offsetY, {
       toValue: -(Dimensions.get('window').height / 3 - 50),
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const slideIntoConfigMenuView = () => {
+    Animated.timing(offsetY, {
+      toValue: -(Dimensions.get('window').height / 2 - 50),
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -82,6 +92,7 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
   const showConfig = e => {
     e.preventDefault();
     setMenuShown('config');
+    slideIntoConfigMenuView();
   };
 
   const handleLogout = async e => {
