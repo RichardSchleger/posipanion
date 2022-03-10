@@ -11,6 +11,7 @@ import PushNotification from 'react-native-push-notification';
 import Firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import Login from './components/Login/Login';
+import {AppRegistry} from 'react-native';
 
 const App: () => Node = () => {
   const [state, dispatch] = useTimingReducer();
@@ -135,3 +136,5 @@ const App: () => Node = () => {
 // });
 
 export default App;
+
+AppRegistry.registerComponent('PosiPanion', () => App);

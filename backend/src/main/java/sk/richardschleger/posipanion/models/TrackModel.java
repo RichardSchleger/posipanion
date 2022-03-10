@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class TrackModel {
+
+    private int id;
     
     private String name;
 
@@ -18,12 +20,21 @@ public class TrackModel {
     public TrackModel() {
     }
 
-    public TrackModel(String name, double distance, double elevation, long movingTime, List<WayPointModel> waypoints) {
+    public TrackModel(int id, String name, double distance, double elevation, long movingTime, List<WayPointModel> waypoints) {
+        this.id = id;
         this.name = name;
         this.distance = distance;
         this.elevation = elevation;
         this.movingTime = movingTime;
         this.waypoints = waypoints;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -66,6 +77,11 @@ public class TrackModel {
         this.waypoints = waypoints;
     }
 
+    public TrackModel id(int id) {
+        setId(id);
+        return this;
+    }
+
     public TrackModel name(String name) {
         setName(name);
         return this;
@@ -99,18 +115,19 @@ public class TrackModel {
             return false;
         }
         TrackModel trackModel = (TrackModel) o;
-        return Objects.equals(name, trackModel.name) && distance == trackModel.distance && elevation == trackModel.elevation && movingTime == trackModel.movingTime && Objects.equals(waypoints, trackModel.waypoints);
+        return id == trackModel.id && Objects.equals(name, trackModel.name) && distance == trackModel.distance && elevation == trackModel.elevation && movingTime == trackModel.movingTime && Objects.equals(waypoints, trackModel.waypoints);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, distance, elevation, movingTime, waypoints);
+        return Objects.hash(id, name, distance, elevation, movingTime, waypoints);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " name='" + getName() + "'" +
+            " id='" + getId() + "'" +
+            ", name='" + getName() + "'" +
             ", distance='" + getDistance() + "'" +
             ", elevation='" + getElevation() + "'" +
             ", movingTime='" + getMovingTime() + "'" +

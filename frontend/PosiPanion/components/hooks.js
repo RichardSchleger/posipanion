@@ -10,12 +10,34 @@ import type {
   TimingState,
 } from 'types';
 
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {AppState, DeviceEventEmitter, NativeModules} from 'react-native';
 import RNLocation from 'react-native-location';
 import {Actions} from './Map/reducer';
 
+RNLocation.configure({
+  distanceFilter: 3, // Meters
+  desiredAccuracy: {
+    ios: 'best',
+    android: 'highAccuracy',
+  },
+  // Android only
+  // androidProvider: 'auto',
+  interval: 5000, // Milliseconds
+  fastestInterval: 5000, // Milliseconds
+  maxWaitTime: 5000, // Milliseconds
+  // iOS Only
+  activityType: 'fitness',
+  allowsBackgroundLocationUpdates: true,
+  headingFilter: 0, // Degrees
+  headingOrientation: 'portrait',
+  pausesLocationUpdatesAutomatically: false,
+  showsBackgroundLocationIndicator: true,
+});
+
 export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
+  const [listener, setListener] = useState(null);
+
   return useEffect(() => {
     const checkPermission = () => {
       RNLocation.getCurrentPermission().then(currentPermission => {
@@ -39,10 +61,13 @@ export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
       }
     };
 
-    AppState.addEventListener('change', handleAppStateChange);
+    setListener(AppState.addEventListener('change', handleAppStateChange));
 
     return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
+      if (listener) {
+        listener.remove();
+        setListener(null);
+      }
     };
   }, [dispatch, state.granted]);
 };

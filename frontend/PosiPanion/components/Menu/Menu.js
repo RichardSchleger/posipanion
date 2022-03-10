@@ -14,13 +14,25 @@ import {
 import MapMenu from './MapMenu';
 import RideMenu from './RideMenu';
 import ConfigMenu from './ConfigMenu';
+import axios from 'axios';
+import API from '../Api/API';
+import AuthService from '../AuthService/AuthService';
+import ActiveRideDetails from '../ActiveRideDetals/ActiveRideDetails';
 
-export default function Menu({show, setRefresh, friends, showUserDetail}) {
+export default function Menu({
+  show,
+  setRefresh,
+  friends,
+  showUserDetail,
+  rideActive,
+  setRideActive,
+}) {
   const offsetY = useRef(new Animated.Value(0)).current;
   const [menuShown, setMenuShown] = useState('map');
   const [newRide, setNewRide] = useState(true);
 
-  const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
+  const [ride, setRide] = useState(null);
+  const [selectedTrack, setSelectedTrack] = useState(null);
 
   useEffect(() => {
     if (show) {
@@ -32,6 +44,8 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
         slideIntoMapMenuView();
       } else if (menuShown === 'config') {
         slideIntoConfigMenuView();
+      } else if (menuShown === 'activeRide') {
+        slideIntoMapMenuView();
       }
     } else {
       slideOutOfView();
@@ -78,11 +92,16 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
 
   const showRideMenu = e => {
     e.preventDefault();
-    setMenuShown('ride');
-    if (newRide) {
-      slideIntoNewRideMenuView();
-    } else if (!newRide) {
+    if (rideActive) {
+      setMenuShown('activeRide');
       slideIntoMapMenuView();
+    } else {
+      setMenuShown('ride');
+      if (newRide) {
+        slideIntoNewRideMenuView();
+      } else if (!newRide) {
+        slideIntoMapMenuView();
+      }
     }
   };
 
@@ -131,6 +150,31 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
         : '84%',
   };
 
+  const handleRideStart = async e => {
+    e.preventDefault();
+    const token = await AuthService.getToken();
+
+    axios
+      .put(
+        API.url + 'user/start' + (selectedTrack ? '/' + selectedTrack.id : ''),
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setRideActive(true);
+        setMenuShown('activeRide');
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return handleRideStart(e);
+          }
+        }
+      });
+  };
+
   return (
     <Animated.View
       style={[styles.menuContainer, {transform: [{translateY: offsetY}]}]}>
@@ -155,13 +199,17 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
             style={[
               styles.button,
               styles.button_ride,
-              menuShown === 'ride' ? styles.button_active : '',
+              menuShown === 'ride' || menuShown === 'activeRide'
+                ? styles.button_active
+                : '',
             ]}
             onPress={showRideMenu}>
             <Text
               style={[
                 styles.button_text,
-                menuShown === 'ride' ? styles.button_text_active : '',
+                menuShown === 'ride' || menuShown === 'activeRide'
+                  ? styles.button_text_active
+                  : '',
               ]}>
               JAZDA
             </Text>
@@ -175,8 +223,8 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
               setNewRide={setNewRide}
               slideIntoNewRideMenuView={slideIntoNewRideMenuView}
               slideIntoExisitngRideMenuView={slideIntoMapMenuView}
-              selectedTrackIndex={selectedTrackIndex}
-              setSelectedTrackIndex={setSelectedTrackIndex}
+              selectedTrack={selectedTrack}
+              setSelectedTrack={setSelectedTrack}
             />
           )}
           <Pressable
@@ -194,14 +242,15 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
           {menuShown === 'ride' && (
             <Pressable
               style={
-                !newRide && selectedTrackIndex === -1
+                !newRide && !selectedTrack
                   ? [styles.disabled_button, button_start_ride]
                   : [styles.button, button_start_ride]
               }
-              disabled={!newRide && selectedTrackIndex === -1}>
+              disabled={!newRide && !selectedTrack}
+              onPress={handleRideStart}>
               <Text
                 style={
-                  !newRide && selectedTrackIndex === -1
+                  !newRide && !selectedTrack
                     ? styles.disabled_button_text
                     : styles.button_text
                 }>
@@ -209,6 +258,7 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
               </Text>
             </Pressable>
           )}
+          {menuShown === 'activeRide' && <ActiveRideDetails ride={ride} />}
         </View>
       )}
       {menuShown === 'config' && (

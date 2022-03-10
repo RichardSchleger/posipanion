@@ -8,29 +8,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
-// import RNLocation from 'react-native-location';
-
-// RNLocation.configure({
-//   distanceFilter: 0, // Meters
-//   desiredAccuracy: {
-//     ios: 'best',
-//     android: 'highAccuracy',
-//   },
-//   // Android only
-//   // androidProvider: 'auto',
-//   interval: 1000, // Milliseconds
-//   fastestInterval: 1000, // Milliseconds
-//   maxWaitTime: 1000, // Milliseconds
-//   // iOS Only
-//   activityType: 'fitness',
-//   allowsBackgroundLocationUpdates: true,
-//   headingFilter: 0, // Degrees
-//   headingOrientation: 'portrait',
-//   pausesLocationUpdatesAutomatically: false,
-//   showsBackgroundLocationIndicator: true,
-// });
-
-const Map = ({users, detail, showUserDetail}) => {
+const Map = ({users, detail, showUserDetail, rideActive}) => {
   const [firstRun, setFirstRun] = useState(true);
   const mapview = React.createRef();
 
@@ -61,8 +39,8 @@ const Map = ({users, detail, showUserDetail}) => {
   };
 
   return [
-    <ActiveUserDetail detail={detail} />,
-    <View style={container}>
+    <ActiveUserDetail detail={detail} key={'active_user_detail'} />,
+    <View style={container} key={'map_container'}>
       <MapView ref={mapview} provider={PROVIDER_GOOGLE} style={styles.map}>
         {users &&
           detail === null &&

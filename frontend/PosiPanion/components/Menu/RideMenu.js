@@ -16,8 +16,8 @@ export default function RideMenu({
   setNewRide,
   slideIntoNewRideMenuView,
   slideIntoExisitngRideMenuView,
-  selectedTrackIndex,
-  setSelectedTrackIndex,
+  selectedTrack,
+  setSelectedTrack,
 }) {
   const [tracks, setTracks] = useState([]);
 
@@ -95,16 +95,16 @@ export default function RideMenu({
             {tracks.map((track, index) => (
               <Pressable
                 style={
-                  index === selectedTrackIndex
+                  selectedTrack && track.id === selectedTrack.id
                     ? [styles.selected_track, styles.track_container]
                     : styles.track_container
                 }
                 key={'track_' + index}
                 onPress={() => {
-                  if (index !== selectedTrackIndex) {
-                    setSelectedTrackIndex(index);
+                  if (selectedTrack && track.id !== selectedTrack.id) {
+                    setSelectedTrack(tracks[index]);
                   } else {
-                    setSelectedTrackIndex(-1);
+                    setSelectedTrack(null);
                   }
                 }}>
                 <Text>{track.name}</Text>
