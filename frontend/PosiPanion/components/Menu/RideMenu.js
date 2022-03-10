@@ -1,12 +1,50 @@
-import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import AuthService from '../AuthService/AuthService';
+import axios from 'axios';
+import API from '../Api/API';
 
 export default function RideMenu({
   newRide,
   setNewRide,
   slideIntoNewRideMenuView,
   slideIntoExisitngRideMenuView,
+  selectedTrackIndex,
+  setSelectedTrackIndex,
 }) {
+  const [tracks, setTracks] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await AuthService.getToken();
+      return await axios
+        .get(API.url + 'user/tracks', {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => response.data)
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return fetchData();
+            }
+          }
+        });
+    };
+
+    const getData = async () => {
+      const response = await fetchData();
+      setTracks(response);
+    };
+    getData();
+  }, []);
+
   const showNewRide = e => {
     e.preventDefault();
     setNewRide(true);
@@ -51,6 +89,33 @@ export default function RideMenu({
           NAPLÁNOVANÁ
         </Text>
       </Pressable>
+      {!newRide && (
+        <View style={styles.tracks_container}>
+          <ScrollView>
+            {tracks.map((track, index) => (
+              <Pressable
+                style={
+                  index === selectedTrackIndex
+                    ? [styles.selected_track, styles.track_container]
+                    : styles.track_container
+                }
+                key={'track_' + index}
+                onPress={() => {
+                  if (index !== selectedTrackIndex) {
+                    setSelectedTrackIndex(index);
+                  } else {
+                    setSelectedTrackIndex(-1);
+                  }
+                }}>
+                <Text>{track.name}</Text>
+                <Text>
+                  {Math.round((track.distance / 1000) * 10) / 10 + ' km'}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
@@ -104,5 +169,31 @@ const styles = StyleSheet.create({
 
   button_text_active: {
     color: '#FFFFFF',
+  },
+
+  tracks_container: {
+    top: 60,
+    height: '80%',
+    width: '100%',
+    marginLeft: 0,
+    paddingLeft: 0,
+  },
+
+  selected_track: {
+    borderWidth: 3,
+    borderStyle: 'solid',
+    borderColor: '#109CF1',
+  },
+
+  track_container: {
+    width: '100%',
+    height: Dimensions.get('window').height / 15,
+    backgroundColor: '#EEEEEE',
+    marginBottom: 5,
+    marginLeft: 0,
+    borderRadius: 5,
+    display: 'flex',
+    justifyContent: 'center',
+    paddingLeft: 10,
   },
 });

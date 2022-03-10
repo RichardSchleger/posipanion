@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 
 export default function MapMenu({friends, showUserDetail}) {
   const [shownFriends, setShownFriends] = useState([]);
@@ -56,14 +57,14 @@ export default function MapMenu({friends, showUserDetail}) {
       <View style={styles.friends_container}>
         <ScrollView>
           {shownFriends.map((friend, index) => (
-            <View style={styles.friend_container} key={'friend_' + index}>
-              <Text
-                onPress={event => {
-                  showUserDetail(event, friend.id);
-                }}>
-                {friend.firstName + ' ' + friend.surname}
-              </Text>
-            </View>
+            <Pressable
+              style={styles.friend_container}
+              key={'friend_' + index}
+              onPress={event => {
+                showUserDetail(event, friend.id);
+              }}>
+              <Text>{friend.firstName + ' ' + friend.surname}</Text>
+            </Pressable>
           ))}
         </ScrollView>
       </View>

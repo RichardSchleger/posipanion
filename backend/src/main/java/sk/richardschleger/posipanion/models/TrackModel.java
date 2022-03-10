@@ -5,6 +5,8 @@ import java.util.Objects;
 
 public class TrackModel {
     
+    private String name;
+
     private double distance;
 
     private double elevation;
@@ -16,11 +18,20 @@ public class TrackModel {
     public TrackModel() {
     }
 
-    public TrackModel(double distance, double elevation, long movingTime, List<WayPointModel> waypoints) {
+    public TrackModel(String name, double distance, double elevation, long movingTime, List<WayPointModel> waypoints) {
+        this.name = name;
         this.distance = distance;
         this.elevation = elevation;
         this.movingTime = movingTime;
         this.waypoints = waypoints;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public double getDistance() {
@@ -55,6 +66,11 @@ public class TrackModel {
         this.waypoints = waypoints;
     }
 
+    public TrackModel name(String name) {
+        setName(name);
+        return this;
+    }
+
     public TrackModel distance(double distance) {
         setDistance(distance);
         return this;
@@ -83,18 +99,19 @@ public class TrackModel {
             return false;
         }
         TrackModel trackModel = (TrackModel) o;
-        return distance == trackModel.distance && elevation == trackModel.elevation && movingTime == trackModel.movingTime && Objects.equals(waypoints, trackModel.waypoints);
+        return Objects.equals(name, trackModel.name) && distance == trackModel.distance && elevation == trackModel.elevation && movingTime == trackModel.movingTime && Objects.equals(waypoints, trackModel.waypoints);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(distance, elevation, movingTime, waypoints);
+        return Objects.hash(name, distance, elevation, movingTime, waypoints);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " distance='" + getDistance() + "'" +
+            " name='" + getName() + "'" +
+            ", distance='" + getDistance() + "'" +
             ", elevation='" + getElevation() + "'" +
             ", movingTime='" + getMovingTime() + "'" +
             ", waypoints='" + getWaypoints() + "'" +

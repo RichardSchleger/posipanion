@@ -20,6 +20,8 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
   const [menuShown, setMenuShown] = useState('map');
   const [newRide, setNewRide] = useState(true);
 
+  const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
+
   useEffect(() => {
     if (show) {
       if (menuShown === 'map') {
@@ -173,6 +175,8 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
               setNewRide={setNewRide}
               slideIntoNewRideMenuView={slideIntoNewRideMenuView}
               slideIntoExisitngRideMenuView={slideIntoMapMenuView}
+              selectedTrackIndex={selectedTrackIndex}
+              setSelectedTrackIndex={setSelectedTrackIndex}
             />
           )}
           <Pressable
@@ -188,8 +192,21 @@ export default function Menu({show, setRefresh, friends, showUserDetail}) {
             />
           </Pressable>
           {menuShown === 'ride' && (
-            <Pressable style={[styles.button, button_start_ride]}>
-              <Text style={styles.button_text}>SPUSTIŤ</Text>
+            <Pressable
+              style={
+                !newRide && selectedTrackIndex === -1
+                  ? [styles.disabled_button, button_start_ride]
+                  : [styles.button, button_start_ride]
+              }
+              disabled={!newRide && selectedTrackIndex === -1}>
+              <Text
+                style={
+                  !newRide && selectedTrackIndex === -1
+                    ? styles.disabled_button_text
+                    : styles.button_text
+                }>
+                SPUSTIŤ
+              </Text>
             </Pressable>
           )}
         </View>
@@ -235,6 +252,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 50,
+  },
+
+  disabled_button: {
+    borderColor: '#cccccc',
+    borderStyle: 'solid',
+    borderWidth: 3,
+    backgroundColor: '#f3f3f3',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+    color: 'white',
+  },
+
+  disabled_button_text: {
+    fontSize: 20,
+    color: '#cccccc',
   },
 
   button_map: {
