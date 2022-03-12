@@ -1,5 +1,6 @@
 package sk.richardschleger.posipanion.models;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class LocationModel {
@@ -10,12 +11,12 @@ public class LocationModel {
 
     private double elevation;
 
-    private long timestamp;
+    private Timestamp timestamp;
 
     public LocationModel() {
     }
 
-    public LocationModel(double latitude, double longitude, double elevation, long timestamp) {
+    public LocationModel(double latitude, double longitude, double elevation, Timestamp timestamp) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.elevation = elevation;
@@ -46,11 +47,11 @@ public class LocationModel {
         this.elevation = elevation;
     }
 
-    public long getTimestamp() {
+    public Timestamp getTimestamp() {
         return this.timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -69,7 +70,7 @@ public class LocationModel {
         return this;
     }
 
-    public LocationModel timestamp(long timestamp) {
+    public LocationModel timestamp(Timestamp timestamp) {
         setTimestamp(timestamp);
         return this;
     }
@@ -82,7 +83,7 @@ public class LocationModel {
             return false;
         }
         LocationModel locationModel = (LocationModel) o;
-        return latitude == locationModel.latitude && longitude == locationModel.longitude && elevation == locationModel.elevation && timestamp == locationModel.timestamp;
+        return latitude == locationModel.latitude && longitude == locationModel.longitude && elevation == locationModel.elevation && Objects.equals(timestamp, locationModel.timestamp);
     }
 
     @Override

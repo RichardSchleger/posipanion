@@ -95,11 +95,10 @@ export const useNativeLocationTracking = (
       subscription = DeviceEventEmitter.addListener(
         NativeModules.LocationManager.JS_LOCATION_EVENT_NAME,
         (e: NativeLocationEvent) => {
-          // console.log('Received Location Event:', e);
+          //console.log('Received Location Event:', e);
           dispatch({
             type: Actions.UpdatePosition,
             position: {
-              accuracy: 10,
               lat: e.latitude,
               lng: e.longitude,
               alti: e.altitude,

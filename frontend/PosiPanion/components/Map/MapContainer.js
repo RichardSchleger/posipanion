@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import {AppRegistry, Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import {useBackHandler} from '@react-native-community/hooks';
 
 import API from '../Api/API';
@@ -17,22 +17,78 @@ import {
 } from '../hooks';
 
 export default function MapContainer({setRefresh}) {
-  const [state, dispatch] = useTimingReducer();
+  const [positionState, dispatch] = useTimingReducer();
 
-  useLocation(state, dispatch);
+  const [locationCache, setLocationCache] = useState([]);
 
-  // if (Platform.OS === 'ios') {
-  //   // eslint-disable-next-line react-hooks/rules-of-hooks
-  //   useLocationTracking(state, dispatch);
-  // } else {
-  //   // eslint-disable-next-line react-hooks/rules-of-hooks
-  //   useNativeLocationTracking(state, dispatch);
-  // }
+  useLocation(positionState, dispatch);
+
+  if (Platform.OS === 'ios') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLocationTracking(positionState, dispatch);
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useNativeLocationTracking(positionState, dispatch);
+  }
 
   const [friends, setFriends] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
   const [detail, setDetail] = useState(null);
-  const [rideActive, setRideActive] = useState(false);
+  const [rideActive, setRideActive] = useState(null);
+
+  useEffect(() => {
+    console.log(rideActive);
+  }, [rideActive]);
+
+  useEffect(() => {
+    const sendLocation = async () => {
+      const token = await AuthService.getToken();
+
+      axios
+        .post(
+          API.url + 'user/location',
+          {
+            latitude: positionState.position.lat,
+            longitude: positionState.position.lng,
+            elevation: positionState.position.alti,
+            timestamp: new Date(),
+          },
+          {
+            headers: {Authorization: 'Bearer ' + token},
+          },
+        )
+        .then(() => {
+          setRideActive(c => {
+            const temp = {...c};
+            temp.currentRide.waypoints.push({
+              latitude: positionState.position.lat,
+              longitude: positionState.position.lng,
+            });
+            return temp;
+          });
+        })
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return sendLocation();
+            }
+          } else {
+            setLocationCache(c => {
+              const temp = {...c};
+              temp.push({
+                latitude: positionState.position.lat,
+                longitude: positionState.position.lng,
+              });
+              return temp;
+            });
+          }
+        });
+    };
+
+    if (rideActive && positionState) {
+      sendLocation();
+    }
+  }, [positionState]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,8 +107,26 @@ export default function MapContainer({setRefresh}) {
         });
     };
 
+    const fetchCurrentRide = async () => {
+      const token = await AuthService.getToken();
+      return await axios
+        .get(API.url + 'user/detail', {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => response.data)
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return fetchCurrentRide();
+            }
+          }
+        });
+    };
+
     const getData = async () => {
       const response = await fetchData();
+      const currentRide = await fetchCurrentRide();
+      setRideActive(currentRide);
       setFriends(
         response.map(user => {
           return {
@@ -114,6 +188,7 @@ export default function MapContainer({setRefresh}) {
         detail={detail}
         showUserDetail={showUserDetail}
         rideActive={rideActive}
+        positionState={positionState}
       />
       <MenuButton onPress={onPress} />
       <Menu
@@ -123,6 +198,7 @@ export default function MapContainer({setRefresh}) {
         showUserDetail={showUserDetail}
         rideActive={rideActive}
         setRideActive={setRideActive}
+        positionState={positionState}
       />
     </View>
   );

@@ -26,12 +26,12 @@ export default function Menu({
   showUserDetail,
   rideActive,
   setRideActive,
+  positionState,
 }) {
   const offsetY = useRef(new Animated.Value(0)).current;
   const [menuShown, setMenuShown] = useState('map');
   const [newRide, setNewRide] = useState(true);
 
-  const [ride, setRide] = useState(null);
   const [selectedTrack, setSelectedTrack] = useState(null);
 
   useEffect(() => {
@@ -153,17 +153,35 @@ export default function Menu({
   const handleRideStart = async e => {
     e.preventDefault();
     const token = await AuthService.getToken();
-
     axios
       .put(
         API.url + 'user/start' + (selectedTrack ? '/' + selectedTrack.id : ''),
-        {},
+        {
+          latitude: positionState.position.lat,
+          longitude: positionState.position.lng,
+          elevation: positionState.position.alti,
+          timestamp: new Date(),
+        },
         {
           headers: {Authorization: 'Bearer ' + token},
         },
       )
       .then(() => {
-        setRideActive(true);
+        setRideActive({
+          track: selectedTrack,
+          currentRide: {
+            distance: 0,
+            elevation: 0,
+            movingTime: 0,
+            waypoints: [
+              {
+                latitude: positionState.position.lat,
+                longitude: positionState.position.lng,
+              },
+            ],
+          },
+        });
+
         setMenuShown('activeRide');
       })
       .catch(async error => {
@@ -175,10 +193,36 @@ export default function Menu({
       });
   };
 
+  const handleRideEnd = async e => {
+    e.preventDefault();
+    const token = await AuthService.getToken();
+    axios
+      .put(
+        API.url + 'user/end',
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setRideActive(null);
+        setMenuShown('map');
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return handleRideEnd(e);
+          }
+        }
+      });
+  };
+
   return (
     <Animated.View
       style={[styles.menuContainer, {transform: [{translateY: offsetY}]}]}>
-      {(menuShown === 'map' || menuShown === 'ride') && (
+      {(menuShown === 'map' ||
+        menuShown === 'ride' ||
+        menuShown === 'activeRide') && (
         <View style={styles.menu}>
           <Pressable
             style={[
@@ -227,6 +271,7 @@ export default function Menu({
               setSelectedTrack={setSelectedTrack}
             />
           )}
+          {menuShown === 'activeRide' && <ActiveRideDetails ride={{}} />}
           <Pressable
             style={[styles.button, button_config]}
             onPress={showConfig}>
@@ -258,7 +303,13 @@ export default function Menu({
               </Text>
             </Pressable>
           )}
-          {menuShown === 'activeRide' && <ActiveRideDetails ride={ride} />}
+          {menuShown === 'activeRide' && (
+            <Pressable
+              style={[styles.button, button_start_ride]}
+              onPress={handleRideEnd}>
+              <Text style={styles.button_text}>UKONČIŤ</Text>
+            </Pressable>
+          )}
         </View>
       )}
       {menuShown === 'config' && (
