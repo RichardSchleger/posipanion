@@ -41,50 +41,6 @@ export default function MapContainer({setRefresh}) {
   }, [rideActive]);
 
   useEffect(() => {
-    const sendLocation = async () => {
-      const token = await AuthService.getToken();
-
-      axios
-        .post(
-          API.url + 'user/location',
-          {
-            latitude: positionState.position.lat,
-            longitude: positionState.position.lng,
-            elevation: positionState.position.alti,
-            timestamp: new Date(),
-          },
-          {
-            headers: {Authorization: 'Bearer ' + token},
-          },
-        )
-        .then(() => {
-          setRideActive(c => {
-            const temp = {...c};
-            temp.currentRide.waypoints.push({
-              latitude: positionState.position.lat,
-              longitude: positionState.position.lng,
-            });
-            return temp;
-          });
-        })
-        .catch(async error => {
-          if (error.response.status === 606) {
-            if (await AuthService.refreshToken()) {
-              return sendLocation();
-            }
-          } else {
-            setLocationCache(c => {
-              const temp = {...c};
-              temp.push({
-                latitude: positionState.position.lat,
-                longitude: positionState.position.lng,
-              });
-              return temp;
-            });
-          }
-        });
-    };
-
     if (rideActive && positionState) {
       sendLocation();
     }
@@ -142,6 +98,67 @@ export default function MapContainer({setRefresh}) {
     getData();
   }, []);
 
+  const sendLocation = async location => {
+    const token = await AuthService.getToken();
+
+    let payload;
+    if (location) {
+      payload = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        elevation: location.elevation,
+        timestamp: location.timestamp,
+      };
+    } else {
+      payload = {
+        latitude: positionState.position.lat,
+        longitude: positionState.position.lng,
+        elevation: positionState.position.alti,
+        timestamp: new Date(),
+      };
+    }
+
+    axios
+      .post(API.url + 'user/location', payload, {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(() => {
+        setRideActive(c => {
+          const temp = {...c};
+          temp.currentRide.waypoints.push({
+            latitude: payload.latitude,
+            longitude: payload.longitude,
+          });
+          return temp;
+        });
+        sendCachedLocations();
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return sendLocation();
+          }
+        } else {
+          setLocationCache(c => {
+            const temp = {...c};
+            temp.push({
+              latitude: payload.latitude,
+              longitude: payload.longitude,
+              elevation: payload.elevation,
+              timestamp: payload.timestamp,
+            });
+            return temp;
+          });
+        }
+      });
+  };
+
+  const sendCachedLocations = () => {
+    locationCache.forEach(location => {
+      sendLocation(location);
+    });
+  };
+
   const onPress = e => {
     e.preventDefault();
     setShowMenu(true);
@@ -189,6 +206,7 @@ export default function MapContainer({setRefresh}) {
         showUserDetail={showUserDetail}
         rideActive={rideActive}
         positionState={positionState}
+        shown={showMenu}
       />
       <MenuButton onPress={onPress} />
       <Menu

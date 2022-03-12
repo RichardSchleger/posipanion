@@ -8,7 +8,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
-const Map = ({users, detail, showUserDetail, rideActive}) => {
+const Map = ({users, detail, showUserDetail, rideActive, shown}) => {
   const [firstRun, setFirstRun] = useState(true);
   const mapview = React.createRef();
 
@@ -33,7 +33,7 @@ const Map = ({users, detail, showUserDetail, rideActive}) => {
 
   const container = {
     ...StyleSheet.absoluteFillObject,
-    height: detail ? '80%' : '100%',
+    height: detail ? '80%' : rideActive && shown ? '50%' : '100%',
     position: 'absolute',
     top: detail ? '20%' : 0,
   };
