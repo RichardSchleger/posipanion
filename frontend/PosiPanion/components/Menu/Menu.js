@@ -27,9 +27,10 @@ export default function Menu({
   rideActive,
   setRideActive,
   positionState,
+  menuShown,
+  setMenuShown,
 }) {
   const offsetY = useRef(new Animated.Value(0)).current;
-  const [menuShown, setMenuShown] = useState('map');
   const [newRide, setNewRide] = useState(true);
 
   const [selectedTrack, setSelectedTrack] = useState(null);
@@ -150,6 +151,22 @@ export default function Menu({
         : '84%',
   };
 
+  const fetchProfile = async () => {
+    const token = await AuthService.getToken();
+    return await axios
+      .get(API.url + 'user/profile', {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(response => response.data)
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return fetchProfile();
+          }
+        }
+      });
+  };
+
   const handleRideStart = async e => {
     e.preventDefault();
     const token = await AuthService.getToken();
@@ -166,8 +183,13 @@ export default function Menu({
           headers: {Authorization: 'Bearer ' + token},
         },
       )
-      .then(() => {
+      .then(async () => {
+        const profile = await fetchProfile();
         setRideActive({
+          firstName: profile.firstName,
+          surname: profile.surname,
+          lastKnownLatitude: positionState.position.lat,
+          lastKnownLongitude: positionState.position.lng,
           track: selectedTrack,
           currentRide: {
             distance: 0,

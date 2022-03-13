@@ -8,7 +8,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
-const Map = ({users, detail, showUserDetail, rideActive, shown}) => {
+const Map = ({users, detail, showUserDetail, rideActive, shown, menuShown}) => {
   const [firstRun, setFirstRun] = useState(true);
   const mapview = React.createRef();
 
@@ -25,7 +25,12 @@ const Map = ({users, detail, showUserDetail, rideActive, shown}) => {
         }
       }
     }
-  }, [firstRun, mapview, users]);
+    if (menuShown === 'activeRide') {
+      if (mapview && mapview.current) {
+        mapview.current.fitToElements(true);
+      }
+    }
+  }, [firstRun, mapview, users, menuShown]);
 
   useEffect(() => {
     mapview.current.fitToElements(true);
@@ -44,6 +49,7 @@ const Map = ({users, detail, showUserDetail, rideActive, shown}) => {
       <MapView ref={mapview} provider={PROVIDER_GOOGLE} style={styles.map}>
         {users &&
           detail === null &&
+          menuShown !== 'activeRide' &&
           users.map((user, index) => (
             <Marker
               key={'user_' + index}
@@ -111,6 +117,59 @@ const Map = ({users, detail, showUserDetail, rideActive, shown}) => {
             <View style={styles.marker}>
               <Text style={styles.markerText}>
                 {detail.firstName[0].toUpperCase()}
+              </Text>
+            </View>
+          </Marker>
+        )}
+        {rideActive &&
+          rideActive.track &&
+          rideActive.track.waypoints.map((waypoint, index) => (
+            <Marker
+              key={'active_ride_trackpoint_' + index}
+              coordinate={{
+                latitude: waypoint.latitude,
+                longitude: waypoint.longitude,
+              }}
+              opacity={0}
+            />
+          ))}
+        {rideActive && rideActive.track && (
+          <Polyline
+            coordinates={rideActive.track.waypoints}
+            strokeColor={'red'}
+            strokeWidth={3}
+          />
+        )}
+        {rideActive &&
+          rideActive.currentRide &&
+          rideActive.currentRide.waypoints.map((waypoint, index) => (
+            <Marker
+              key={'active_ride_point_' + index}
+              coordinate={{
+                latitude: waypoint.latitude,
+                longitude: waypoint.longitude,
+              }}
+              opacity={0}
+            />
+          ))}
+        {rideActive && rideActive.currentRide && (
+          <Polyline
+            coordinates={rideActive.currentRide.waypoints}
+            strokeColor={'#109CF1'}
+            strokeWidth={3}
+          />
+        )}
+        {rideActive && (
+          <Marker
+            key={'user_detail_marker'}
+            anchor={{x: 0.5, y: 0.5}}
+            coordinate={{
+              latitude: rideActive.lastKnownLatitude,
+              longitude: rideActive.lastKnownLongitude,
+            }}>
+            <View style={styles.marker}>
+              <Text style={styles.markerText}>
+                {rideActive.firstName[0].toUpperCase()}
               </Text>
             </View>
           </Marker>

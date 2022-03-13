@@ -19,6 +19,7 @@ import {
 export default function MapContainer({setRefresh}) {
   const [positionState, dispatch] = useTimingReducer();
 
+  const [menuShown, setMenuShown] = useState('map');
   const [locationCache, setLocationCache] = useState([]);
 
   useLocation(positionState, dispatch);
@@ -35,10 +36,6 @@ export default function MapContainer({setRefresh}) {
   const [showMenu, setShowMenu] = useState(false);
   const [detail, setDetail] = useState(null);
   const [rideActive, setRideActive] = useState(null);
-
-  useEffect(() => {
-    console.log(rideActive);
-  }, [rideActive]);
 
   useEffect(() => {
     if (rideActive && positionState) {
@@ -82,7 +79,13 @@ export default function MapContainer({setRefresh}) {
     const getData = async () => {
       const response = await fetchData();
       const currentRide = await fetchCurrentRide();
-      setRideActive(currentRide);
+      if (currentRide) {
+        currentRide.currentRide.waypoints =
+          currentRide.currentRide.waypoints.sort(
+            (a, b) => a.timestamp - b.timestamp,
+          );
+        setRideActive(currentRide);
+      }
       setFriends(
         response.map(user => {
           return {
@@ -99,58 +102,77 @@ export default function MapContainer({setRefresh}) {
   }, []);
 
   const sendLocation = async location => {
-    const token = await AuthService.getToken();
+    if (rideActive) {
+      const token = await AuthService.getToken();
 
-    let payload;
-    if (location) {
-      payload = {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        elevation: location.elevation,
-        timestamp: location.timestamp,
-      };
-    } else {
-      payload = {
-        latitude: positionState.position.lat,
-        longitude: positionState.position.lng,
-        elevation: positionState.position.alti,
-        timestamp: new Date(),
-      };
-    }
+      let payload;
+      if (location) {
+        payload = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          elevation: location.elevation,
+          timestamp: location.timestamp,
+        };
+      } else {
+        payload = {
+          latitude: positionState.position.lat,
+          longitude: positionState.position.lng,
+          elevation: positionState.position.alti,
+          timestamp: new Date(),
+        };
+      }
 
-    axios
-      .post(API.url + 'user/location', payload, {
-        headers: {Authorization: 'Bearer ' + token},
-      })
-      .then(() => {
-        setRideActive(c => {
-          const temp = {...c};
-          temp.currentRide.waypoints.push({
+      setRideActive(c => {
+        let temp = {...c};
+        temp.currentRide.waypoints = [
+          ...temp.currentRide.waypoints,
+          {
             latitude: payload.latitude,
             longitude: payload.longitude,
-          });
-          return temp;
-        });
-        sendCachedLocations();
-      })
-      .catch(async error => {
-        if (error.response.status === 606) {
-          if (await AuthService.refreshToken()) {
-            return sendLocation();
-          }
-        } else {
-          setLocationCache(c => {
-            const temp = {...c};
-            temp.push({
-              latitude: payload.latitude,
-              longitude: payload.longitude,
-              elevation: payload.elevation,
-              timestamp: payload.timestamp,
-            });
-            return temp;
-          });
-        }
+            timestamp: payload.timestamp,
+          },
+        ].sort((a, b) => a.timestamp - b.timestamp);
+        temp.lastKnownLatitude =
+          temp.currentRide.waypoints[
+            temp.currentRide.waypoints.length - 1
+          ].latitude;
+        temp.lastKnownLongitude =
+          temp.currentRide.waypoints[
+            temp.currentRide.waypoints.length - 1
+          ].longitude;
+        return temp;
       });
+
+      axios
+        .post(API.url + 'user/location', payload, {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(() => {
+          console.log('SEND LOCATION');
+          sendCachedLocations();
+        })
+        .catch(async error => {
+          console.log('ERROR');
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return sendLocation();
+            }
+          } else {
+            console.log('ERROR');
+            setLocationCache(c => {
+              const temp = {...c};
+              temp.push({
+                latitude: payload.latitude,
+                longitude: payload.longitude,
+                elevation: payload.elevation,
+                timestamp: payload.timestamp,
+              });
+              console.log(temp.length);
+              return temp;
+            });
+          }
+        });
+    }
   };
 
   const sendCachedLocations = () => {
@@ -207,6 +229,7 @@ export default function MapContainer({setRefresh}) {
         rideActive={rideActive}
         positionState={positionState}
         shown={showMenu}
+        menuShown={menuShown}
       />
       <MenuButton onPress={onPress} />
       <Menu
@@ -217,6 +240,8 @@ export default function MapContainer({setRefresh}) {
         rideActive={rideActive}
         setRideActive={setRideActive}
         positionState={positionState}
+        menuShown={menuShown}
+        setMenuShown={setMenuShown}
       />
     </View>
   );
