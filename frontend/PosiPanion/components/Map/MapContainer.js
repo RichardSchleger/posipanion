@@ -22,6 +22,8 @@ export default function MapContainer({setRefresh}) {
   const [menuShown, setMenuShown] = useState('map');
   const [locationCache, setLocationCache] = useState([]);
 
+  const mapview = React.createRef();
+
   useLocation(positionState, dispatch);
 
   if (Platform.OS === 'ios') {
@@ -148,26 +150,31 @@ export default function MapContainer({setRefresh}) {
           headers: {Authorization: 'Bearer ' + token},
         })
         .then(() => {
-          console.log('SEND LOCATION');
-          sendCachedLocations();
+          if (!location) {
+            sendCachedLocations();
+          }
         })
         .catch(async error => {
-          console.log('ERROR');
-          if (error.response.status === 606) {
+          if (
+            error &&
+            error.response &&
+            error.response.status &&
+            error.response.status === 606
+          ) {
             if (await AuthService.refreshToken()) {
               return sendLocation();
             }
           } else {
-            console.log('ERROR');
             setLocationCache(c => {
-              const temp = {...c};
-              temp.push({
-                latitude: payload.latitude,
-                longitude: payload.longitude,
-                elevation: payload.elevation,
-                timestamp: payload.timestamp,
-              });
-              console.log(temp.length);
+              const temp = [
+                ...c,
+                {
+                  latitude: payload.latitude,
+                  longitude: payload.longitude,
+                  elevation: payload.elevation,
+                  timestamp: payload.timestamp,
+                },
+              ];
               return temp;
             });
           }
@@ -179,6 +186,8 @@ export default function MapContainer({setRefresh}) {
     locationCache.forEach(location => {
       sendLocation(location);
     });
+
+    setLocationCache([]);
   };
 
   const onPress = e => {
@@ -230,6 +239,7 @@ export default function MapContainer({setRefresh}) {
         positionState={positionState}
         shown={showMenu}
         menuShown={menuShown}
+        mapview={mapview}
       />
       <MenuButton onPress={onPress} />
       <Menu
@@ -242,6 +252,7 @@ export default function MapContainer({setRefresh}) {
         positionState={positionState}
         menuShown={menuShown}
         setMenuShown={setMenuShown}
+        mapview={mapview}
       />
     </View>
   );

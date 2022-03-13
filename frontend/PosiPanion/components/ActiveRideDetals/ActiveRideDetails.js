@@ -25,7 +25,7 @@ export default function ActiveRideDetails({ride}) {
 const styles = StyleSheet.create({
   container: {
     top: '10%',
-    height: '65%',
+    height: '39%',
     width: '95%',
     marginLeft: '2.5%',
     padding: 0,

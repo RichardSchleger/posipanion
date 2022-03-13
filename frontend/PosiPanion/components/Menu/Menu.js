@@ -46,7 +46,7 @@ export default function Menu({
       } else if (menuShown === 'config') {
         slideIntoConfigMenuView();
       } else if (menuShown === 'activeRide') {
-        slideIntoMapMenuView();
+        slideIntoActiveRideMenuView();
       }
     } else {
       slideOutOfView();
@@ -70,6 +70,14 @@ export default function Menu({
   };
 
   const slideIntoConfigMenuView = () => {
+    Animated.timing(offsetY, {
+      toValue: -(Dimensions.get('window').height / 2 - 50),
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const slideIntoActiveRideMenuView = () => {
     Animated.timing(offsetY, {
       toValue: -(Dimensions.get('window').height / 2 - 50),
       duration: 500,
@@ -122,6 +130,8 @@ export default function Menu({
         ? '84%'
         : menuShown === 'ride' && newRide
         ? '30%'
+        : menuShown === 'activeRide'
+        ? '57%'
         : '84%',
   };
 
@@ -135,6 +145,8 @@ export default function Menu({
         ? '84%'
         : menuShown === 'ride' && newRide
         ? '30%'
+        : menuShown === 'activeRide'
+        ? '57%'
         : '84%',
   };
 
@@ -148,6 +160,8 @@ export default function Menu({
         ? '84%'
         : menuShown === 'ride' && newRide
         ? '30%'
+        : menuShown === 'activeRide'
+        ? '57%'
         : '84%',
   };
 

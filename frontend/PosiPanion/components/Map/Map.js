@@ -8,26 +8,24 @@ import {StyleSheet, Text, View} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
-const Map = ({users, detail, showUserDetail, rideActive, shown, menuShown}) => {
+const Map = ({
+  users,
+  detail,
+  showUserDetail,
+  rideActive,
+  shown,
+  menuShown,
+  mapview,
+}) => {
   const [firstRun, setFirstRun] = useState(true);
-  const mapview = React.createRef();
 
   useEffect(() => {
     if (users && users.length > 0) {
       if (mapview && mapview.current) {
         if (firstRun) {
-          if (users && users.length > 0) {
-            if (mapview && mapview.current) {
-              mapview.current.fitToElements(true);
-            }
-          }
+          mapview.current.fitToElements(true);
           setFirstRun(c => !c);
         }
-      }
-    }
-    if (menuShown === 'activeRide') {
-      if (mapview && mapview.current) {
-        mapview.current.fitToElements(true);
       }
     }
   }, [firstRun, mapview, users, menuShown]);
@@ -38,7 +36,11 @@ const Map = ({users, detail, showUserDetail, rideActive, shown, menuShown}) => {
 
   const container = {
     ...StyleSheet.absoluteFillObject,
-    height: detail ? '80%' : rideActive && shown ? '50%' : '100%',
+    height: detail
+      ? '80%'
+      : rideActive && shown && menuShown === 'activeRide'
+      ? '60%'
+      : '100%',
     position: 'absolute',
     top: detail ? '20%' : 0,
   };
