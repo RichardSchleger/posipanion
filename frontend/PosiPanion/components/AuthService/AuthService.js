@@ -22,6 +22,24 @@ const login = (e, email, password, setRefresh, setOpacity) => {
     });
 };
 
+const googleLogin = (idToken, setRefresh) => {
+  axios
+    .post(API.url + 'google/authenticate', {
+      idToken: idToken,
+    })
+    .then(async r => {
+      try {
+        await AsyncStorage.setItem('AuthToken', r.data.token);
+        setRefresh(c => !c);
+      } catch (error) {
+        // error
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
 const getToken = async () => {
   try {
     const value = await AsyncStorage.getItem('AuthToken');
@@ -64,4 +82,4 @@ const refreshToken = async () => {
     });
 };
 
-export default {login, getToken, logout, refreshToken};
+export default {login, googleLogin, getToken, logout, refreshToken};

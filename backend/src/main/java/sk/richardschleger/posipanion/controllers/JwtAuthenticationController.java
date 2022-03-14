@@ -21,8 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.impl.DefaultClaims;
 import sk.richardschleger.posipanion.configs.JwtTokenUtil;
+import sk.richardschleger.posipanion.entities.User;
+import sk.richardschleger.posipanion.models.GoogleAuthenticationRequestModel;
 import sk.richardschleger.posipanion.models.JwtRequest;
 import sk.richardschleger.posipanion.models.JwtResponse;
+import sk.richardschleger.posipanion.services.GoogleAuthenticateService;
 import sk.richardschleger.posipanion.services.JwtUserDetailsService;
 
 
@@ -39,6 +42,9 @@ public class JwtAuthenticationController {
 
 	@Autowired
 	private JwtUserDetailsService userDetailsService;
+
+	@Autowired
+	private GoogleAuthenticateService googleAuthenticateService;
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -79,5 +85,25 @@ public class JwtAuthenticationController {
 			expectedMap.put(entry.getKey(), entry.getValue());
 		}
 		return expectedMap;
+	}
+
+	@PostMapping("/google/authenticate")
+	public ResponseEntity<?> createAuthenticationTokenGoogle(@RequestBody GoogleAuthenticationRequestModel model){
+
+		User user = googleAuthenticateService.authenticate(model.getIdToken());
+		if(user != null){
+
+			final UserDetails userDetails = userDetailsService
+			.loadUserByUsername(user.getEmail());
+
+			final String token = jwtTokenUtil.generateToken(userDetails);
+
+			return ResponseEntity.ok(new JwtResponse(token));
+		}else{
+
+			return ResponseEntity.status(606).body("Invalid login");
+
+		}
+
 	}
 }

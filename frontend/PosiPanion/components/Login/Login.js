@@ -32,6 +32,7 @@ export default function Login({setRefresh}) {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      AuthService.googleLogin(userInfo.idToken, setRefresh);
       console.log(userInfo);
     } catch (error) {
       console.log(error);
