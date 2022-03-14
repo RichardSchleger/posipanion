@@ -9,12 +9,43 @@ import {
   View,
 } from 'react-native';
 
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+
 import AuthService from '../AuthService/AuthService';
 
 export default function Login({setRefresh}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [opacity, setOpacity] = useState(0);
+
+  GoogleSignin.configure({
+    webClientId:
+      '399407603065-k1d2poogobr5o212kv260vkbmn27p61l.apps.googleusercontent.com',
+    offlineAccess: true,
+  });
+
+  const signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo);
+    } catch (error) {
+      console.log(error);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation (e.g. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // play services not available or outdated
+      } else {
+        // some other error happened
+      }
+    }
+  };
 
   const wrongLoginText = {
     fontSize: 18,
@@ -55,6 +86,13 @@ export default function Login({setRefresh}) {
           }}>
           <Text style={styles.buttonText}>PRIHLÁSIŤ</Text>
         </Pressable>
+        <View style={styles.google_login_container}>
+          <GoogleSigninButton
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={signIn}
+          />
+        </View>
       </View>
     </View>
   );
@@ -113,6 +151,13 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     color: '#109CF1',
     textAlign: 'center',
+  },
+  google_login_container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: '2%',
   },
 });
 
