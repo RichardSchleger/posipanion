@@ -18,6 +18,7 @@ import axios from 'axios';
 import API from '../Api/API';
 import AuthService from '../AuthService/AuthService';
 import ActiveRideDetails from '../ActiveRideDetals/ActiveRideDetails';
+import FriendsMenu from './FriendsMenu';
 
 export default function Menu({
   show,
@@ -47,6 +48,8 @@ export default function Menu({
         slideIntoConfigMenuView();
       } else if (menuShown === 'activeRide') {
         slideIntoActiveRideMenuView();
+      } else if (menuShown === 'friends') {
+        slideIntoMapMenuView();
       }
     } else {
       slideOutOfView();
@@ -118,6 +121,12 @@ export default function Menu({
     e.preventDefault();
     setMenuShown('config');
     slideIntoConfigMenuView();
+  };
+
+  const showFriends = e => {
+    e.preventDefault();
+    setMenuShown('friends');
+    slideIntoMapMenuView();
   };
 
   const button_config = {
@@ -308,18 +317,24 @@ export default function Menu({
             />
           )}
           {menuShown === 'activeRide' && <ActiveRideDetails ride={{}} />}
-          <Pressable
-            style={[styles.button, button_config]}
-            onPress={showConfig}>
-            <FontAwesomeIcon style={styles.icon} icon={faCog} size={40} />
-          </Pressable>
-          <Pressable style={[styles.button, button_friends]}>
-            <FontAwesomeIcon
-              style={styles.icon}
-              icon={faUserFriends}
-              size={40}
-            />
-          </Pressable>
+          {menuShown !== 'config' && menuShown !== 'friends' && (
+            <Pressable
+              style={[styles.button, button_config]}
+              onPress={showConfig}>
+              <FontAwesomeIcon style={styles.icon} icon={faCog} size={40} />
+            </Pressable>
+          )}
+          {menuShown !== 'config' && menuShown !== 'friends' && (
+            <Pressable
+              style={[styles.button, button_friends]}
+              onPress={showFriends}>
+              <FontAwesomeIcon
+                style={styles.icon}
+                icon={faUserFriends}
+                size={40}
+              />
+            </Pressable>
+          )}
           {menuShown === 'ride' && (
             <Pressable
               style={
@@ -351,6 +366,11 @@ export default function Menu({
       {menuShown === 'config' && (
         <View style={styles.menu}>
           <ConfigMenu showMapMenu={showMapMenu} setLoginRefresh={setRefresh} />
+        </View>
+      )}
+      {menuShown === 'friends' && (
+        <View style={styles.menu}>
+          <FriendsMenu />
         </View>
       )}
     </Animated.View>

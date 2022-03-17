@@ -18,6 +18,15 @@ public class FriendService {
         this.friendRepository = friendRepository;
     }
 
+    @Transactional
+    public List<Friend> getPendingFriendsByUserId(int id){
+        return friendRepository.findByUserIdAndConfirmed(id, false);
+    }
+
+    @Transactional
+    public List<Friend> getConfirmedFriendsByUserId(int id){
+        return friendRepository.findByUserIdAndConfirmed(id, true);
+    }
 
     @Transactional
     public List<Friend> getFriendsByUserId(int id){

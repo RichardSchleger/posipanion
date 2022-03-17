@@ -1,5 +1,8 @@
 package sk.richardschleger.posipanion.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
@@ -29,6 +32,13 @@ public class UserService {
     @Transactional
     public void save(User user){
         userRepository.save(user);
+    }
+
+    @Transactional
+    public List<User> getAll(){
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(users::add);
+        return users;
     }
 
 }
