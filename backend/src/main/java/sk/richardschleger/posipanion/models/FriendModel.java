@@ -6,6 +6,8 @@ public class FriendModel {
     
     private int id;
 
+    private int friendId;
+
     private String firstName;
 
     private String surname;
@@ -14,15 +16,19 @@ public class FriendModel {
 
     private double lastKnownLongitude;
 
+    private boolean canConfirm;
+
     public FriendModel() {
     }
 
-    public FriendModel(int id, String firstName, String surname, double lastKnownLatitude, double lastKnownLongitude) {
+    public FriendModel(int id, int friendId, String firstName, String surname, double lastKnownLatitude, double lastKnownLongitude, boolean canConfirm) {
         this.id = id;
+        this.friendId = friendId;
         this.firstName = firstName;
         this.surname = surname;
         this.lastKnownLatitude = lastKnownLatitude;
         this.lastKnownLongitude = lastKnownLongitude;
+        this.canConfirm = canConfirm;
     }
 
     public int getId() {
@@ -31,6 +37,14 @@ public class FriendModel {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getFriendId() {
+        return this.friendId;
+    }
+
+    public void setFriendId(int friendId) {
+        this.friendId = friendId;
     }
 
     public String getFirstName() {
@@ -65,8 +79,25 @@ public class FriendModel {
         this.lastKnownLongitude = lastKnownLongitude;
     }
 
+    public boolean isCanConfirm() {
+        return this.canConfirm;
+    }
+
+    public boolean getCanConfirm() {
+        return this.canConfirm;
+    }
+
+    public void setCanConfirm(boolean canConfirm) {
+        this.canConfirm = canConfirm;
+    }
+
     public FriendModel id(int id) {
         setId(id);
+        return this;
+    }
+
+    public FriendModel friendId(int friendId) {
+        setFriendId(friendId);
         return this;
     }
 
@@ -90,6 +121,11 @@ public class FriendModel {
         return this;
     }
 
+    public FriendModel canConfirm(boolean canConfirm) {
+        setCanConfirm(canConfirm);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -98,22 +134,24 @@ public class FriendModel {
             return false;
         }
         FriendModel friendModel = (FriendModel) o;
-        return id == friendModel.id && Objects.equals(firstName, friendModel.firstName) && Objects.equals(surname, friendModel.surname) && lastKnownLatitude == friendModel.lastKnownLatitude && lastKnownLongitude == friendModel.lastKnownLongitude;
+        return id == friendModel.id && friendId == friendModel.friendId && Objects.equals(firstName, friendModel.firstName) && Objects.equals(surname, friendModel.surname) && lastKnownLatitude == friendModel.lastKnownLatitude && lastKnownLongitude == friendModel.lastKnownLongitude && canConfirm == friendModel.canConfirm;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, surname, lastKnownLatitude, lastKnownLongitude);
+        return Objects.hash(id, friendId, firstName, surname, lastKnownLatitude, lastKnownLongitude, canConfirm);
     }
 
     @Override
     public String toString() {
         return "{" +
             " id='" + getId() + "'" +
+            ", friendId='" + getFriendId() + "'" +
             ", firstName='" + getFirstName() + "'" +
             ", surname='" + getSurname() + "'" +
             ", lastKnownLatitude='" + getLastKnownLatitude() + "'" +
             ", lastKnownLongitude='" + getLastKnownLongitude() + "'" +
+            ", canConfirm='" + isCanConfirm() + "'" +
             "}";
     }
 

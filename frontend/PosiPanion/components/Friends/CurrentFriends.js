@@ -8,9 +8,71 @@ import {
   View,
 } from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faCircle, faTimes} from '@fortawesome/free-solid-svg-icons';
+import {faCheck, faCircle, faTimes} from '@fortawesome/free-solid-svg-icons';
+import AuthService from '../AuthService/AuthService';
+import axios from 'axios';
+import API from '../Api/API';
 
-export default function CurrentFriends({pendingFriends, confirmedFriends}) {
+export default function CurrentFriends({
+  pendingFriends,
+  confirmedFriends,
+  setRefresh,
+}) {
+  const acceptFriend = async (e, id) => {
+    e.preventDefault();
+    if (!id) {
+      return;
+    }
+
+    const token = await AuthService.getToken();
+    axios
+      .post(
+        API.url + 'friend/request/confirm/' + id,
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setRefresh(c => !c);
+      })
+      .catch(async error => {
+        console.log(error);
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return acceptFriend(e, id);
+          }
+        }
+      });
+  };
+
+  const rejectFriend = async (e, id) => {
+    e.preventDefault();
+    if (!id) {
+      return;
+    }
+
+    const token = await AuthService.getToken();
+    axios
+      .post(
+        API.url + 'friend/request/reject/' + id,
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setRefresh(c => !c);
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return rejectFriend(e, id);
+          }
+        }
+      });
+  };
+
   return (
     <ScrollView style={styles.currentFriends}>
       {pendingFriends.map((friend, index) => (
@@ -18,6 +80,30 @@ export default function CurrentFriends({pendingFriends, confirmedFriends}) {
           style={styles.pendingFriendContainer}
           key={'pendingFriend' + index}>
           <Text>{friend.firstName + ' ' + friend.surname}</Text>
+          <View style={styles.pendingFriendButtonContainer}>
+            {friend.canConfirm && (
+              <Pressable
+                onPress={event => {
+                  acceptFriend(event, friend.friendId);
+                }}>
+                <FontAwesomeIcon
+                  icon={faCheck}
+                  size={40}
+                  style={styles.acceptFriendIcon}
+                />
+              </Pressable>
+            )}
+            <Pressable
+              onPress={event => {
+                rejectFriend(event, friend.friendId);
+              }}>
+              <FontAwesomeIcon
+                icon={faTimes}
+                size={40}
+                style={styles.removeFriendIcon}
+              />
+            </Pressable>
+          </View>
         </View>
       ))}
       <View
@@ -30,7 +116,7 @@ export default function CurrentFriends({pendingFriends, confirmedFriends}) {
       />
       {confirmedFriends.map((friend, index) => (
         <View
-          style={styles.pendingFriendContainer}
+          style={styles.confirmedFriendContainer}
           key={'confirmedFriend' + index}>
           <Text>
             {friend.firstName + ' ' + friend.surname + ' '}
@@ -40,7 +126,10 @@ export default function CurrentFriends({pendingFriends, confirmedFriends}) {
               ''
             )}
           </Text>
-          <Pressable style={styles.removeFriend}>
+          <Pressable
+            onPress={event => {
+              rejectFriend(event, friend.friendId);
+            }}>
             <FontAwesomeIcon
               icon={faTimes}
               size={40}
@@ -69,8 +158,17 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     borderRadius: 5,
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingLeft: 10,
+  },
+
+  pendingFriendButtonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: '100%',
+    alignItems: 'center',
   },
 
   confirmedFriendContainer: {
@@ -81,19 +179,23 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     borderRadius: 5,
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 10,
   },
 
   activeUserIcon: {
     color: '#40cf4a',
   },
 
-  removeFriend: {
-    position: 'absolute',
-    right: 20,
-  },
-
   removeFriendIcon: {
     color: '#eb3636',
+    marginRight: 10,
+  },
+
+  acceptFriendIcon: {
+    color: '#21af29',
+    marginRight: 10,
   },
 });

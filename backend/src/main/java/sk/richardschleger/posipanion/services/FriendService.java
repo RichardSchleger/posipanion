@@ -32,4 +32,19 @@ public class FriendService {
     public List<Friend> getFriendsByUserId(int id){
         return friendRepository.findByUser1IdOrUser2Id(id, id);
     }
+
+    @Transactional
+    public void save(Friend friend){
+        friendRepository.save(friend);
+    }
+
+    @Transactional
+    public Friend getFriendById(int id){
+        return friendRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
+    public void delete(Friend friend){
+        friendRepository.delete(friend);
+    }
 }

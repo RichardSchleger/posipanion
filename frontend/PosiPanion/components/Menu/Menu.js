@@ -370,7 +370,7 @@ export default function Menu({
       )}
       {menuShown === 'friends' && (
         <View style={styles.menu}>
-          <FriendsMenu />
+          <FriendsMenu showMapMenu={showMapMenu} />
         </View>
       )}
     </Animated.View>

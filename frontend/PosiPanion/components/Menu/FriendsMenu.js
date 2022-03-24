@@ -12,15 +12,21 @@ import axios from 'axios';
 import API from '../Api/API';
 import AuthService from '../AuthService/AuthService';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faSearch} from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowLeft,
+  faPlus,
+  faSearch,
+  faUserPlus,
+} from '@fortawesome/free-solid-svg-icons';
 import CurrentFriends from '../Friends/CurrentFriends';
 
-export default function FriendsMenu({}) {
+export default function FriendsMenu({showMapMenu}) {
   const [pendingFriends, setPendingFriends] = useState([]);
   const [confirmedFriends, setConfirmedFriends] = useState([]);
   const [showCurrentFriends, setShowCurrentFriends] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [foundUsers, setFoundUsers] = useState([]);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const fetchPendingFriends = async () => {
@@ -62,8 +68,11 @@ export default function FriendsMenu({}) {
       setPendingFriends(fetchedPendingFriends);
       setConfirmedFriends(fetchedConfirmedFriends);
     };
-    getData();
-  }, []);
+
+    if (showCurrentFriends) {
+      getData();
+    }
+  }, [showCurrentFriends, refresh]);
 
   const fetchUsersByText = async () => {
     const token = await AuthService.getToken();
@@ -95,39 +104,118 @@ export default function FriendsMenu({}) {
     e.preventDefault();
     setShowCurrentFriends(false);
     const fetchedUsers = await fetchUsersByText();
-    console.log(fetchedUsers);
     setFoundUsers(fetchedUsers);
+  };
+
+  const handleBack = e => {
+    e.preventDefault();
+    if (showCurrentFriends) {
+      showMapMenu(e);
+    } else {
+      setShowCurrentFriends(true);
+    }
+  };
+
+  const showNewFriend = e => {
+    e.preventDefault();
+    setShowCurrentFriends(false);
+  };
+
+  const sendFriendRequest = async (e, id) => {
+    e.preventDefault();
+    if (!id) {
+      return;
+    }
+
+    const token = await AuthService.getToken();
+    axios
+      .post(
+        API.url + 'friend/request/send/' + id,
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setShowCurrentFriends(true);
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return sendFriendRequest(e, id);
+          }
+        }
+      });
+  };
+
+  const button_back = {
+    position: 'absolute',
+    width: showCurrentFriends ? '49%' : '100%',
+    height: '10%',
+    left: showCurrentFriends ? '51%' : 0,
+    top: '90%',
   };
 
   return (
     <View style={styles.friendsMenu}>
-      <Pressable style={styles.search_icon} onPress={searchUsers}>
-        <FontAwesomeIcon style={styles.icon} icon={faSearch} size={40} />
-      </Pressable>
-      <TextInput
-        style={styles.search_bar}
-        value={searchText}
-        onChangeText={text => {
-          setSearchText(text);
-        }}
-      />
+      {!showCurrentFriends && (
+        <Pressable style={styles.search_icon} onPress={searchUsers}>
+          <FontAwesomeIcon style={styles.icon} icon={faSearch} size={40} />
+        </Pressable>
+      )}
+      {!showCurrentFriends && (
+        <TextInput
+          style={styles.search_bar}
+          value={searchText}
+          onChangeText={text => {
+            setSearchText(text);
+          }}
+        />
+      )}
       {showCurrentFriends && (
         <View style={styles.currentFriends}>
           <CurrentFriends
             pendingFriends={pendingFriends}
             confirmedFriends={confirmedFriends}
+            setRefresh={setRefresh}
           />
         </View>
       )}
       {!showCurrentFriends && (
-        <ScrollView style={styles.currentFriends}>
-          {foundUsers.map((user, index) => (
-            <View style={styles.friendContainer} key={'foundUser' + index}>
-              <Text>{user.firstName + ' ' + user.surname}</Text>
-            </View>
-          ))}
-        </ScrollView>
+        <View style={styles.newFriends}>
+          <ScrollView>
+            {foundUsers.map((user, index) => (
+              <View style={styles.friendContainer} key={'foundUser' + index}>
+                <Text>{user.firstName + ' ' + user.surname}</Text>
+                <Pressable
+                  style={[styles.button, styles.addFriendButton]}
+                  onPress={event => {
+                    sendFriendRequest(event, user.id);
+                  }}>
+                  <FontAwesomeIcon
+                    style={styles.icon}
+                    icon={faPlus}
+                    size={25}
+                  />
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       )}
+      <Pressable
+        style={[styles.button, styles.new_friend_button]}
+        onPress={showNewFriend}>
+        <Text style={styles.button_text}>
+          <FontAwesomeIcon icon={faUserPlus} style={styles.button_text} />{' '}
+          Pridať priateľa
+        </Text>
+      </Pressable>
+      <Pressable style={[styles.button, button_back]} onPress={handleBack}>
+        <Text style={styles.button_text}>
+          <FontAwesomeIcon icon={faArrowLeft} style={styles.button_text} /> Späť
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -149,6 +237,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 50,
+  },
+
+  new_friend_button: {
+    position: 'absolute',
+    width: '49%',
+    height: '10%',
+    left: 0,
+    top: '90%',
+  },
+
+  addFriendButton: {
+    width: Dimensions.get('window').width / 10,
+    height: Dimensions.get('window').width / 10,
   },
 
   button_text: {
@@ -178,9 +279,17 @@ const styles = StyleSheet.create({
   },
 
   currentFriends: {
-    height: '80%',
+    height: '88%',
     width: '100%',
-    top: '6%',
+    top: 0,
+    margin: 0,
+    padding: 0,
+  },
+
+  newFriends: {
+    height: '72%',
+    width: '100%',
+    top: '5%',
     margin: 0,
     padding: 0,
   },
@@ -192,7 +301,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginLeft: 0,
     borderRadius: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
