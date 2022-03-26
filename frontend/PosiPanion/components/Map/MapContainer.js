@@ -166,6 +166,11 @@ export default function MapContainer({setRefresh}) {
           if (!isNaN(time)) {
             temp.currentRide.movingTime += time;
           }
+
+          temp.currentRide.currentSpeed =
+            time !== 0
+              ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
+              : 0;
         }
 
         return temp;
