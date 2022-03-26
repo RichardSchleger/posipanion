@@ -37,7 +37,7 @@ const App: () => Node = () => {
 
         if (notification.foreground) {
           PushNotification.localNotification({
-            channelId: 'posipanion_channel',
+            channelId: 'posipanion',
             title: notification.title,
             message: notification.message,
           });
@@ -74,8 +74,8 @@ const App: () => Node = () => {
 
   const createChannels = () => {
     PushNotification.createChannel({
-      channelId: 'posipanion_channel',
-      channelName: 'PosiPanion Channel',
+      channelId: 'posipanion',
+      channelName: 'PosiPanion',
     });
   };
 

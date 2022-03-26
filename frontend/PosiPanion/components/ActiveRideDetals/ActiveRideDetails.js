@@ -7,13 +7,16 @@ export default function ActiveRideDetails({ride}) {
       <View style={styles.container}>
         <Text style={styles.text}>
           {Math.round(
-            (ride.distance / 1000 / (ride.movingTime / 3600000)) * 10,
+            (ride.currentRide.distance /
+              1000 /
+              (ride.currentRide.movingTime / 3600000)) *
+              10,
           ) /
             10 +
             ' km/h'}
         </Text>
         <Text style={styles.text}>
-          {Math.round((ride.distance / 1000) * 10) / 10 + ' km'}
+          {Math.round((ride.currentRide.distance / 1000) * 10) / 10 + ' km'}
         </Text>
       </View>
     );

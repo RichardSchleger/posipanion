@@ -73,8 +73,36 @@ export default function CurrentFriends({
       });
   };
 
+  const removeFriend = async (e, id) => {
+    e.preventDefault();
+    if (!id) {
+      return;
+    }
+
+    const token = await AuthService.getToken();
+    axios
+      .post(
+        API.url + 'friend/remove/' + id,
+        {},
+        {
+          headers: {Authorization: 'Bearer ' + token},
+        },
+      )
+      .then(() => {
+        setRefresh(c => !c);
+      })
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return rejectFriend(e, id);
+          }
+        }
+      });
+  };
+
   return (
     <ScrollView style={styles.currentFriends}>
+      <Text style={styles.friendTitle}>Žiadosti o priateľstvo</Text>
       {pendingFriends.map((friend, index) => (
         <View
           style={styles.pendingFriendContainer}
@@ -114,6 +142,7 @@ export default function CurrentFriends({
           marginBottom: 5,
         }}
       />
+      <Text style={styles.friendTitle}>Potvrdení priatelia</Text>
       {confirmedFriends.map((friend, index) => (
         <View
           style={styles.confirmedFriendContainer}
@@ -128,7 +157,7 @@ export default function CurrentFriends({
           </Text>
           <Pressable
             onPress={event => {
-              rejectFriend(event, friend.friendId);
+              removeFriend(event, friend.friendId);
             }}>
             <FontAwesomeIcon
               icon={faTimes}
@@ -197,5 +226,10 @@ const styles = StyleSheet.create({
   acceptFriendIcon: {
     color: '#21af29',
     marginRight: 10,
+  },
+
+  friendTitle: {
+    fontSize: 16,
+    color: '#109CF1',
   },
 });

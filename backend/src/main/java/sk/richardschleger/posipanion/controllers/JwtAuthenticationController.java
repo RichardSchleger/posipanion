@@ -7,11 +7,14 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +24,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.impl.DefaultClaims;
 import sk.richardschleger.posipanion.configs.JwtTokenUtil;
+import sk.richardschleger.posipanion.entities.FcmToken;
 import sk.richardschleger.posipanion.entities.User;
+import sk.richardschleger.posipanion.models.FCMTokenModel;
 import sk.richardschleger.posipanion.models.GoogleAuthenticationRequestModel;
 import sk.richardschleger.posipanion.models.JwtRequest;
 import sk.richardschleger.posipanion.models.JwtResponse;
+import sk.richardschleger.posipanion.services.FcmTokenService;
 import sk.richardschleger.posipanion.services.GoogleAuthenticateService;
 import sk.richardschleger.posipanion.services.JwtUserDetailsService;
+import sk.richardschleger.posipanion.services.UserService;
 
 
 
@@ -45,6 +52,12 @@ public class JwtAuthenticationController {
 
 	@Autowired
 	private GoogleAuthenticateService googleAuthenticateService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private FcmTokenService fcmTokenService;
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -104,6 +117,31 @@ public class JwtAuthenticationController {
 			return ResponseEntity.status(606).body("Invalid login");
 
 		}
+	}
 
+	@PostMapping("/fcmtoken")
+	public ResponseEntity<?> saveFCMToken(@RequestBody FCMTokenModel model){
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.getUserByEmail(authentication.getName());
+
+		if(currentUser != null){
+
+			FcmToken token = fcmTokenService.getFcmTokenByTokenAndUserId(model.getToken(), currentUser.getId());
+			if(token != null){
+				return ResponseEntity.ok(new JwtResponse("OK"));
+			}
+
+			token = new FcmToken();
+			token.setToken(model.getToken());
+			token.setUser(currentUser);
+
+			fcmTokenService.save(token);
+
+			return ResponseEntity.ok(new JwtResponse("OK"));
+		}else{
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new JwtResponse(null));
+		}
+		
 	}
 }

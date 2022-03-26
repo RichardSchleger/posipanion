@@ -316,7 +316,9 @@ export default function Menu({
               setSelectedTrack={setSelectedTrack}
             />
           )}
-          {menuShown === 'activeRide' && <ActiveRideDetails ride={{}} />}
+          {menuShown === 'activeRide' && (
+            <ActiveRideDetails ride={rideActive} />
+          )}
           {menuShown !== 'config' && menuShown !== 'friends' && (
             <Pressable
               style={[styles.button, button_config]}

@@ -15,6 +15,7 @@ import {
   useLocationTracking,
   useNativeLocationTracking,
 } from '../hooks';
+import DistanceCalculator from '../DistanceCalculator/DistanceCalculator';
 
 export default function MapContainer({setRefresh}) {
   const [positionState, dispatch] = useTimingReducer();
@@ -131,6 +132,7 @@ export default function MapContainer({setRefresh}) {
           {
             latitude: payload.latitude,
             longitude: payload.longitude,
+            elevation: payload.elevation,
             timestamp: payload.timestamp,
           },
         ].sort((a, b) => a.timestamp - b.timestamp);
@@ -142,6 +144,30 @@ export default function MapContainer({setRefresh}) {
           temp.currentRide.waypoints[
             temp.currentRide.waypoints.length - 1
           ].longitude;
+        if (temp.currentRide.waypoints.length > 1) {
+          const lastPoint =
+            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
+          const newPoint =
+            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 1];
+
+          const dist = DistanceCalculator.calculateDistanceBetweenLatLonEle(
+            lastPoint.latitude,
+            lastPoint.longitude,
+            lastPoint.elevation,
+            newPoint.latitude,
+            newPoint.longitude,
+            newPoint.elevation,
+          );
+          if (!isNaN(dist)) {
+            temp.currentRide.distance += dist;
+          }
+
+          const time = newPoint.timestamp - lastPoint.timestamp;
+          if (!isNaN(time)) {
+            temp.currentRide.movingTime += time;
+          }
+        }
+
         return temp;
       });
 
@@ -166,7 +192,7 @@ export default function MapContainer({setRefresh}) {
             }
           } else {
             setLocationCache(c => {
-              const temp = [
+              return [
                 ...c,
                 {
                   latitude: payload.latitude,
@@ -175,7 +201,6 @@ export default function MapContainer({setRefresh}) {
                   timestamp: payload.timestamp,
                 },
               ];
-              return temp;
             });
           }
         });

@@ -87,4 +87,22 @@ public class FriendController {
         }
     }
 
+    @PostMapping("/remove/{id}")
+    public void removeFriend(@PathVariable("id") Integer friendId){
+
+        if(friendId != null && friendId != 0){
+
+            Friend friend = friendService.getFriendById(friendId);
+            if(friend != null){
+
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                User currentUser = userService.getUserByEmail(authentication.getName());
+
+                if(friend.getUser1().equals(currentUser) || friend.getUser2().equals(currentUser)){
+                    friendService.delete(friend);
+                }
+            }
+        }
+    }
+
 }

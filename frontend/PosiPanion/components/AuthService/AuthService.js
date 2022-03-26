@@ -2,6 +2,9 @@ import axios from 'axios';
 import API from '../Api/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import firebase from '@react-native-firebase/app';
+import messaging from '@react-native-firebase/messaging';
+
 const login = (e, email, password, setRefresh, setOpacity) => {
   axios
     .post(API.url + 'authenticate', {
@@ -9,12 +12,31 @@ const login = (e, email, password, setRefresh, setOpacity) => {
       password: password,
     })
     .then(async r => {
-      try {
-        await AsyncStorage.setItem('AuthToken', r.data.token);
-        setRefresh(c => !c);
-      } catch (error) {
-        // error
-      }
+      messaging()
+        .getToken(firebase.app().options.messagingSenderId)
+        .then(token => {
+          axios
+            .post(
+              API.url + 'fcmtoken',
+              {
+                token: token,
+              },
+              {
+                headers: {Authorization: 'Bearer ' + r.data.token},
+              },
+            )
+            .then(async () => {
+              try {
+                await AsyncStorage.setItem('AuthToken', r.data.token);
+                setRefresh(c => !c);
+              } catch (error) {
+                // error
+              }
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        });
     })
     .catch(error => {
       console.log(error);
