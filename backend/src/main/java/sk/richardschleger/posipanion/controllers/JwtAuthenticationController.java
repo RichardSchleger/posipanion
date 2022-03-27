@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +31,11 @@ import sk.richardschleger.posipanion.models.FCMTokenModel;
 import sk.richardschleger.posipanion.models.GoogleAuthenticationRequestModel;
 import sk.richardschleger.posipanion.models.JwtRequest;
 import sk.richardschleger.posipanion.models.JwtResponse;
+import sk.richardschleger.posipanion.models.RegistrationModel;
 import sk.richardschleger.posipanion.services.FcmTokenService;
 import sk.richardschleger.posipanion.services.GoogleAuthenticateService;
 import sk.richardschleger.posipanion.services.JwtUserDetailsService;
+import sk.richardschleger.posipanion.services.UserDetailsService;
 import sk.richardschleger.posipanion.services.UserService;
 
 
@@ -57,7 +60,13 @@ public class JwtAuthenticationController {
 	private UserService userService;
 
 	@Autowired
+	private UserDetailsService myUserDetailsService;
+
+	@Autowired
 	private FcmTokenService fcmTokenService;
+
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -143,5 +152,28 @@ public class JwtAuthenticationController {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new JwtResponse(null));
 		}
 		
+	}
+
+	@PostMapping("/register")
+	public ResponseEntity<?> registerUser(@RequestBody RegistrationModel registrationModel){
+		
+		User user = userService.getUserByEmail(registrationModel.getEmail());
+
+		if(user != null){
+			return ResponseEntity.status(601).body("User with this email already exists!");
+		}
+
+		user = new User();
+		user.setEmail(registrationModel.getEmail());
+		user.setPassword(passwordEncoder.encode(registrationModel.getPassword()));
+		userService.save(user);
+
+		sk.richardschleger.posipanion.entities.UserDetails details = new sk.richardschleger.posipanion.entities.UserDetails();
+		details.setFirstName(registrationModel.getName());
+		details.setSurname(registrationModel.getSurname());
+		details.setUser(user);
+		myUserDetailsService.saveUserDetails(details);
+
+		return ResponseEntity.ok(new JwtResponse("OK"));
 	}
 }

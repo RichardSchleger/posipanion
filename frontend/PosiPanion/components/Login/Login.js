@@ -16,11 +16,15 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import AuthService from '../AuthService/AuthService';
+import Registration from '../Registration/Registration';
 
 export default function Login({setRefresh}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [opacity, setOpacity] = useState(0);
+
+  const [registrationSuccessful, setRegistrationSuccessful] = useState(false);
+  const [registrationShown, setRegistrationShown] = useState(false);
 
   GoogleSignin.configure({
     webClientId:
@@ -57,46 +61,97 @@ export default function Login({setRefresh}) {
     opacity: opacity,
   };
 
-  return (
-    <View style={styles.container}>
-      <View>
-        <Text style={styles.titleText}>PosiPanion</Text>
-        <Text style={styles.subtitleText}>Position of your companion!</Text>
-      </View>
-      <View>
-        <Text nativeID={'wrong_login_text'} style={wrongLoginText}>
-          Nesprávny email alebo heslo!
-        </Text>
-        <Text style={styles.inputLabel}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={text => setEmail(text)}
-        />
-        <Text style={styles.inputLabel}>Heslo</Text>
-        <TextInput
-          secureTextEntry={true}
-          style={styles.input}
-          value={password}
-          onChangeText={text => setPassword(text)}
-        />
-        <Pressable
-          style={styles.loginButton}
-          onPress={e => {
-            AuthService.login(e, email, password, setRefresh, setOpacity);
-          }}>
-          <Text style={styles.buttonText}>PRIHLÁSIŤ</Text>
-        </Pressable>
-        <View style={styles.google_login_container}>
-          <GoogleSigninButton
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={signIn}
+  const showRegistration = e => {
+    e.preventDefault();
+    setRegistrationShown(true);
+  };
+
+  if (registrationShown) {
+    return (
+      <Registration
+        setRegistrationShown={setRegistrationShown}
+        setRegistrationSuccessful={setRegistrationSuccessful}
+      />
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <View>
+          <Text style={styles.titleText}>PosiPanion</Text>
+          <Text style={styles.subtitleText}>Position of your companion!</Text>
+        </View>
+        <View>
+          <Text nativeID={'wrong_login_text'} style={wrongLoginText}>
+            Nesprávny email alebo heslo!
+          </Text>
+          {registrationSuccessful && (
+            <Text style={styles.successfulRegistrationText}>
+              Registrácia prebehla úspešne!
+            </Text>
+          )}
+          <Text style={styles.inputLabel}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={text => setEmail(text)}
           />
+          <Text style={styles.inputLabel}>Heslo</Text>
+          <TextInput
+            secureTextEntry={true}
+            style={styles.input}
+            value={password}
+            onChangeText={text => setPassword(text)}
+          />
+          <Pressable
+            style={styles.loginButton}
+            onPress={e => {
+              AuthService.login(e, email, password, setRefresh, setOpacity);
+            }}>
+            <Text style={styles.buttonText}>PRIHLÁSIŤ</Text>
+          </Pressable>
+          <Pressable onPress={showRegistration}>
+            <Text style={styles.registration_text}>
+              Nemáte účet? Vytvorte si ho!
+            </Text>
+          </Pressable>
+          <View style={{flexDirection: 'row', padding: 10}}>
+            <View
+              style={{
+                backgroundColor: '#109CF1',
+                height: 1,
+                flex: 1,
+                alignSelf: 'center',
+              }}
+            />
+            <Text
+              style={{
+                alignSelf: 'center',
+                paddingHorizontal: 5,
+                fontSize: 18,
+                color: '#109CF1',
+              }}>
+              ALEBO
+            </Text>
+            <View
+              style={{
+                backgroundColor: '#109CF1',
+                height: 1,
+                flex: 1,
+                alignSelf: 'center',
+              }}
+            />
+          </View>
+          <View style={styles.google_login_container}>
+            <GoogleSigninButton
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={signIn}
+            />
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -105,9 +160,6 @@ const styles = StyleSheet.create({
     height: '100%',
     display: 'flex',
     justifyContent: 'space-evenly',
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
   },
   input: {
     width: '90%',
@@ -159,6 +211,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     marginTop: '2%',
+  },
+  registration_text: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#109CF1',
+    textAlign: 'center',
+  },
+  or_text: {
+    marginTop: 10,
+    fontSize: 18,
+    color: '#109CF1',
+    textAlign: 'center',
+  },
+  successfulRegistrationText: {
+    color: '#109CF1',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });
 
