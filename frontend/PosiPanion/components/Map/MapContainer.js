@@ -23,6 +23,11 @@ export default function MapContainer({setRefresh}) {
   const [menuShown, setMenuShown] = useState('map');
   const [locationCache, setLocationCache] = useState([]);
 
+  const [friends, setFriends] = useState([]);
+  const [showMenu, setShowMenu] = useState(false);
+  const [detail, setDetail] = useState(null);
+  const [rideActive, setRideActive] = useState(null);
+
   const mapview = React.createRef();
 
   useLocation(positionState, dispatch);
@@ -34,11 +39,6 @@ export default function MapContainer({setRefresh}) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useNativeLocationTracking(positionState, dispatch);
   }
-
-  const [friends, setFriends] = useState([]);
-  const [showMenu, setShowMenu] = useState(false);
-  const [detail, setDetail] = useState(null);
-  const [rideActive, setRideActive] = useState(null);
 
   useEffect(() => {
     if (rideActive && positionState) {
@@ -88,6 +88,8 @@ export default function MapContainer({setRefresh}) {
             (a, b) => a.timestamp - b.timestamp,
           );
         setRideActive(currentRide);
+        setMenuShown('activeRide');
+        setShowMenu(true);
       }
       setFriends(
         response.map(user => {
@@ -127,50 +129,52 @@ export default function MapContainer({setRefresh}) {
 
       setRideActive(c => {
         let temp = {...c};
-        temp.currentRide.waypoints = [
-          ...temp.currentRide.waypoints,
-          {
-            latitude: payload.latitude,
-            longitude: payload.longitude,
-            elevation: payload.elevation,
-            timestamp: payload.timestamp,
-          },
-        ].sort((a, b) => a.timestamp - b.timestamp);
-        temp.lastKnownLatitude =
-          temp.currentRide.waypoints[
-            temp.currentRide.waypoints.length - 1
-          ].latitude;
-        temp.lastKnownLongitude =
-          temp.currentRide.waypoints[
-            temp.currentRide.waypoints.length - 1
-          ].longitude;
-        if (temp.currentRide.waypoints.length > 1) {
-          const lastPoint =
-            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
-          const newPoint =
-            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 1];
+        if (temp) {
+          temp.currentRide.waypoints = [
+            ...temp.currentRide.waypoints,
+            {
+              latitude: payload.latitude,
+              longitude: payload.longitude,
+              elevation: payload.elevation,
+              timestamp: payload.timestamp,
+            },
+          ].sort((a, b) => a.timestamp - b.timestamp);
+          temp.lastKnownLatitude =
+            temp.currentRide.waypoints[
+              temp.currentRide.waypoints.length - 1
+            ].latitude;
+          temp.lastKnownLongitude =
+            temp.currentRide.waypoints[
+              temp.currentRide.waypoints.length - 1
+            ].longitude;
+          if (temp.currentRide.waypoints.length > 1) {
+            const lastPoint =
+              temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
+            const newPoint =
+              temp.currentRide.waypoints[temp.currentRide.waypoints.length - 1];
 
-          const dist = DistanceCalculator.calculateDistanceBetweenLatLonEle(
-            lastPoint.latitude,
-            lastPoint.longitude,
-            lastPoint.elevation,
-            newPoint.latitude,
-            newPoint.longitude,
-            newPoint.elevation,
-          );
-          if (!isNaN(dist)) {
-            temp.currentRide.distance += dist;
+            const dist = DistanceCalculator.calculateDistanceBetweenLatLonEle(
+              lastPoint.latitude,
+              lastPoint.longitude,
+              lastPoint.elevation,
+              newPoint.latitude,
+              newPoint.longitude,
+              newPoint.elevation,
+            );
+            if (!isNaN(dist)) {
+              temp.currentRide.distance += dist;
+            }
+
+            const time = newPoint.timestamp - lastPoint.timestamp;
+            if (!isNaN(time)) {
+              temp.currentRide.movingTime += time;
+            }
+
+            temp.currentRide.currentSpeed =
+              time !== 0
+                ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
+                : 0;
           }
-
-          const time = newPoint.timestamp - lastPoint.timestamp;
-          if (!isNaN(time)) {
-            temp.currentRide.movingTime += time;
-          }
-
-          temp.currentRide.currentSpeed =
-            time !== 0
-              ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
-              : 0;
         }
 
         return temp;

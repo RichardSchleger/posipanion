@@ -89,18 +89,18 @@ const Map = ({
             strokeWidth={3}
           />
         )}
-        {detail &&
-          detail.currentRide &&
-          detail.currentRide.waypoints.map((waypoint, index) => (
-            <Marker
-              key={'journeypoint_' + index}
-              coordinate={{
-                latitude: waypoint.latitude,
-                longitude: waypoint.longitude,
-              }}
-              opacity={0}
-            />
-          ))}
+        {/*{detail &&*/}
+        {/*  detail.currentRide &&*/}
+        {/*  detail.currentRide.waypoints.map((waypoint, index) => (*/}
+        {/*    <Marker*/}
+        {/*      key={'journeypoint_' + index}*/}
+        {/*      coordinate={{*/}
+        {/*        latitude: waypoint.latitude,*/}
+        {/*        longitude: waypoint.longitude,*/}
+        {/*      }}*/}
+        {/*      opacity={0}*/}
+        {/*    />*/}
+        {/*  ))}*/}
         {detail && detail.currentRide && (
           <Polyline
             coordinates={detail.currentRide.waypoints}
@@ -123,18 +123,18 @@ const Map = ({
             </View>
           </Marker>
         )}
-        {rideActive &&
-          rideActive.track &&
-          rideActive.track.waypoints.map((waypoint, index) => (
-            <Marker
-              key={'active_ride_trackpoint_' + index}
-              coordinate={{
-                latitude: waypoint.latitude,
-                longitude: waypoint.longitude,
-              }}
-              opacity={0}
-            />
-          ))}
+        {/*{rideActive &&*/}
+        {/*  rideActive.track &&*/}
+        {/*  rideActive.track.waypoints.map((waypoint, index) => (*/}
+        {/*    <Marker*/}
+        {/*      key={'active_ride_trackpoint_' + index}*/}
+        {/*      coordinate={{*/}
+        {/*        latitude: waypoint.latitude,*/}
+        {/*        longitude: waypoint.longitude,*/}
+        {/*      }}*/}
+        {/*      opacity={0}*/}
+        {/*    />*/}
+        {/*  ))}*/}
         {rideActive && rideActive.track && (
           <Polyline
             coordinates={rideActive.track.waypoints}
@@ -142,18 +142,18 @@ const Map = ({
             strokeWidth={3}
           />
         )}
-        {rideActive &&
-          rideActive.currentRide &&
-          rideActive.currentRide.waypoints.map((waypoint, index) => (
-            <Marker
-              key={'active_ride_point_' + index}
-              coordinate={{
-                latitude: waypoint.latitude,
-                longitude: waypoint.longitude,
-              }}
-              opacity={0}
-            />
-          ))}
+        {/*{rideActive &&*/}
+        {/*  rideActive.currentRide &&*/}
+        {/*  rideActive.currentRide.waypoints.map((waypoint, index) => (*/}
+        {/*    <Marker*/}
+        {/*      key={'active_ride_point_' + index}*/}
+        {/*      coordinate={{*/}
+        {/*        latitude: waypoint.latitude,*/}
+        {/*        longitude: waypoint.longitude,*/}
+        {/*      }}*/}
+        {/*      opacity={0}*/}
+        {/*    />*/}
+        {/*  ))}*/}
         {rideActive && rideActive.currentRide && (
           <Polyline
             coordinates={rideActive.currentRide.waypoints}

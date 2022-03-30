@@ -74,7 +74,7 @@ export default function Menu({
 
   const slideIntoConfigMenuView = () => {
     Animated.timing(offsetY, {
-      toValue: -(Dimensions.get('window').height / 2 - 50),
+      toValue: -((Dimensions.get('window').height / 7) * 4 - 50),
       duration: 500,
       useNativeDriver: true,
     }).start();

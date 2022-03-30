@@ -101,7 +101,10 @@ export default function RideMenu({
                 }
                 key={'track_' + index}
                 onPress={() => {
-                  if (selectedTrack && track.id !== selectedTrack.id) {
+                  if (
+                    !selectedTrack ||
+                    (selectedTrack && track.id !== selectedTrack.id)
+                  ) {
                     setSelectedTrack(tracks[index]);
                   } else {
                     setSelectedTrack(null);
