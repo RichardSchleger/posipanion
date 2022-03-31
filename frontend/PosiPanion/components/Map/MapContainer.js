@@ -28,6 +28,9 @@ export default function MapContainer({setRefresh}) {
   const [detail, setDetail] = useState(null);
   const [rideActive, setRideActive] = useState(null);
 
+  const [mapRefresh, setMapRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(null);
+
   const mapview = React.createRef();
 
   useLocation(positionState, dispatch);
@@ -79,6 +82,22 @@ export default function MapContainer({setRefresh}) {
         });
     };
 
+    const fetchDetail = async id => {
+      const token = await AuthService.getToken();
+      return await axios
+        .get(API.url + 'user/detail/' + id, {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => response.data)
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return fetchDetail(id);
+            }
+          }
+        });
+    };
+
     const getData = async () => {
       const response = await fetchData();
       const currentRide = await fetchCurrentRide();
@@ -90,6 +109,7 @@ export default function MapContainer({setRefresh}) {
         setRideActive(currentRide);
         setMenuShown('activeRide');
         setShowMenu(true);
+        console.log('Current ride fetched');
       }
       setFriends(
         response.map(user => {
@@ -102,8 +122,25 @@ export default function MapContainer({setRefresh}) {
           };
         }),
       );
+      console.log('Friends fetched');
+      if (detail) {
+        const fetchedDetail = await fetchDetail(detail.id);
+        setDetail(fetchedDetail);
+        console.log('Detail fetched');
+      }
     };
     getData();
+  }, [mapRefresh]);
+
+  useEffect(() => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+    }
+    setRefreshInterval(
+      setInterval(() => {
+        setMapRefresh(c => !c);
+      }, 10000),
+    );
   }, []);
 
   const sendLocation = async location => {
