@@ -109,7 +109,6 @@ export default function MapContainer({setRefresh}) {
         setRideActive(currentRide);
         setMenuShown('activeRide');
         setShowMenu(true);
-        console.log('Current ride fetched');
       }
       setFriends(
         response.map(user => {
@@ -122,11 +121,13 @@ export default function MapContainer({setRefresh}) {
           };
         }),
       );
-      console.log('Friends fetched');
       if (detail) {
         const fetchedDetail = await fetchDetail(detail.id);
-        setDetail(fetchedDetail);
-        console.log('Detail fetched');
+        if (fetchedDetail) {
+          setDetail(fetchedDetail);
+        } else {
+          setDetail(null);
+        }
       }
     };
     getData();

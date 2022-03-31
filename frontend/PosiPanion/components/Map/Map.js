@@ -19,6 +19,8 @@ const Map = ({
 }) => {
   const [firstRun, setFirstRun] = useState(true);
 
+  const [regionMarkers, setRegionMarkers] = useState([]);
+
   useEffect(() => {
     if (users && users.length > 0) {
       if (mapview && mapview.current) {
@@ -31,8 +33,82 @@ const Map = ({
   }, [firstRun, mapview, users, menuShown]);
 
   useEffect(() => {
+    let allMarkers = [];
+    if (
+      detail &&
+      detail.currentRide &&
+      detail.currentRide.waypoints.length > 0
+    ) {
+      allMarkers = [...allMarkers, ...detail.currentRide.waypoints];
+    }
+    if (detail && detail.track && detail.track.waypoints.length > 0) {
+      allMarkers = [...allMarkers, ...detail.track.waypoints];
+    }
+    if (
+      rideActive &&
+      rideActive.currentRide &&
+      rideActive.currentRide.waypoints.length > 0
+    ) {
+      allMarkers = [...allMarkers, ...rideActive.currentRide.waypoints];
+    }
+    if (
+      rideActive &&
+      rideActive.track &&
+      rideActive.track.waypoints.length > 0
+    ) {
+      allMarkers = [...allMarkers, ...rideActive.track.waypoints];
+    }
+    if (allMarkers.length > 0) {
+      setRegionMarkers(() => [
+        allMarkers.find(
+          m =>
+            m.latitude ===
+            Math.max.apply(
+              Math,
+              allMarkers.map(function (o) {
+                return o.latitude;
+              }),
+            ),
+        ),
+        allMarkers.find(
+          m =>
+            m.longitude ===
+            Math.max.apply(
+              Math,
+              allMarkers.map(function (o) {
+                return o.longitude;
+              }),
+            ),
+        ),
+        allMarkers.find(
+          m =>
+            m.latitude ===
+            Math.min.apply(
+              Math,
+              allMarkers.map(function (o) {
+                return o.latitude;
+              }),
+            ),
+        ),
+        allMarkers.find(
+          m =>
+            m.longitude ===
+            Math.min.apply(
+              Math,
+              allMarkers.map(function (o) {
+                return o.longitude;
+              }),
+            ),
+        ),
+      ]);
+    } else {
+      setRegionMarkers([]);
+    }
+  }, [detail, rideActive]);
+
+  useEffect(() => {
     mapview.current.fitToElements(true);
-  }, [detail]);
+  }, [regionMarkers]);
 
   const container = {
     ...StyleSheet.absoluteFillObject,
@@ -48,7 +124,14 @@ const Map = ({
   return [
     <ActiveUserDetail detail={detail} key={'active_user_detail'} />,
     <View style={container} key={'map_container'}>
-      <MapView ref={mapview} provider={PROVIDER_GOOGLE} style={styles.map}>
+      <MapView
+        ref={mapview}
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        pitchEnabled={!detail && !rideActive}
+        rotateEnabled={!detail && !rideActive}
+        scrollEnabled={!detail && !rideActive}
+        zoomEnabled={!detail && !rideActive}>
         {users &&
           detail === null &&
           menuShown !== 'activeRide' &&
@@ -70,6 +153,16 @@ const Map = ({
               </View>
             </Marker>
           ))}
+        {regionMarkers.map((marker, index) => (
+          <Marker
+            key={'marker_' + index}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude,
+            }}
+            opacity={0}
+          />
+        ))}
         {detail &&
           detail.track &&
           detail.track.waypoints.map((waypoint, index) => (
@@ -89,18 +182,6 @@ const Map = ({
             strokeWidth={3}
           />
         )}
-        {/*{detail &&*/}
-        {/*  detail.currentRide &&*/}
-        {/*  detail.currentRide.waypoints.map((waypoint, index) => (*/}
-        {/*    <Marker*/}
-        {/*      key={'journeypoint_' + index}*/}
-        {/*      coordinate={{*/}
-        {/*        latitude: waypoint.latitude,*/}
-        {/*        longitude: waypoint.longitude,*/}
-        {/*      }}*/}
-        {/*      opacity={0}*/}
-        {/*    />*/}
-        {/*  ))}*/}
         {detail && detail.currentRide && (
           <Polyline
             coordinates={detail.currentRide.waypoints}
@@ -123,18 +204,6 @@ const Map = ({
             </View>
           </Marker>
         )}
-        {/*{rideActive &&*/}
-        {/*  rideActive.track &&*/}
-        {/*  rideActive.track.waypoints.map((waypoint, index) => (*/}
-        {/*    <Marker*/}
-        {/*      key={'active_ride_trackpoint_' + index}*/}
-        {/*      coordinate={{*/}
-        {/*        latitude: waypoint.latitude,*/}
-        {/*        longitude: waypoint.longitude,*/}
-        {/*      }}*/}
-        {/*      opacity={0}*/}
-        {/*    />*/}
-        {/*  ))}*/}
         {rideActive && rideActive.track && (
           <Polyline
             coordinates={rideActive.track.waypoints}
@@ -142,18 +211,6 @@ const Map = ({
             strokeWidth={3}
           />
         )}
-        {/*{rideActive &&*/}
-        {/*  rideActive.currentRide &&*/}
-        {/*  rideActive.currentRide.waypoints.map((waypoint, index) => (*/}
-        {/*    <Marker*/}
-        {/*      key={'active_ride_point_' + index}*/}
-        {/*      coordinate={{*/}
-        {/*        latitude: waypoint.latitude,*/}
-        {/*        longitude: waypoint.longitude,*/}
-        {/*      }}*/}
-        {/*      opacity={0}*/}
-        {/*    />*/}
-        {/*  ))}*/}
         {rideActive && rideActive.currentRide && (
           <Polyline
             coordinates={rideActive.currentRide.waypoints}
