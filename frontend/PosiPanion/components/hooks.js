@@ -54,7 +54,7 @@ export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
           RNLocation.requestPermission({
             ios: 'whenInUse',
             android: {
-              detail: 'coarse',
+              detail: 'fine',
               rationale: {
                 title: 'Povoľte prosím prístup k vašej polohe',
                 message:

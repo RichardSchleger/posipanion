@@ -66,22 +66,6 @@ export default function MapContainer({setRefresh}) {
         });
     };
 
-    const fetchCurrentRide = async () => {
-      const token = await AuthService.getToken();
-      return await axios
-        .get(API.url + 'user/detail', {
-          headers: {Authorization: 'Bearer ' + token},
-        })
-        .then(response => response.data)
-        .catch(async error => {
-          if (error.response.status === 606) {
-            if (await AuthService.refreshToken()) {
-              return fetchCurrentRide();
-            }
-          }
-        });
-    };
-
     const fetchDetail = async id => {
       const token = await AuthService.getToken();
       return await axios
@@ -100,16 +84,6 @@ export default function MapContainer({setRefresh}) {
 
     const getData = async () => {
       const response = await fetchData();
-      const currentRide = await fetchCurrentRide();
-      if (currentRide) {
-        currentRide.currentRide.waypoints =
-          currentRide.currentRide.waypoints.sort(
-            (a, b) => a.timestamp - b.timestamp,
-          );
-        setRideActive(currentRide);
-        setMenuShown('activeRide');
-        setShowMenu(true);
-      }
       setFriends(
         response.map(user => {
           return {
@@ -132,6 +106,38 @@ export default function MapContainer({setRefresh}) {
     };
     getData();
   }, [mapRefresh]);
+
+  useEffect(() => {
+    const fetchCurrentRide = async () => {
+      const token = await AuthService.getToken();
+      return await axios
+        .get(API.url + 'user/detail', {
+          headers: {Authorization: 'Bearer ' + token},
+        })
+        .then(response => response.data)
+        .catch(async error => {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return fetchCurrentRide();
+            }
+          }
+        });
+    };
+
+    const getData = async () => {
+      const currentRide = await fetchCurrentRide();
+      if (currentRide) {
+        currentRide.currentRide.waypoints =
+          currentRide.currentRide.waypoints.sort(
+            (a, b) => a.timestamp - b.timestamp,
+          );
+        setRideActive(currentRide);
+        setMenuShown('activeRide');
+        setShowMenu(true);
+      }
+    };
+    getData();
+  }, []);
 
   useEffect(() => {
     if (refreshInterval) {
@@ -207,7 +213,7 @@ export default function MapContainer({setRefresh}) {
             if (!isNaN(time)) {
               temp.currentRide.movingTime += time;
             }
-
+            console.log(Math.round((dist / 1000 / (time / 3600000)) * 10) / 10);
             temp.currentRide.currentSpeed =
               time !== 0
                 ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
