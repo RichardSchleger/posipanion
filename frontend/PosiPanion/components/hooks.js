@@ -11,7 +11,12 @@ import type {
 } from 'types';
 
 import {useEffect, useState} from 'react';
-import {AppState, DeviceEventEmitter, NativeModules} from 'react-native';
+import {
+  AppState,
+  DeviceEventEmitter,
+  NativeModules,
+  BackHandler,
+} from 'react-native';
 import RNLocation from 'react-native-location';
 import {Actions} from './Map/reducer';
 
@@ -41,8 +46,30 @@ export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
   return useEffect(() => {
     const checkPermission = () => {
       RNLocation.getCurrentPermission().then(currentPermission => {
-        if (currentPermission === 'notDetermined') {
-          return;
+        if (
+          currentPermission === 'notDetermined' ||
+          currentPermission === 'denied' ||
+          currentPermission === 'restricted'
+        ) {
+          RNLocation.requestPermission({
+            ios: 'whenInUse',
+            android: {
+              detail: 'coarse',
+              rationale: {
+                title: 'Povoľte prosím prístup k vašej polohe',
+                message:
+                  'Pre správne fungovanie aplikácie je potrebný prístup k vašej polohe.',
+                buttonPositive: 'OK',
+                buttonNegative: 'Zrušiť',
+              },
+            },
+          }).then(granted => {
+            if (granted) {
+              dispatch({type: Actions.LocationRequested, granted});
+            } else {
+              BackHandler.exitApp();
+            }
+          });
         }
 
         const granted =
