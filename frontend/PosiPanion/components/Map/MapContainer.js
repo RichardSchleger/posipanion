@@ -58,7 +58,12 @@ export default function MapContainer({setRefresh}) {
         })
         .then(response => response.data)
         .catch(async error => {
-          if (error.response.status === 606) {
+          if (
+            error &&
+            error.response &&
+            error.response.status &&
+            error.response.status === 606
+          ) {
             if (await AuthService.refreshToken()) {
               return fetchData();
             }
@@ -74,7 +79,12 @@ export default function MapContainer({setRefresh}) {
         })
         .then(response => response.data)
         .catch(async error => {
-          if (error.response.status === 606) {
+          if (
+            error &&
+            error.response &&
+            error.response.status &&
+            error.response.status === 606
+          ) {
             if (await AuthService.refreshToken()) {
               return fetchDetail(id);
             }
@@ -84,17 +94,20 @@ export default function MapContainer({setRefresh}) {
 
     const getData = async () => {
       const response = await fetchData();
-      setFriends(
-        response.map(user => {
-          return {
-            id: user.id,
-            firstName: user.firstName,
-            surname: user.surname,
-            lat: user.lastKnownLatitude,
-            lng: user.lastKnownLongitude,
-          };
-        }),
-      );
+      if(response){
+        setFriends(
+          response.map(user => {
+            return {
+              id: user.id,
+              firstName: user.firstName,
+              surname: user.surname,
+              lat: user.lastKnownLatitude,
+              lng: user.lastKnownLongitude,
+            };
+          }),
+        );
+      }
+
       if (detail) {
         const fetchedDetail = await fetchDetail(detail.id);
         if (fetchedDetail) {
@@ -116,7 +129,12 @@ export default function MapContainer({setRefresh}) {
         })
         .then(response => response.data)
         .catch(async error => {
-          if (error.response.status === 606) {
+          if (
+            error &&
+            error.response &&
+            error.response.status &&
+            error.response.status === 606
+          ) {
             if (await AuthService.refreshToken()) {
               return fetchCurrentRide();
             }
@@ -213,7 +231,6 @@ export default function MapContainer({setRefresh}) {
             if (!isNaN(time)) {
               temp.currentRide.movingTime += time;
             }
-            console.log(Math.round((dist / 1000 / (time / 3600000)) * 10) / 10);
             temp.currentRide.currentSpeed =
               time !== 0
                 ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
@@ -229,7 +246,7 @@ export default function MapContainer({setRefresh}) {
           headers: {Authorization: 'Bearer ' + token},
         })
         .then(() => {
-          if (!location) {
+          if (locationCache.length > 0) {
             sendCachedLocations();
           }
         })
@@ -244,6 +261,7 @@ export default function MapContainer({setRefresh}) {
               return sendLocation();
             }
           } else {
+            console.log("Adding location to cache");
             setLocationCache(c => {
               return [
                 ...c,
@@ -260,12 +278,28 @@ export default function MapContainer({setRefresh}) {
     }
   };
 
-  const sendCachedLocations = () => {
-    locationCache.forEach(location => {
-      sendLocation(location);
-    });
+  const sendCachedLocations = async () => {
+    console.log("Sending " + locationCache.length + " cached locations");
+    const token = await AuthService.getToken();
 
-    setLocationCache([]);
+    axios.post(API.url + "user/location/cached", locationCache, {
+      headers: {Authorization: 'Bearer ' + token},
+    }).then(() => {
+      console.log("Cached locations sent");
+      setLocationCache([]);
+    }).catch(async error => {
+      console.log(error);
+      if (
+        error &&
+        error.response &&
+        error.response.status &&
+        error.response.status === 606
+      ) {
+        if (await AuthService.refreshToken()) {
+          return sendCachedLocations();
+        }
+      }
+    });
   };
 
   const onPress = e => {
@@ -297,7 +331,12 @@ export default function MapContainer({setRefresh}) {
           setDetail(response.data);
         })
         .catch(async error => {
-          if (error.response.status === 606) {
+          if (
+            error &&
+            error.response &&
+            error.response.status &&
+            error.response.status === 606
+          ) {
             if (await AuthService.refreshToken()) {
               return showUserDetail(e, id);
             }

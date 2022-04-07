@@ -12,31 +12,31 @@ const login = (e, email, password, setRefresh, setOpacity) => {
       password: password,
     })
     .then(async r => {
-      messaging()
-        .getToken(firebase.app().options.messagingSenderId)
-        .then(token => {
-          axios
-            .post(
-              API.url + 'fcmtoken',
-              {
-                token: token,
-              },
-              {
-                headers: {Authorization: 'Bearer ' + r.data.token},
-              },
-            )
-            .then(async () => {
+      // messaging()
+      //   .getToken(firebase.app().options.messagingSenderId)
+      //   .then(token => {
+      //     axios
+      //       .post(
+      //         API.url + 'fcmtoken',
+      //         {
+      //           token: token,
+      //         },
+      //         {
+      //           headers: {Authorization: 'Bearer ' + r.data.token},
+      //         },
+      //       )
+      //       .then(async () => {
               try {
                 await AsyncStorage.setItem('AuthToken', r.data.token);
                 setRefresh(c => !c);
               } catch (error) {
                 // error
               }
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        });
+      //       })
+      //       .catch(error => {
+      //         console.log(error);
+      //       });
+      //   });
     })
     .catch(error => {
       console.log(error);

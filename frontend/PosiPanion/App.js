@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import type {Node} from 'react';
 
 import AuthService from './components/AuthService/AuthService';
 import MapContainer from './components/Map/MapContainer';
@@ -11,9 +10,9 @@ import PushNotification from 'react-native-push-notification';
 import Firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import Login from './components/Login/Login';
-import {AppRegistry} from 'react-native';
+import {AppRegistry, Platform} from 'react-native';
 
-const App: () => Node = () => {
+const App = () => {
   const [state, dispatch] = useTimingReducer();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,39 +22,44 @@ const App: () => Node = () => {
     Firebase.initializeApp(this)
       .then(r => console.log(r))
       .catch(e => console.log(e));
-    createChannels();
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
-    PushNotification.configure({
-      onRegister: function (token) {
-        console.log('TOKEN:', token);
-      },
 
-      onNotification: function (notification) {
-        console.log('NOTIFICATION:', notification);
+    if(Platform.OS === 'ios') {
 
-        if (notification.foreground) {
-          PushNotification.localNotification({
-            channelId: 'posipanion',
-            title: notification.title,
-            message: notification.message,
-          });
-        }
-      },
+    } else {
+      createChannels();
+      messaging().setBackgroundMessageHandler(async remoteMessage => {
+        console.log('Message handled in the background!', remoteMessage);
+      });
+      PushNotification.configure({
+        onRegister: function (token) {
+          console.log('TOKEN:', token);
+        },
 
-      senderID: '399407603065',
+        onNotification: function (notification) {
+          console.log('NOTIFICATION:', notification);
 
-      permissions: {
-        alert: true,
-        badge: true,
-        sound: true,
-      },
+          if (notification.foreground) {
+            PushNotification.localNotification({
+              channelId: 'posipanion',
+              title: notification.title,
+              message: notification.message,
+            });
+          }
+        },
 
-      popInitialNotification: true,
+        senderID: '399407603065',
 
-      requestPermissions: true,
-    });
+        permissions: {
+          alert: true,
+          badge: true,
+          sound: true,
+        },
+
+        popInitialNotification: true,
+
+        requestPermissions: true,
+      });
+    }
   }, []);
 
   useEffect(() => {

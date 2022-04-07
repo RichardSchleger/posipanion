@@ -126,7 +126,6 @@ const Map = ({
     <View style={container} key={'map_container'}>
       <MapView
         ref={mapview}
-        provider={PROVIDER_GOOGLE}
         style={styles.map}
         pitchEnabled={!detail && !rideActive}
         rotateEnabled={!detail && !rideActive}

@@ -21,7 +21,7 @@ import RNLocation from 'react-native-location';
 import {Actions} from './Map/reducer';
 
 RNLocation.configure({
-  distanceFilter: 3, // Meters
+  distanceFilter: 0, // Meters
   desiredAccuracy: {
     ios: 'best',
     android: 'highAccuracy',
