@@ -9,6 +9,8 @@ public interface TrackPointRepository{
 
     List<CurrentTrackPoint> findByUserId(int userId);
 
+    CurrentTrackPoint findLastByUserId(int userId);
+
     void deleteByUserId(int userId);
 
     void save(CurrentTrackPoint trackPoint);

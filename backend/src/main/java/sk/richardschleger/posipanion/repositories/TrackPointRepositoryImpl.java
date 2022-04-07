@@ -85,6 +85,39 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
     }
 
     @Override
+    public CurrentTrackPoint findLastByUserId(int userId) {
+        String flux = "from(bucket:\"" + bucket + "\") " + 
+            "|> range(start: -1mo) " + 
+            "|> filter(fn: (r) => " + 
+            "r._measurement == \"trackpoints\" and " +
+            "r.userId == \"" + userId + "\")" +
+            "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+            "|> last()";
+
+        List<FluxTable> tables = queryApi.query(flux);
+        for (FluxTable table : tables) {
+            List<FluxRecord> records = table.getRecords();
+            for (FluxRecord record : records) {
+                CurrentTrackPoint trackPoint = new CurrentTrackPoint();
+                if(record.getValueByKey("lat") != null){
+                    trackPoint.setLatitude(Double.parseDouble(record.getValueByKey("lat").toString()));
+                }
+                if(record.getValueByKey("lon") != null){
+                    trackPoint.setLongitude(Double.parseDouble(record.getValueByKey("lon").toString()));
+                }
+                if(record.getValueByKey("ele") != null){
+                    trackPoint.setElevation(Double.parseDouble(record.getValueByKey("ele").toString()));
+                }
+                trackPoint.setTimestamp(record.getTime().toEpochMilli());
+
+                return trackPoint;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public void deleteByUserId(int userId) {
 
         DeletePredicateRequest request = new DeletePredicateRequest();

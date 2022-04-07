@@ -27,4 +27,8 @@ public class TrackPointService {
     public List<CurrentTrackPoint> getTrackPointsForUserId(int id){
         return trackPointRepository.findByUserId(id);
     }
+
+    public CurrentTrackPoint getLastTrackPointForUserId(int id){
+        return trackPointRepository.findLastByUserId(id);
+    }
 }
