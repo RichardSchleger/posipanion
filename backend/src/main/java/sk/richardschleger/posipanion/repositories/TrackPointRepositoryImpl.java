@@ -91,8 +91,8 @@ public class TrackPointRepositoryImpl implements TrackPointRepository{
             "|> filter(fn: (r) => " + 
             "r._measurement == \"trackpoints\" and " +
             "r.userId == \"" + userId + "\")" +
-            "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
-            "|> last()";
+            "|> last()" +
+            "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
 
         List<FluxTable> tables = queryApi.query(flux);
         for (FluxTable table : tables) {
