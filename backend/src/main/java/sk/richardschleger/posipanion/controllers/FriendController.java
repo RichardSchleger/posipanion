@@ -1,5 +1,7 @@
 package sk.richardschleger.posipanion.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +20,8 @@ import sk.richardschleger.posipanion.services.UserService;
 @RequestMapping("/friend")
 public class FriendController {
     
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final UserService userService;
 
     private final FriendService friendService;
@@ -46,8 +50,13 @@ public class FriendController {
                 friend.setConfirmed(false);
 
                 friendService.save(friend);
+                logger.info("Friend request sent to user with id {} from user {}", userId, currentUser.getEmail());
+            }else{
+                logger.error("User or new friend not found");
             }
-        } 
+        }else{
+            logger.error("UserId is null or 0");
+        }
     }
 
     @PostMapping("/request/confirm/{id}")
@@ -61,11 +70,23 @@ public class FriendController {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 User currentUser = userService.getUserByEmail(authentication.getName());
 
-                if(friend.getUser2().equals(currentUser)){
-                    friend.setConfirmed(true);
-                    friendService.save(friend);
+                if(currentUser != null){
+                    if(friend.getUser2().equals(currentUser)){
+                        friend.setConfirmed(true);
+                        friendService.save(friend);
+                        logger.info("Friend request confirmed between users {} and {}", friend.getUser1().getEmail(), friend.getUser2().getEmail());
+                    }else{
+                        logger.error("User {} cannot confirm friendship", currentUser.getEmail());
+                    }
+                }else{
+                    logger.error("User {} not found", authentication.getName());
                 }
+                
+            }else{
+                logger.error("Friend connection not found");
             }
+        }else{
+            logger.error("FriendId is null or 0");
         }
     }
 
@@ -80,10 +101,20 @@ public class FriendController {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 User currentUser = userService.getUserByEmail(authentication.getName());
 
-                if(friend.getUser2().equals(currentUser)){
-                    friendService.delete(friend);
+                if(currentUser == null){
+                    logger.error("User {} not found", authentication.getName());
                 }
+
+                if(friend.getUser1().equals(currentUser) || friend.getUser2().equals(currentUser)){
+                    friendService.delete(friend);
+                }else{
+                    logger.error("User {} cannot reject friendship", currentUser.getEmail());
+                }
+            }else{
+                logger.error("Friend connection not found");
             }
+        }else{
+            logger.error("FriendId is null or 0");
         }
     }
 
@@ -98,10 +129,20 @@ public class FriendController {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 User currentUser = userService.getUserByEmail(authentication.getName());
 
+                if(currentUser == null){
+                    logger.error("User {} not found", authentication.getName());
+                }
+
                 if(friend.getUser1().equals(currentUser) || friend.getUser2().equals(currentUser)){
                     friendService.delete(friend);
+                }else{
+                    logger.error("User {} cannot remove friendship", currentUser.getEmail());
                 }
+            }else{
+                logger.error("Friend connection not found");
             }
+        }else{
+            logger.error("FriendId is null or 0");
         }
     }
 
