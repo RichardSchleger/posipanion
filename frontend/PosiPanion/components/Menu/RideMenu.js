@@ -110,8 +110,8 @@ export default function RideMenu({
                     setSelectedTrack(null);
                   }
                 }}>
-                <Text>{track.name}</Text>
-                <Text>
+                <Text style={styles.darkText}>{track.name}</Text>
+                <Text style={styles.darkText}>
                   {Math.round((track.distance / 1000) * 10) / 10 + ' km'}
                 </Text>
               </Pressable>
@@ -199,5 +199,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     paddingLeft: 10,
+  },
+
+  darkText: {
+    color: '#000000',
   },
 });

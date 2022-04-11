@@ -107,7 +107,9 @@ export default function CurrentFriends({
         <View
           style={styles.pendingFriendContainer}
           key={'pendingFriend' + index}>
-          <Text>{friend.firstName + ' ' + friend.surname}</Text>
+          <Text style={styles.darkText}>
+            {friend.firstName + ' ' + friend.surname}
+          </Text>
           <View style={styles.pendingFriendButtonContainer}>
             {friend.canConfirm && (
               <Pressable
@@ -147,7 +149,7 @@ export default function CurrentFriends({
         <View
           style={styles.confirmedFriendContainer}
           key={'confirmedFriend' + index}>
-          <Text>
+          <Text style={styles.darkText}>
             {friend.firstName + ' ' + friend.surname + ' '}
             {friend.lastKnownLatitude && friend.lastKnownLongitude ? (
               <FontAwesomeIcon icon={faCircle} style={styles.activeUserIcon} />
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
   pendingFriendContainer: {
     width: '100%',
     height: Dimensions.get('window').height / 15,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#eeeeee',
     marginBottom: 5,
     marginLeft: 0,
     borderRadius: 5,
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
   confirmedFriendContainer: {
     width: '100%',
     height: Dimensions.get('window').height / 15,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#eeeeee',
     marginBottom: 5,
     marginLeft: 0,
     borderRadius: 5,
@@ -231,5 +233,9 @@ const styles = StyleSheet.create({
   friendTitle: {
     fontSize: 16,
     color: '#109CF1',
+  },
+
+  darkText: {
+    color: '#000000',
   },
 });

@@ -54,6 +54,7 @@ export default function Menu({
     } else {
       slideOutOfView();
     }
+    setSelectedTrack(null);
   }, [offsetY, show, newRide, menuShown]);
 
   const slideIntoMapMenuView = () => {

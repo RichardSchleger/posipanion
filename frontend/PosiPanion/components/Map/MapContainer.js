@@ -350,7 +350,6 @@ export default function MapContainer({setRefresh}) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
       <Map
         users={friends}
         detail={detail}
