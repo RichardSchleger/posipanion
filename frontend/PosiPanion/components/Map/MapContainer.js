@@ -94,7 +94,7 @@ export default function MapContainer({setRefresh}) {
 
     const getData = async () => {
       const response = await fetchData();
-      if(response){
+      if (response) {
         setFriends(
           response.map(user => {
             return {
@@ -261,7 +261,7 @@ export default function MapContainer({setRefresh}) {
               return sendLocation();
             }
           } else {
-            console.log("Adding location to cache");
+            console.log('Adding location to cache');
             setLocationCache(c => {
               return [
                 ...c,
@@ -279,27 +279,30 @@ export default function MapContainer({setRefresh}) {
   };
 
   const sendCachedLocations = async () => {
-    console.log("Sending " + locationCache.length + " cached locations");
+    console.log('Sending ' + locationCache.length + ' cached locations');
     const token = await AuthService.getToken();
 
-    axios.post(API.url + "user/location/cached", locationCache, {
-      headers: {Authorization: 'Bearer ' + token},
-    }).then(() => {
-      console.log("Cached locations sent");
-      setLocationCache([]);
-    }).catch(async error => {
-      console.log(error);
-      if (
-        error &&
-        error.response &&
-        error.response.status &&
-        error.response.status === 606
-      ) {
-        if (await AuthService.refreshToken()) {
-          return sendCachedLocations();
+    axios
+      .post(API.url + 'user/location/cached', locationCache, {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(() => {
+        console.log('Cached locations sent');
+        setLocationCache([]);
+      })
+      .catch(async error => {
+        console.log(error);
+        if (
+          error &&
+          error.response &&
+          error.response.status &&
+          error.response.status === 606
+        ) {
+          if (await AuthService.refreshToken()) {
+            return sendCachedLocations();
+          }
         }
-      }
-    });
+      });
   };
 
   const onPress = e => {

@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
 
   button_text: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#109CF1',
   },
 
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: Dimensions.get('window').height / 15,
     backgroundColor: '#EEEEEE',
+    color: '#000000',
     marginBottom: 5,
     marginLeft: 0,
     borderRadius: 5,

@@ -136,12 +136,12 @@ export default function Menu({
     left: '5%',
     top:
       menuShown === 'map'
-        ? '84%'
+        ? '83%'
         : menuShown === 'ride' && newRide
         ? '30%'
         : menuShown === 'activeRide'
         ? '57%'
-        : '84%',
+        : '83%',
   };
 
   const button_friends = {
@@ -151,12 +151,12 @@ export default function Menu({
     left: '25%',
     top:
       menuShown === 'map'
-        ? '84%'
+        ? '83%'
         : menuShown === 'ride' && newRide
         ? '30%'
         : menuShown === 'activeRide'
         ? '57%'
-        : '84%',
+        : '83%',
   };
 
   const button_start_ride = {
@@ -166,12 +166,12 @@ export default function Menu({
     left: '45%',
     top:
       menuShown === 'map'
-        ? '84%'
+        ? '83%'
         : menuShown === 'ride' && newRide
         ? '30%'
         : menuShown === 'activeRide'
         ? '57%'
-        : '84%',
+        : '83%',
   };
 
   const fetchProfile = async () => {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
 
   button_text: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#109CF1',
   },
 

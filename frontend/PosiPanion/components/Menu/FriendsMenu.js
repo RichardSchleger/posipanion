@@ -153,7 +153,7 @@ export default function FriendsMenu({showMapMenu}) {
     width: showCurrentFriends ? '49%' : '100%',
     height: '10%',
     left: showCurrentFriends ? '51%' : 0,
-    top: '90%',
+    top: '88%',
   };
 
   return (
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     width: '49%',
     height: '10%',
     left: 0,
-    top: '90%',
+    top: '88%',
   },
 
   addFriendButton: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
 
   button_text: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#109CF1',
   },
 
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#109CF1',
     borderBottomWidth: 3,
     color: '#109CF1',
-    fontSize: 24,
+    fontSize: 20,
     paddingBottom: 5,
   },
 
@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: Dimensions.get('window').height / 15,
     backgroundColor: '#EEEEEE',
+    color: '#000000',
     marginBottom: 5,
     marginLeft: 0,
     borderRadius: 5,
