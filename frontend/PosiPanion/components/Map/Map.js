@@ -4,7 +4,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Dimensions} from 'react-native';
 import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import ActiveUserDetail from '../ActiveUserDetail/ActiveUserDetail';
 
@@ -125,7 +125,7 @@ const Map = ({
     height: detail
       ? '80%'
       : rideActive && shown && menuShown === 'activeRide'
-      ? '60%'
+      ? Dimensions.get('window').height - 350
       : '100%',
     position: 'absolute',
     top: detail ? '20%' : 0,

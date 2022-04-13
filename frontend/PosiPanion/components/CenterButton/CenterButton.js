@@ -4,9 +4,17 @@ import {Dimensions, StyleSheet, TouchableHighlight} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faLocationCrosshairs} from '@fortawesome/free-solid-svg-icons';
 
-export default function CenterButton({onPress}) {
+export default function CenterButton({onPress, shown, menuShown, newRide}) {
+
+  const bottomPosition = {
+      bottom: shown ? 
+        menuShown === 'activeRide' ? 400
+      : '18%'
+      : '18%',
+  }
+
   return (
-    <TouchableHighlight style={styles.centerButton} onPress={onPress}>
+    <TouchableHighlight style={{...styles.centerButton, ...bottomPosition}} onPress={onPress}>
       <FontAwesomeIcon
         icon={faLocationCrosshairs}
         style={styles.icon}
@@ -19,7 +27,6 @@ export default function CenterButton({onPress}) {
 const styles = StyleSheet.create({
   centerButton: {
     position: 'absolute',
-    bottom: '18%',
     right: '2%',
     width: Dimensions.get('window').width / 6,
     height: Dimensions.get('window').width / 6,

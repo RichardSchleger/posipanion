@@ -59,7 +59,7 @@ export default function Menu({
 
   const slideIntoMapMenuView = () => {
     Animated.timing(offsetY, {
-      toValue: -((Dimensions.get('window').height / 3) * 2 - 50),
+      toValue: -530,
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -67,7 +67,7 @@ export default function Menu({
 
   const slideIntoNewRideMenuView = () => {
     Animated.timing(offsetY, {
-      toValue: -(Dimensions.get('window').height / 3 - 50),
+      toValue: -235,
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -75,7 +75,7 @@ export default function Menu({
 
   const slideIntoConfigMenuView = () => {
     Animated.timing(offsetY, {
-      toValue: -((Dimensions.get('window').height / 7) * 4 - 50),
+      toValue: -450,
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -83,7 +83,7 @@ export default function Menu({
 
   const slideIntoActiveRideMenuView = () => {
     Animated.timing(offsetY, {
-      toValue: -(Dimensions.get('window').height / 2 - 50),
+      toValue: -385,
       duration: 500,
       useNativeDriver: true,
     }).start();
@@ -383,9 +383,9 @@ export default function Menu({
 const styles = StyleSheet.create({
   menuContainer: {
     position: 'absolute',
-    bottom: -(Dimensions.get('window').height / 3) * 2,
+    bottom: -600,
     width: Dimensions.get('window').width,
-    height: (Dimensions.get('window').height / 3) * 2,
+    height: 600,
     borderRadius: Dimensions.get('window').width / 10,
     borderColor: '#109CF1',
     borderStyle: 'solid',
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
 
   disabled_button_text: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#cccccc',
   },
 

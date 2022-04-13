@@ -153,7 +153,7 @@ export default function FriendsMenu({showMapMenu}) {
     width: showCurrentFriends ? '49%' : '100%',
     height: '10%',
     left: showCurrentFriends ? '51%' : 0,
-    top: '88%',
+    top: '87%',
   };
 
   return (
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     width: '49%',
     height: '10%',
     left: 0,
-    top: '88%',
+    top: '87%',
   },
 
   addFriendButton: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
 
   currentFriends: {
-    height: '88%',
+    height: '87%',
     width: '100%',
     top: 0,
     margin: 0,

@@ -368,8 +368,8 @@ export default function MapContainer({setRefresh}) {
         menuShown={menuShown}
         mapview={mapview}
       />
-      <MenuButton onPress={onPress} />
-      <CenterButton onPress={centerMap} />
+      <MenuButton onPress={onPress}/>
+      <CenterButton onPress={centerMap} shown={showMenu} menuShown={menuShown}/>
       <Menu
         show={showMenu}
         setRefresh={setRefresh}
