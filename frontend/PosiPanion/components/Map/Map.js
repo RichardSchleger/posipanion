@@ -30,7 +30,7 @@ const Map = ({
         }
       }
     }
-  }, [firstRun, mapview, users, menuShown]);
+  }, [mapview, users, menuShown]);
 
   useEffect(() => {
     let allMarkers = [];
@@ -107,7 +107,17 @@ const Map = ({
   }, [detail, rideActive]);
 
   useEffect(() => {
-    mapview.current.fitToElements(true);
+    if(regionMarkers.length === 0) {
+      setFirstRun(true);
+    }else{
+      if(firstRun){
+        if(mapview && mapview.current){
+          mapview.current.fitToElements(true);
+          setFirstRun(c => !c);
+        }
+      }
+    }
+    
   }, [regionMarkers]);
 
   const container = {
@@ -124,13 +134,7 @@ const Map = ({
   return [
     <ActiveUserDetail detail={detail} key={'active_user_detail'} />,
     <View style={container} key={'map_container'}>
-      <MapView
-        ref={mapview}
-        style={styles.map}
-        pitchEnabled={!detail && !rideActive}
-        rotateEnabled={!detail && !rideActive}
-        scrollEnabled={!detail && !rideActive}
-        zoomEnabled={!detail && !rideActive}>
+      <MapView ref={mapview} style={styles.map}>
         {users &&
           detail === null &&
           menuShown !== 'activeRide' &&

@@ -16,6 +16,7 @@ import {
   useNativeLocationTracking,
 } from '../hooks';
 import DistanceCalculator from '../DistanceCalculator/DistanceCalculator';
+import CenterButton from '../CenterButton/CenterButton';
 
 export default function MapContainer({setRefresh}) {
   const [positionState, dispatch] = useTimingReducer();
@@ -348,6 +349,13 @@ export default function MapContainer({setRefresh}) {
     }
   };
 
+  const centerMap = e => {
+    e.preventDefault();
+    if (mapview && mapview.current) {
+      mapview.current.fitToElements(true);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Map
@@ -361,6 +369,7 @@ export default function MapContainer({setRefresh}) {
         mapview={mapview}
       />
       <MenuButton onPress={onPress} />
+      <CenterButton onPress={centerMap} />
       <Menu
         show={showMenu}
         setRefresh={setRefresh}
