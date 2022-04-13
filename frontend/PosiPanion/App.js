@@ -11,11 +11,12 @@ import Firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import Login from './components/Login/Login';
 import {AppRegistry, Platform} from 'react-native';
+import LoadingScreen from './components/Loading/LoadingScreen';
 
 const App = () => {
   const [state, dispatch] = useTimingReducer();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loginRefresh, setLoginRefresh] = useState(false);
 
   useEffect(() => {
@@ -83,7 +84,9 @@ const App = () => {
     });
   };
 
-  if (isLoggedIn) {
+  if (isLoggedIn === null) {
+    return <LoadingScreen />;
+  } else if (isLoggedIn) {
     return <MapContainer setRefresh={setLoginRefresh} />;
   } else {
     return <Login refresh={loginRefresh} setRefresh={setLoginRefresh} />;
