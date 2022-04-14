@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Text, Dimensions} from 'react-native';
+import Converter from '../Converter/Converter';
 
 export default function ActiveUserDetail({detail}) {
   if (detail) {
@@ -8,21 +9,29 @@ export default function ActiveUserDetail({detail}) {
         <Text style={styles.text}>
           {detail.firstName + ' ' + detail.surname}
         </Text>
-        <Text style={styles.text}>
-          {Math.round(
-            (detail.currentRide.distance /
-              1000 /
-              (detail.currentRide.movingTime / 3600000)) *
-              10,
-          ) /
-            10 +
-            ' km/h'}
-        </Text>
-        <Text style={styles.text}>
-          {Math.round((detail.currentRide.distance / 1000) * 10) / 10 + ' km'}
-        </Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.textLabel}>Priemerná rýchlosť:</Text>
+          <Text style={styles.text}>
+            {Converter.mAndMsTokmh(
+              detail.currentRide.distance,
+              detail.currentRide.movingTime,
+            ) + ' km/h'}
+          </Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.textLabel}>Prejdená vzdialenosť:</Text>
+          <Text style={styles.text}>
+            {Math.round((detail.currentRide.distance / 1000) * 10) / 10 + ' km'}
+          </Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.textLabel}>Trvanie:</Text>
+          <Text style={styles.text}>
+            {Converter.msToTime(detail.currentRide.movingTime)}
+          </Text>
+        </View>
         {detail.percentage != 0 && (
-          <Text style={styles.text}>{detail.percentage + '%'}</Text>
+          <Text style={styles.text}>{detail.percentage + ' %'}</Text>
         )}
       </View>
     );
@@ -47,8 +56,23 @@ const styles = StyleSheet.create({
     elevation: 10,
     zIndex: 10,
   },
+
+  textContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '3%',
+  },
+
   text: {
     color: '#109CF1',
     fontSize: 24,
   },
+
+  textLabel: {
+    color: '#109CF1',
+    fontSize: 20,
+  },
+  
 });

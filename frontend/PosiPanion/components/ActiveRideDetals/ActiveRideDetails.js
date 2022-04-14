@@ -1,17 +1,8 @@
 import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
+import Converter from '../Converter/Converter';
 
 export default function ActiveRideDetails({ride}) {
-  //https://stackoverflow.com/questions/19700283/how-to-convert-time-in-milliseconds-to-hours-min-sec-format-in-javascript
-  const msToTime = duration => {
-    let minutes = Math.floor((duration / (1000 * 60)) % 60),
-      hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-
-    return hours + ':' + minutes;
-  };
 
   if (ride) {
     return (
@@ -27,14 +18,10 @@ export default function ActiveRideDetails({ride}) {
         <View style={styles.textContainer}>
           <Text style={styles.textLabel}>Priemerná rýchlosť:</Text>
           <Text style={styles.text}>
-            {(ride.currentRide.movingTime !== 0
-              ? Math.round(
-                  (ride.currentRide.distance /
-                    1000 /
-                    (ride.currentRide.movingTime / 3600000)) *
-                    10,
-                ) / 10
-              : 0) + ' km/h'}
+            {Converter.mAndMsTokmh(
+              ride.currentRide.distance,
+              ride.currentRide.movingTime,
+            ) + ' km/h'}
           </Text>
         </View>
         <View style={styles.textContainer}>
@@ -46,7 +33,7 @@ export default function ActiveRideDetails({ride}) {
         <View style={styles.textContainer}>
           <Text style={styles.textLabel}>Trvanie:</Text>
           <Text style={styles.text}>
-            {msToTime(ride.currentRide.movingTime)}
+            {Converter.msToTime(ride.currentRide.movingTime)}
           </Text>
         </View>
       </View>
