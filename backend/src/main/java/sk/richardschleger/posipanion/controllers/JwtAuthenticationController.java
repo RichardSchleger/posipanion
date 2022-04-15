@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,8 @@ import sk.richardschleger.posipanion.services.UserService;
 @CrossOrigin
 public class JwtAuthenticationController {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -71,12 +75,16 @@ public class JwtAuthenticationController {
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
+		logger.info("Authenticating user: " + authenticationRequest.getUsername());
+
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = userDetailsService
 				.loadUserByUsername(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
+
+		logger.info("User: " + authenticationRequest.getUsername() + " authenticated successfully");
 
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
@@ -93,11 +101,15 @@ public class JwtAuthenticationController {
 
 	@GetMapping(value = "/refreshtoken")
 	public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
+
 		// From the HttpRequest get the claims
 		DefaultClaims claims = (io.jsonwebtoken.impl.DefaultClaims) request.getAttribute("claims");
 
 		Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
 		String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
+
+		logger.info("Token refreshed successfully");
+
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
 
@@ -112,6 +124,8 @@ public class JwtAuthenticationController {
 	@PostMapping("/google/authenticate")
 	public ResponseEntity<?> createAuthenticationTokenGoogle(@RequestBody GoogleAuthenticationRequestModel model){
 
+		logger.info("Authenticating user through Google");
+
 		User user = googleAuthenticateService.authenticate(model.getIdToken());
 		if(user != null){
 
@@ -119,6 +133,8 @@ public class JwtAuthenticationController {
 			.loadUserByUsername(user.getEmail());
 
 			final String token = jwtTokenUtil.generateToken(userDetails);
+
+			logger.info("User: " + user.getEmail() + " authenticated successfully");
 
 			return ResponseEntity.ok(new JwtResponse(token));
 		}else{
@@ -131,6 +147,8 @@ public class JwtAuthenticationController {
 	@PostMapping("/fcmtoken")
 	public ResponseEntity<?> saveFCMToken(@RequestBody FCMTokenModel model){
 		
+		logger.info("Saving FCM token");
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getUserByEmail(authentication.getName());
 
@@ -138,6 +156,7 @@ public class JwtAuthenticationController {
 
 			FcmToken token = fcmTokenService.getFcmTokenByTokenAndUserId(model.getToken(), currentUser.getId());
 			if(token != null){
+				logger.info("Token already exists");
 				return ResponseEntity.ok(new JwtResponse("OK"));
 			}
 
@@ -147,6 +166,7 @@ public class JwtAuthenticationController {
 
 			fcmTokenService.save(token);
 
+			logger.info("Token saved successfully");
 			return ResponseEntity.ok(new JwtResponse("OK"));
 		}else{
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new JwtResponse(null));
@@ -157,9 +177,12 @@ public class JwtAuthenticationController {
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@RequestBody RegistrationModel registrationModel){
 		
+		logger.info("Registering user: " + registrationModel.getEmail());
+
 		User user = userService.getUserByEmail(registrationModel.getEmail());
 
 		if(user != null){
+			logger.info("User already exists");
 			return ResponseEntity.status(601).body("User with this email already exists!");
 		}
 
@@ -173,6 +196,8 @@ public class JwtAuthenticationController {
 		details.setSurname(registrationModel.getSurname());
 		details.setUser(user);
 		myUserDetailsService.saveUserDetails(details);
+
+		logger.info("User registered successfully");
 
 		return ResponseEntity.ok(new JwtResponse("OK"));
 	}
