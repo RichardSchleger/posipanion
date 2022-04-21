@@ -63,7 +63,9 @@ export default function MapMenu({friends, showUserDetail}) {
               onPress={event => {
                 showUserDetail(event, friend.id);
               }}>
-              <Text>{friend.firstName + ' ' + friend.surname}</Text>
+              <Text style={styles.darkText}>
+                {friend.firstName + ' ' + friend.surname}
+              </Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -119,5 +121,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     paddingLeft: 10,
+    color: '#000000',
+  },
+
+  darkText: {
+    color: '#000000',
   },
 });

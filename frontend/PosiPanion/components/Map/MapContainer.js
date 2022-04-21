@@ -28,32 +28,42 @@ export default function MapContainer({setRefresh}) {
   const [showMenu, setShowMenu] = useState(false);
   const [detail, setDetail] = useState(null);
   const [rideActive, setRideActive] = useState(null);
+  const [shownRideActive, setShownRideActive] = useState(null);
 
   const [mapRefresh, setMapRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(null);
+
+  const [firstRun, setFirstRun] = useState(true);
 
   const mapview = React.createRef();
 
   useLocation(positionState, dispatch);
 
   if (Platform.OS === 'ios') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useLocationTracking(positionState, dispatch);
   } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useNativeLocationTracking(positionState, dispatch);
   }
 
+  const lastTimestamp = React.useRef(0);
+
+  useEffect(() => {
+    setFirstRun(true);
+  },[menuShown]);
+
   useEffect(() => {
     if (rideActive && positionState) {
-      sendLocation();
+      if(positionState.position.timestamp - lastTimestamp.current > 1000) {
+        sendLocation();
+        lastTimestamp.current = positionState.position.timestamp;
+      }
     }
   }, [positionState]);
 
   useEffect(() => {
     const fetchData = async () => {
       const token = await AuthService.getToken();
-      return await axios
+      return axios
         .get(API.url + 'user/friends/active', {
           headers: {Authorization: 'Bearer ' + token},
         })
@@ -74,7 +84,7 @@ export default function MapContainer({setRefresh}) {
 
     const fetchDetail = async id => {
       const token = await AuthService.getToken();
-      return await axios
+      return axios
         .get(API.url + 'user/detail/' + id, {
           headers: {Authorization: 'Bearer ' + token},
         })
@@ -124,7 +134,7 @@ export default function MapContainer({setRefresh}) {
   useEffect(() => {
     const fetchCurrentRide = async () => {
       const token = await AuthService.getToken();
-      return await axios
+      return axios
         .get(API.url + 'user/detail', {
           headers: {Authorization: 'Bearer ' + token},
         })
@@ -189,58 +199,60 @@ export default function MapContainer({setRefresh}) {
           timestamp: new Date(),
         };
       }
+      let temp = {...rideActive};
+      if (temp) {
+        temp.currentRide.waypoints = [
+          ...temp.currentRide.waypoints,
+          {
+            latitude: payload.latitude,
+            longitude: payload.longitude,
+            elevation: payload.elevation,
+            timestamp: payload.timestamp,
+          },
+        ].sort((a, b) => a.timestamp - b.timestamp);
+        temp.lastKnownLatitude =
+          temp.currentRide.waypoints[
+            temp.currentRide.waypoints.length - 1
+          ].latitude;
+        temp.lastKnownLongitude =
+          temp.currentRide.waypoints[
+            temp.currentRide.waypoints.length - 1
+          ].longitude;
+        if (temp.currentRide.waypoints.length > 1) {
+          const lastPoint =
+            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
+          const newPoint =
+            temp.currentRide.waypoints[temp.currentRide.waypoints.length - 1];
 
-      setRideActive(c => {
-        let temp = {...c};
-        if (temp) {
-          temp.currentRide.waypoints = [
-            ...temp.currentRide.waypoints,
-            {
-              latitude: payload.latitude,
-              longitude: payload.longitude,
-              elevation: payload.elevation,
-              timestamp: payload.timestamp,
-            },
-          ].sort((a, b) => a.timestamp - b.timestamp);
-          temp.lastKnownLatitude =
-            temp.currentRide.waypoints[
-              temp.currentRide.waypoints.length - 1
-            ].latitude;
-          temp.lastKnownLongitude =
-            temp.currentRide.waypoints[
-              temp.currentRide.waypoints.length - 1
-            ].longitude;
-          if (temp.currentRide.waypoints.length > 1) {
-            const lastPoint =
-              temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
-            const newPoint =
-              temp.currentRide.waypoints[temp.currentRide.waypoints.length - 1];
-
-            const dist = DistanceCalculator.calculateDistanceBetweenLatLonEle(
-              lastPoint.latitude,
-              lastPoint.longitude,
-              lastPoint.elevation,
-              newPoint.latitude,
-              newPoint.longitude,
-              newPoint.elevation,
-            );
-            if (!isNaN(dist)) {
-              temp.currentRide.distance += dist;
-            }
-
-            const time = newPoint.timestamp - lastPoint.timestamp;
-            if (!isNaN(time)) {
-              temp.currentRide.movingTime += time;
-            }
-            temp.currentRide.currentSpeed =
-              time !== 0
-                ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
-                : 0;
+          const dist = DistanceCalculator.calculateDistanceBetweenLatLonEle(
+            lastPoint.latitude,
+            lastPoint.longitude,
+            lastPoint.elevation,
+            newPoint.latitude,
+            newPoint.longitude,
+            newPoint.elevation,
+          );
+          if (!isNaN(dist)) {
+            temp.currentRide.distance += dist;
           }
-        }
 
-        return temp;
-      });
+          const time = newPoint.timestamp - lastPoint.timestamp;
+          if (!isNaN(time)) {
+            temp.currentRide.movingTime += time;
+          }
+          temp.currentRide.currentSpeed =
+            time !== 0
+              ? Math.round((dist / 1000 / (time / 3600000)) * 10) / 10
+              : 0;
+        }
+      }
+
+      setRideActive(temp);
+      if (shownRideActive) {
+        setShownRideActive(temp);
+      } else {
+        setShownRideActive(null);
+      }
 
       axios
         .post(API.url + 'user/location', payload, {
@@ -333,6 +345,8 @@ export default function MapContainer({setRefresh}) {
         })
         .then(response => {
           setDetail(response.data);
+          setShownRideActive(null);
+          setFirstRun(true);
         })
         .catch(async error => {
           if (
@@ -362,14 +376,20 @@ export default function MapContainer({setRefresh}) {
         users={friends}
         detail={detail}
         showUserDetail={showUserDetail}
-        rideActive={rideActive}
+        rideActive={shownRideActive}
         positionState={positionState}
         shown={showMenu}
         menuShown={menuShown}
         mapview={mapview}
+        firstRun={firstRun}
+        setFirstRun={setFirstRun}
       />
-      <MenuButton onPress={onPress}/>
-      <CenterButton onPress={centerMap} shown={showMenu} menuShown={menuShown}/>
+      <MenuButton onPress={onPress} />
+      <CenterButton
+        onPress={centerMap}
+        shown={showMenu}
+        menuShown={menuShown}
+      />
       <Menu
         show={showMenu}
         setRefresh={setRefresh}
@@ -377,10 +397,13 @@ export default function MapContainer({setRefresh}) {
         showUserDetail={showUserDetail}
         rideActive={rideActive}
         setRideActive={setRideActive}
+        setShownRideActive={setShownRideActive}
+        setFirstRun={setFirstRun}
         positionState={positionState}
         menuShown={menuShown}
         setMenuShown={setMenuShown}
         mapview={mapview}
+        setDetail={setDetail}
       />
     </View>
   );

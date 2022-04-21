@@ -27,9 +27,12 @@ export default function Menu({
   showUserDetail,
   rideActive,
   setRideActive,
+  setShownRideActive,
+  setFirstRun,
   positionState,
   menuShown,
   setMenuShown,
+  setDetail,
 }) {
   const offsetY = useRef(new Animated.Value(0)).current;
   const [newRide, setNewRide] = useState(true);
@@ -107,7 +110,10 @@ export default function Menu({
     e.preventDefault();
     if (rideActive) {
       setMenuShown('activeRide');
-      slideIntoMapMenuView();
+      setDetail(null);
+      setShownRideActive(rideActive);
+      setFirstRun(true);
+      slideIntoActiveRideMenuView();
     } else {
       setMenuShown('ride');
       if (newRide) {
@@ -177,7 +183,7 @@ export default function Menu({
 
   const fetchProfile = async () => {
     const token = await AuthService.getToken();
-    return await axios
+    return axios
       .get(API.url + 'user/profile', {
         headers: {Authorization: 'Bearer ' + token},
       })
@@ -209,7 +215,7 @@ export default function Menu({
       )
       .then(async () => {
         const profile = await fetchProfile();
-        setRideActive({
+        const ride = {
           firstName: profile.firstName,
           surname: profile.surname,
           lastKnownLatitude: positionState.position.lat,
@@ -226,7 +232,9 @@ export default function Menu({
               },
             ],
           },
-        });
+        };
+        setRideActive(ride);
+        setShownRideActive(ride);
 
         setMenuShown('activeRide');
       })

@@ -1,15 +1,3 @@
-/**
- * @format
- * @flow
- */
-
-import type {
-  AppState as AppStateType,
-  Location,
-  TimingDispatch,
-  TimingState,
-} from 'types';
-
 import {useEffect, useState} from 'react';
 import {
   AppState,
@@ -40,7 +28,7 @@ RNLocation.configure({
   showsBackgroundLocationIndicator: true,
 });
 
-export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
+export const useLocation = (state, dispatch) => {
   const [listener, setListener] = useState(null);
 
   return useEffect(() => {
@@ -82,7 +70,7 @@ export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
       checkPermission();
     }
 
-    const handleAppStateChange = (nextAppState: AppStateType) => {
+    const handleAppStateChange = nextAppState => {
       if (nextAppState === 'active') {
         checkPermission();
       }
@@ -99,17 +87,8 @@ export const useLocation = (state: TimingState, dispatch: TimingDispatch) => {
   }, [dispatch, state.granted]);
 };
 
-type NativeLocationEvent = {
-  latitude: number,
-  longitude: number,
-  altitude: number,
-  timestamp: number,
-};
+export const useNativeLocationTracking = (state, dispatch) => {
 
-export const useNativeLocationTracking = (
-  state: TimingState,
-  dispatch: TimingDispatch,
-) => {
   return useEffect(() => {
     let subscription;
     if (!state.running) {
@@ -121,8 +100,7 @@ export const useNativeLocationTracking = (
     if (state.granted) {
       subscription = DeviceEventEmitter.addListener(
         NativeModules.LocationManager.JS_LOCATION_EVENT_NAME,
-        (e: NativeLocationEvent) => {
-          //console.log('Received Location Event:', e);
+        e => {
           dispatch({
             type: Actions.UpdatePosition,
             position: {
@@ -145,10 +123,7 @@ export const useNativeLocationTracking = (
   }, [state.granted, state.running, dispatch]);
 };
 
-export const useLocationTracking = (
-  state: TimingState,
-  dispatch: TimingDispatch,
-) => {
+export const useLocationTracking = (state, dispatch) => {
   return useEffect(() => {
     let unsubscribe;
     if (!state.running) {
@@ -157,23 +132,20 @@ export const useLocationTracking = (
     }
 
     if (state.granted) {
-      unsubscribe = RNLocation.subscribeToLocationUpdates(
-        (locations: Location[]) => {
-          locations.forEach(l => {
-            // console.log('Received Location:', l);
-            dispatch({
-              type: Actions.UpdatePosition,
-              position: {
-                accuracy: l.accuracy,
-                lat: l.latitude,
-                lng: l.longitude,
-                alti: l.altitude,
-                timestamp: l.timestamp,
-              },
-            });
+      unsubscribe = RNLocation.subscribeToLocationUpdates(locations => {
+        locations.forEach(l => {
+          dispatch({
+            type: Actions.UpdatePosition,
+            position: {
+              accuracy: l.accuracy,
+              lat: l.latitude,
+              lng: l.longitude,
+              alti: l.altitude,
+              timestamp: l.timestamp,
+            },
           });
-        },
-      );
+        });
+      });
     }
 
     return () => {

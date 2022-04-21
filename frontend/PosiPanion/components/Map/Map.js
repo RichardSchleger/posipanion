@@ -16,9 +16,9 @@ const Map = ({
   shown,
   menuShown,
   mapview,
+  firstRun,
+  setFirstRun,
 }) => {
-  const [firstRun, setFirstRun] = useState(true);
-
   const [regionMarkers, setRegionMarkers] = useState([]);
 
   useEffect(() => {
@@ -34,32 +34,37 @@ const Map = ({
 
   useEffect(() => {
     let allMarkers = [];
-    if (
-      detail &&
-      detail.currentRide &&
-      detail.currentRide.waypoints.length > 0
-    ) {
-      allMarkers = [...allMarkers, ...detail.currentRide.waypoints];
+
+    if (detail) {
+      if (
+        detail &&
+        detail.currentRide &&
+        detail.currentRide.waypoints.length > 0
+      ) {
+        allMarkers = [...allMarkers, ...detail.currentRide.waypoints];
+      }
+      if (detail && detail.track && detail.track.waypoints.length > 0) {
+        allMarkers = [...allMarkers, ...detail.track.waypoints];
+      }
+    } else if (rideActive) {
+      if (
+        rideActive &&
+        rideActive.currentRide &&
+        rideActive.currentRide.waypoints.length > 0
+      ) {
+        allMarkers = [...allMarkers, ...rideActive.currentRide.waypoints];
+      }
+      if (
+        rideActive &&
+        rideActive.track &&
+        rideActive.track.waypoints.length > 0
+      ) {
+        allMarkers = [...allMarkers, ...rideActive.track.waypoints];
+      }
     }
-    if (detail && detail.track && detail.track.waypoints.length > 0) {
-      allMarkers = [...allMarkers, ...detail.track.waypoints];
-    }
-    if (
-      rideActive &&
-      rideActive.currentRide &&
-      rideActive.currentRide.waypoints.length > 0
-    ) {
-      allMarkers = [...allMarkers, ...rideActive.currentRide.waypoints];
-    }
-    if (
-      rideActive &&
-      rideActive.track &&
-      rideActive.track.waypoints.length > 0
-    ) {
-      allMarkers = [...allMarkers, ...rideActive.track.waypoints];
-    }
+
     if (allMarkers.length > 0) {
-      setRegionMarkers(() => [
+      const tempMarkers = [
         allMarkers.find(
           m =>
             m.latitude ===
@@ -100,24 +105,44 @@ const Map = ({
               }),
             ),
         ),
-      ]);
+      ];
+      
+      if (!detail) {
+        tempMarkers[0] = {
+          latitude: tempMarkers[0].latitude + 0.01,
+          longitude: tempMarkers[0].longitude,
+        };
+        tempMarkers[1] = {
+          latitude: tempMarkers[1].latitude,
+          longitude: tempMarkers[1].longitude + 0.01,
+        };
+        tempMarkers[2] = {
+          latitude: tempMarkers[2].latitude - 0.01,
+          longitude: tempMarkers[2].longitude,
+        };
+        tempMarkers[3] = {
+          latitude: tempMarkers[3].latitude,
+          longitude: tempMarkers[3].longitude - 0.01,
+        };
+      }
+
+      setRegionMarkers(tempMarkers);
     } else {
       setRegionMarkers([]);
     }
   }, [detail, rideActive]);
 
   useEffect(() => {
-    if(regionMarkers.length === 0) {
+    if (regionMarkers.length === 0) {
       setFirstRun(true);
-    }else{
-      if(firstRun){
-        if(mapview && mapview.current){
+    } else {
+      if (firstRun) {
+        if (mapview && mapview.current) {
           mapview.current.fitToElements(true);
           setFirstRun(c => !c);
         }
       }
     }
-    
   }, [regionMarkers]);
 
   const container = {
@@ -166,18 +191,6 @@ const Map = ({
             opacity={0}
           />
         ))}
-        {detail &&
-          detail.track &&
-          detail.track.waypoints.map((waypoint, index) => (
-            <Marker
-              key={'trackpoint_' + index}
-              coordinate={{
-                latitude: waypoint.latitude,
-                longitude: waypoint.longitude,
-              }}
-              opacity={0}
-            />
-          ))}
         {detail && detail.track && (
           <Polyline
             coordinates={detail.track.waypoints}
@@ -207,21 +220,21 @@ const Map = ({
             </View>
           </Marker>
         )}
-        {rideActive && rideActive.track && (
+        {rideActive && rideActive.track && !detail && (
           <Polyline
             coordinates={rideActive.track.waypoints}
             strokeColor={'red'}
             strokeWidth={3}
           />
         )}
-        {rideActive && rideActive.currentRide && (
+        {rideActive && rideActive.currentRide && !detail && (
           <Polyline
             coordinates={rideActive.currentRide.waypoints}
             strokeColor={'#109CF1'}
             strokeWidth={3}
           />
         )}
-        {rideActive && (
+        {rideActive && !detail && (
           <Marker
             key={'user_detail_marker'}
             anchor={{x: 0.5, y: 0.5}}

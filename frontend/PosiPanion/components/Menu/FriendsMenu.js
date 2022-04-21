@@ -31,7 +31,7 @@ export default function FriendsMenu({showMapMenu}) {
   useEffect(() => {
     const fetchPendingFriends = async () => {
       const token = await AuthService.getToken();
-      return await axios
+      return axios
         .get(API.url + 'user/friends/pending', {
           headers: {Authorization: 'Bearer ' + token},
         })
@@ -47,7 +47,7 @@ export default function FriendsMenu({showMapMenu}) {
 
     const fetchConfirmedFriends = async () => {
       const token = await AuthService.getToken();
-      return await axios
+      return axios
         .get(API.url + 'user/friends/confirmed', {
           headers: {Authorization: 'Bearer ' + token},
         })
@@ -77,7 +77,7 @@ export default function FriendsMenu({showMapMenu}) {
   const fetchUsersByText = async () => {
     const token = await AuthService.getToken();
     if (searchText !== '') {
-      return await axios
+      return axios
         .get(
           API.url +
             'user/find/' +
