@@ -19,6 +19,7 @@ import API from '../Api/API';
 import AuthService from '../AuthService/AuthService';
 import ActiveRideDetails from '../ActiveRideDetals/ActiveRideDetails';
 import FriendsMenu from './FriendsMenu';
+import DebugMenu from './DebugMenu';
 
 export default function Menu({
   show,
@@ -33,6 +34,8 @@ export default function Menu({
   menuShown,
   setMenuShown,
   setDetail,
+  setCode,
+  setExpiresAt,
 }) {
   const offsetY = useRef(new Animated.Value(0)).current;
   const [newRide, setNewRide] = useState(true);
@@ -128,6 +131,12 @@ export default function Menu({
     e.preventDefault();
     setMenuShown('config');
     slideIntoConfigMenuView();
+  };
+
+  const showDebug = e => {
+    e.preventDefault();
+    setMenuShown('debug');
+    slideIntoMapMenuView();
   };
 
   const showFriends = e => {
@@ -260,6 +269,7 @@ export default function Menu({
       )
       .then(() => {
         setRideActive(null);
+        setShownRideActive(null);
         setMenuShown('map');
       })
       .catch(async error => {
@@ -311,6 +321,9 @@ export default function Menu({
               ]}>
               JAZDA
             </Text>
+          </Pressable>
+          <Pressable style={styles.debug_button} onPress={showDebug}>
+            <Text style={styles.darkText}>DEBUG</Text>
           </Pressable>
           {menuShown === 'map' && (
             <MapMenu friends={friends} showUserDetail={showUserDetail} />
@@ -376,12 +389,17 @@ export default function Menu({
       )}
       {menuShown === 'config' && (
         <View style={styles.menu}>
-          <ConfigMenu showMapMenu={showMapMenu} setLoginRefresh={setRefresh} />
+          <ConfigMenu showMapMenu={showMapMenu} setLoginRefresh={setRefresh} setCode={setCode} setExpiresAt={setExpiresAt}/>
         </View>
       )}
       {menuShown === 'friends' && (
         <View style={styles.menu}>
           <FriendsMenu showMapMenu={showMapMenu} />
+        </View>
+      )}
+      {menuShown === 'debug' && (
+        <View style={styles.menu}>
+          <DebugMenu showMapMenu={showMapMenu} />
         </View>
       )}
     </Animated.View>
@@ -474,5 +492,15 @@ const styles = StyleSheet.create({
 
   button_text_active: {
     color: '#FFFFFF',
+  },
+
+  debug_button: {
+    position: 'absolute',
+    top: 5,
+    left: 15,
+  },
+
+  darkText: {
+    color: '#000000',
   },
 });

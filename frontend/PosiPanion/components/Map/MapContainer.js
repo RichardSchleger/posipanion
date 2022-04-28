@@ -17,6 +17,8 @@ import {
 } from '../hooks';
 import DistanceCalculator from '../DistanceCalculator/DistanceCalculator';
 import CenterButton from '../CenterButton/CenterButton';
+import {log} from '../Menu/DebugMenu';
+import LoginCode from '../LoginCode/LoginCode';
 
 export default function MapContainer({setRefresh}) {
   const [positionState, dispatch] = useTimingReducer();
@@ -34,6 +36,9 @@ export default function MapContainer({setRefresh}) {
   const [refreshInterval, setRefreshInterval] = useState(null);
 
   const [firstRun, setFirstRun] = useState(true);
+
+  const [code, setCode] = useState('');
+  const [expiresAt, setExpiresAt] = useState(0);
 
   const mapview = React.createRef();
 
@@ -53,9 +58,14 @@ export default function MapContainer({setRefresh}) {
 
   useEffect(() => {
     if (rideActive && positionState) {
-      if(positionState.position.timestamp - lastTimestamp.current > 1000) {
+      console.log('location updated');
+      log('location updated');
+      if(positionState.position.timestamp - lastTimestamp.current > 4000) {
         sendLocation();
         lastTimestamp.current = positionState.position.timestamp;
+      }else{
+        console.log('not sending location');
+        log('not sending location');
       }
     }
   }, [positionState]);
@@ -161,6 +171,7 @@ export default function MapContainer({setRefresh}) {
             (a, b) => a.timestamp - b.timestamp,
           );
         setRideActive(currentRide);
+        setShownRideActive(currentRide);
         setMenuShown('activeRide');
         setShowMenu(true);
       }
@@ -209,15 +220,9 @@ export default function MapContainer({setRefresh}) {
             elevation: payload.elevation,
             timestamp: payload.timestamp,
           },
-        ].sort((a, b) => a.timestamp - b.timestamp);
-        temp.lastKnownLatitude =
-          temp.currentRide.waypoints[
-            temp.currentRide.waypoints.length - 1
-          ].latitude;
-        temp.lastKnownLongitude =
-          temp.currentRide.waypoints[
-            temp.currentRide.waypoints.length - 1
-          ].longitude;
+        ];
+        temp.lastKnownLatitude = payload.latitude;
+        temp.lastKnownLongitude = payload.longitude;
         if (temp.currentRide.waypoints.length > 1) {
           const lastPoint =
             temp.currentRide.waypoints[temp.currentRide.waypoints.length - 2];
@@ -275,6 +280,7 @@ export default function MapContainer({setRefresh}) {
             }
           } else {
             console.log('Adding location to cache');
+            log('Adding location to cache');
             setLocationCache(c => {
               return [
                 ...c,
@@ -293,6 +299,7 @@ export default function MapContainer({setRefresh}) {
 
   const sendCachedLocations = async () => {
     console.log('Sending ' + locationCache.length + ' cached locations');
+    log('Sending ' + locationCache.length + ' cached locations');
     const token = await AuthService.getToken();
 
     axios
@@ -300,7 +307,8 @@ export default function MapContainer({setRefresh}) {
         headers: {Authorization: 'Bearer ' + token},
       })
       .then(() => {
-        console.log('Cached locations sent');
+        console.log('Cached locations sent successfully');
+        log('Cached locations sent successfully');
         setLocationCache([]);
       })
       .catch(async error => {
@@ -324,7 +332,11 @@ export default function MapContainer({setRefresh}) {
   };
 
   useBackHandler(() => {
-    if (showMenu) {
+    if (code !== '') {
+      setCode('');
+      setExpiresAt(0);
+      return true;
+    } else if (showMenu) {
       setShowMenu(false);
       return true;
     } else if (detail) {
@@ -404,7 +416,14 @@ export default function MapContainer({setRefresh}) {
         setMenuShown={setMenuShown}
         mapview={mapview}
         setDetail={setDetail}
+        setCode={setCode}
+        setExpiresAt={setExpiresAt}
       />
+      {code !== '' && <LoginCode
+        code={code}
+        expiresAt={expiresAt}
+        setCode={setCode}
+      />}
     </View>
   );
 }

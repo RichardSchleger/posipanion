@@ -21,23 +21,23 @@ export default function RideMenu({
 }) {
   const [tracks, setTracks] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = await AuthService.getToken();
-      return await axios
-        .get(API.url + 'user/tracks', {
-          headers: {Authorization: 'Bearer ' + token},
-        })
-        .then(response => response.data)
-        .catch(async error => {
-          if (error.response.status === 606) {
-            if (await AuthService.refreshToken()) {
-              return fetchData();
-            }
+  const fetchData = async () => {
+    const token = await AuthService.getToken();
+    return axios
+      .get(API.url + 'user/tracks', {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(response => response.data)
+      .catch(async error => {
+        if (error.response.status === 606) {
+          if (await AuthService.refreshToken()) {
+            return fetchData();
           }
-        });
-    };
+        }
+      });
+  };
 
+  useEffect(() => {
     const getData = async () => {
       const response = await fetchData();
       setTracks(response);

@@ -3,8 +3,6 @@
  * @flow
  */
 
-import type {TimingAction, TimingDispatch, TimingState} from './types';
-
 import {useReducer} from 'react';
 
 export const Actions = {
@@ -14,20 +12,20 @@ export const Actions = {
   UpdatePosition: 'UpdatePosition',
 };
 
-export const initialState: TimingState = {
+export const initialState = {
   // granted: undefined,
   position: null,
   running: true,
 };
 
-export const getInitialState = (): TimingState => {
+export const getInitialState = () => {
   return {...initialState};
 };
 
 export const reducer = (
-  state: TimingState,
-  action: TimingAction,
-): TimingState => {
+  state,
+  action,
+) => {
   switch (action.type) {
     case Actions.Start:
       return {
@@ -65,7 +63,7 @@ export const reducer = (
   }
 };
 
-export const useTimingReducer = (): [TimingState, TimingDispatch] => {
+export const useTimingReducer = () => {
   return useReducer<TimingState, TimingAction>(reducer, null, () =>
     getInitialState(),
   );
