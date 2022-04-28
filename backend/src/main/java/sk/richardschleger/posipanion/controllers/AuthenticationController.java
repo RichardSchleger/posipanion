@@ -271,10 +271,12 @@ public class AuthenticationController {
 
 			final String token = jwtTokenUtil.generateToken(userDetails);
 
+			loginCode.getUser().setLoginCode(null);
 			loginCodeService.removeLoginCode(loginCode);
 
 			return ResponseEntity.ok(new JwtResponse(token));
 		}else{
+			loginCode.getUser().setLoginCode(null);
 			loginCodeService.removeLoginCode(loginCode);
 			return ResponseEntity.status(602).body("Code expired");
 		}
