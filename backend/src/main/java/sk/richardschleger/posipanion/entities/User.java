@@ -35,13 +35,22 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserDetails userDetails;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private LoginCode loginCode;
+
     public User() {
     }
 
-    public User(int id, String email, String password) {
+    public User(int id, String email, String password, StravaUser stravaUser, ActiveUser activeUser, List<FcmToken> fcmTokens, List<Track> tracks, UserDetails userDetails, LoginCode loginCode) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.stravaUser = stravaUser;
+        this.activeUser = activeUser;
+        this.fcmTokens = fcmTokens;
+        this.tracks = tracks;
+        this.userDetails = userDetails;
+        this.loginCode = loginCode;
     }
 
     public int getId() {
@@ -69,7 +78,7 @@ public class User {
     }
 
     public StravaUser getStravaUser() {
-        return stravaUser;
+        return this.stravaUser;
     }
 
     public void setStravaUser(StravaUser stravaUser) {
@@ -77,7 +86,7 @@ public class User {
     }
 
     public ActiveUser getActiveUser() {
-        return activeUser;
+        return this.activeUser;
     }
 
     public void setActiveUser(ActiveUser activeUser) {
@@ -85,7 +94,7 @@ public class User {
     }
 
     public List<FcmToken> getFcmTokens() {
-        return fcmTokens;
+        return this.fcmTokens;
     }
 
     public void setFcmTokens(List<FcmToken> fcmTokens) {
@@ -93,7 +102,7 @@ public class User {
     }
 
     public List<Track> getTracks() {
-        return tracks;
+        return this.tracks;
     }
 
     public void setTracks(List<Track> tracks) {
@@ -101,11 +110,19 @@ public class User {
     }
 
     public UserDetails getUserDetails() {
-        return userDetails;
+        return this.userDetails;
     }
 
     public void setUserDetails(UserDetails userDetails) {
         this.userDetails = userDetails;
+    }
+
+    public LoginCode getLoginCode() {
+        return this.loginCode;
+    }
+
+    public void setLoginCode(LoginCode loginCode) {
+        this.loginCode = loginCode;
     }
 
     public User id(int id) {
@@ -123,17 +140,50 @@ public class User {
         return this;
     }
 
+    public User stravaUser(StravaUser stravaUser) {
+        setStravaUser(stravaUser);
+        return this;
+    }
+
+    public User activeUser(ActiveUser activeUser) {
+        setActiveUser(activeUser);
+        return this;
+    }
+
+    public User fcmTokens(List<FcmToken> fcmTokens) {
+        setFcmTokens(fcmTokens);
+        return this;
+    }
+
+    public User tracks(List<Track> tracks) {
+        setTracks(tracks);
+        return this;
+    }
+
+    public User userDetails(UserDetails userDetails) {
+        setUserDetails(userDetails);
+        return this;
+    }
+
+    public User loginCode(LoginCode loginCode) {
+        setLoginCode(loginCode);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == this)
+            return true;
+        if (!(o instanceof User)) {
+            return false;
+        }
         User user = (User) o;
-        return id == user.id && email.equals(user.email) && password.equals(user.password) && Objects.equals(stravaUser, user.stravaUser) && Objects.equals(activeUser, user.activeUser) && Objects.equals(fcmTokens, user.fcmTokens) && Objects.equals(tracks, user.tracks) && userDetails.equals(user.userDetails);
+        return id == user.id && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(stravaUser, user.stravaUser) && Objects.equals(activeUser, user.activeUser) && Objects.equals(fcmTokens, user.fcmTokens) && Objects.equals(tracks, user.tracks) && Objects.equals(userDetails, user.userDetails) && Objects.equals(loginCode, user.loginCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, stravaUser, activeUser, fcmTokens, tracks, userDetails);
+        return Objects.hash(id, email, password, stravaUser, activeUser, fcmTokens, tracks, userDetails, loginCode);
     }
 
     @Override
@@ -142,6 +192,12 @@ public class User {
             " id='" + getId() + "'" +
             ", email='" + getEmail() + "'" +
             ", password='" + getPassword() + "'" +
+            ", stravaUser='" + getStravaUser() + "'" +
+            ", activeUser='" + getActiveUser() + "'" +
+            ", fcmTokens='" + getFcmTokens() + "'" +
+            ", tracks='" + getTracks() + "'" +
+            ", userDetails='" + getUserDetails() + "'" +
+            ", loginCode='" + getLoginCode() + "'" +
             "}";
     }
 

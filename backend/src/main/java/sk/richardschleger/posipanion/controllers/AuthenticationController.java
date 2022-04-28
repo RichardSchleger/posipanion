@@ -1,5 +1,6 @@
 package sk.richardschleger.posipanion.controllers;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,15 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 import io.jsonwebtoken.impl.DefaultClaims;
 import sk.richardschleger.posipanion.configs.JwtTokenUtil;
 import sk.richardschleger.posipanion.entities.FcmToken;
+import sk.richardschleger.posipanion.entities.LoginCode;
 import sk.richardschleger.posipanion.entities.User;
 import sk.richardschleger.posipanion.models.FCMTokenModel;
 import sk.richardschleger.posipanion.models.GoogleAuthenticationRequestModel;
 import sk.richardschleger.posipanion.models.JwtRequest;
 import sk.richardschleger.posipanion.models.JwtResponse;
+import sk.richardschleger.posipanion.models.LoginCodeModel;
 import sk.richardschleger.posipanion.models.RegistrationModel;
 import sk.richardschleger.posipanion.services.FcmTokenService;
 import sk.richardschleger.posipanion.services.GoogleAuthenticateService;
 import sk.richardschleger.posipanion.services.JwtUserDetailsService;
+import sk.richardschleger.posipanion.services.LoginCodeService;
 import sk.richardschleger.posipanion.services.UserDetailsService;
 import sk.richardschleger.posipanion.services.UserService;
 
@@ -44,7 +48,7 @@ import sk.richardschleger.posipanion.services.UserService;
 
 @RestController
 @CrossOrigin
-public class JwtAuthenticationController {
+public class AuthenticationController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -65,6 +69,9 @@ public class JwtAuthenticationController {
 
 	@Autowired
 	private UserDetailsService myUserDetailsService;
+
+	@Autowired
+	private LoginCodeService loginCodeService;
 
 	@Autowired
 	private FcmTokenService fcmTokenService;
@@ -199,6 +206,79 @@ public class JwtAuthenticationController {
 
 		logger.info("User registered successfully");
 
-		return ResponseEntity.ok(new JwtResponse("OK"));
+		return ResponseEntity.ok("OK");
 	}
+
+	@GetMapping("/generatecode")
+	public ResponseEntity<?> generateCode(){
+		
+		logger.info("Generating code");
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.getUserByEmail(authentication.getName());
+
+		LoginCode loginCode = loginCodeService.getLoginCodeByUserId(currentUser.getId());
+		if(loginCode != null){
+			if(loginCode.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))){
+				loginCodeService.removeLoginCode(loginCode);
+			}else{
+				logger.info("Code already exists");
+			
+				LoginCodeModel model = new LoginCodeModel();
+				model.setCode(loginCode.getCode());
+				model.setExpiresAt(loginCode.getExpiresAt());
+
+				return ResponseEntity.ok(model);
+			}
+		}
+
+		String code;
+		do {
+			code = Math.random() * 1000000 + "";
+			while(code.length() < 6){
+				code = "0" + code;
+			}
+		}while (loginCodeService.getLoginCodeByCode(code) != null);
+
+		Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (1000 * 60 * 3));
+
+		loginCode = new LoginCode();
+		loginCode.setCode(code);
+		loginCode.setExpiresAt(expiresAt);
+		loginCode.setUser(currentUser);
+		loginCodeService.saveLoginCode(loginCode);
+
+		logger.info("Code generated successfully");
+
+		LoginCodeModel model = new LoginCodeModel();
+		model.setCode(code);
+		model.setExpiresAt(expiresAt);
+
+		return ResponseEntity.ok(model);
+	}
+
+	@PostMapping("/verifycode")
+	public ResponseEntity<?> verifyCode(@RequestBody LoginCodeModel loginCodeModel){
+		
+		logger.info("Verifying code");
+
+		LoginCode loginCode = loginCodeService.getLoginCodeByCode(loginCodeModel.getCode());
+		if(loginCode.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))){
+			
+			final UserDetails userDetails = userDetailsService
+			.loadUserByUsername(loginCode.getUser().getEmail());
+
+			final String token = jwtTokenUtil.generateToken(userDetails);
+
+			loginCodeService.removeLoginCode(loginCode);
+
+			return ResponseEntity.ok(new JwtResponse(token));
+		}else{
+			loginCodeService.removeLoginCode(loginCode);
+			return ResponseEntity.status(602).body("Code expired");
+		}
+		
+		
+	}
+
 }
