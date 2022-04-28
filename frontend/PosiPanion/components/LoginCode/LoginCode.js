@@ -19,7 +19,6 @@ export default function LoginCode({code, expiresAt, setCode}) {
   }, [expiresAt]);
 
   useEffect(() => {
-    console.log('expiration: ', expiration);
     if (expiration === 0) {
       clearInterval(timer.current);
       setExpiration(-1);
