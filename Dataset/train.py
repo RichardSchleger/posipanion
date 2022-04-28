@@ -32,9 +32,11 @@ clf.fit(x, y)
 
 b = clf.intercept_[0]
 w1, w2 = clf.coef_.T
+c = -b/w2
+m = -w1/w2
 
-print("w1 ", w1[0])
-print("w2 ", w2[0])
-print("b ", b)
+print("y = %.2fx + %.2f" % (m, c))
+
+print("Score: %.2f" % (clf.score(x, y) * 100))
 
 visualize(x, y, clf)
