@@ -1,0 +1,5 @@
+logistic regression - 98.15%
+perceptron - 97.45%
+ridge classifier - 96.53%
+svm - 97.69%
+stochastic gradient descent - 97.92%
