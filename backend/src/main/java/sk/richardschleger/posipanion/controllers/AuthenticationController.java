@@ -220,6 +220,7 @@ public class AuthenticationController {
 		LoginCode loginCode = loginCodeService.getLoginCodeByUserId(currentUser.getId());
 		if(loginCode != null){
 			if(loginCode.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))){
+				currentUser.setLoginCode(null);
 				loginCodeService.removeLoginCode(loginCode);
 			}else{
 				logger.info("Code already exists");
