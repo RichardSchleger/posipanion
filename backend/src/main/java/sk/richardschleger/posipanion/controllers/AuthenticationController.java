@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.impl.DefaultClaims;
@@ -259,16 +260,16 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/verifycode")
-	public ResponseEntity<?> verifyCode(@RequestBody LoginCodeModel loginCodeModel){
+	public ResponseEntity<?> verifyCode(@RequestParam Map<String, String> body){
 		
 		logger.info("Verifying code");
 
-		LoginCode loginCode = loginCodeService.getLoginCodeByCode(loginCodeModel.getCode());
+		LoginCode loginCode = loginCodeService.getLoginCodeByCode(body.get("code"));
 		if(loginCode == null){
 			logger.info("Code does not exist");
 			return ResponseEntity.status(602).body("Code does not exist!");
 		}
-		
+
 		if(loginCode.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))){
 			
 			final UserDetails userDetails = userDetailsService
