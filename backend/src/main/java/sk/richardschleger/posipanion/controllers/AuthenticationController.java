@@ -234,7 +234,7 @@ public class AuthenticationController {
 
 		String code;
 		do {
-			code = Math.random() * 1000000 + "";
+			code = ((int) (Math.random() * 1000000)) + "";
 			while(code.length() < 6){
 				code = "0" + code;
 			}
