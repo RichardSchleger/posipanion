@@ -264,6 +264,11 @@ public class AuthenticationController {
 		logger.info("Verifying code");
 
 		LoginCode loginCode = loginCodeService.getLoginCodeByCode(loginCodeModel.getCode());
+		if(loginCode == null){
+			logger.info("Code does not exist");
+			return ResponseEntity.status(602).body("Code does not exist!");
+		}
+		
 		if(loginCode.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))){
 			
 			final UserDetails userDetails = userDetailsService
