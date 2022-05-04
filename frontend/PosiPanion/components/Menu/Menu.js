@@ -322,9 +322,9 @@ export default function Menu({
               JAZDA
             </Text>
           </Pressable>
-          <Pressable style={styles.debug_button} onPress={showDebug}>
+          {/* <Pressable style={styles.debug_button} onPress={showDebug}>
             <Text style={styles.darkText}>DEBUG</Text>
-          </Pressable>
+          </Pressable> */}
           {menuShown === 'map' && (
             <MapMenu friends={friends} showUserDetail={showUserDetail} />
           )}

@@ -19,6 +19,7 @@ import DistanceCalculator from '../DistanceCalculator/DistanceCalculator';
 import CenterButton from '../CenterButton/CenterButton';
 import {log} from '../Menu/DebugMenu';
 import LoginCode from '../LoginCode/LoginCode';
+import FallDetector from '../FallDetector';
 
 export default function MapContainer({setRefresh}) {
   const [positionState, dispatch] = useTimingReducer();
@@ -39,6 +40,8 @@ export default function MapContainer({setRefresh}) {
 
   const [code, setCode] = useState('');
   const [expiresAt, setExpiresAt] = useState(0);
+
+  const [validPositionState, setValidPositionState] = useState(null);
 
   const mapview = React.createRef();
 
@@ -61,6 +64,7 @@ export default function MapContainer({setRefresh}) {
       console.log('location updated');
       log('location updated');
       if(positionState.position.timestamp - lastTimestamp.current > 4000) {
+        setValidPositionState(positionState);
         sendLocation();
         lastTimestamp.current = positionState.position.timestamp;
       }else{
@@ -299,7 +303,7 @@ export default function MapContainer({setRefresh}) {
 
   const sendCachedLocations = async () => {
     console.log('Sending ' + locationCache.length + ' cached locations');
-    log('Sending ' + locationCache.length + ' cached locations');
+    //log('Sending ' + locationCache.length + ' cached locations');
     const token = await AuthService.getToken();
 
     axios
@@ -308,7 +312,7 @@ export default function MapContainer({setRefresh}) {
       })
       .then(() => {
         console.log('Cached locations sent successfully');
-        log('Cached locations sent successfully');
+        //log('Cached locations sent successfully');
         setLocationCache([]);
       })
       .catch(async error => {
@@ -419,11 +423,10 @@ export default function MapContainer({setRefresh}) {
         setCode={setCode}
         setExpiresAt={setExpiresAt}
       />
-      {code !== '' && <LoginCode
-        code={code}
-        expiresAt={expiresAt}
-        setCode={setCode}
-      />}
+      {code !== '' && (
+        <LoginCode code={code} expiresAt={expiresAt} setCode={setCode} />
+      )}
+      {rideActive && <FallDetector positionState={validPositionState} />}
     </View>
   );
 }
