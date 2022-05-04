@@ -34,6 +34,7 @@
             android:autofillHints=""
             android:backgroundTint="#109CF1"
             android:ems="10"
+            android:gravity="center"
             android:hint="@string/hint"
             android:inputType="numberPassword"
             android:minHeight="48dp"
@@ -66,7 +67,7 @@
         android:background="@android:color/white"
         android:gravity="center_horizontal|center_vertical"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <FrameLayout
             android:layout_width="match_parent"
