@@ -73,13 +73,6 @@ public class MainActivity extends Activity {
         }else {
             this.locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                    1000);
-        }else {
-            this.locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        }
     }
 
     @Override
@@ -221,7 +214,7 @@ public class MainActivity extends Activity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        locationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
 
