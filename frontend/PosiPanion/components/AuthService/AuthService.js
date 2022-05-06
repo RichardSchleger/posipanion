@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 
-const login = (e, email, password, setRefresh, setOpacity) => {
+const login = (e, email, password, setRefresh, setOpacity, setText) => {
   axios
     .post(API.url + 'authenticate', {
       username: email,
@@ -39,7 +39,11 @@ const login = (e, email, password, setRefresh, setOpacity) => {
         });
     })
     .catch(error => {
-      console.log(error);
+      if (error.response) {
+        setText('Nesprávny email alebo heslo!');
+      } else {
+        setText('Žiadne internetové pripojenie!');
+      }
       setOpacity(1);
     });
 };

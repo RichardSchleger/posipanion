@@ -20,7 +20,8 @@ export default function Registration({
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
 
-  const [userAlreadyExists, setUserAlreadyExists] = useState(false);
+  const [text, setText] = useState('');
+  const [showText, setShowText] = useState(false);
   const [invalidEmail, setInvalidEmail] = useState(false);
 
   //https://stackoverflow.com/questions/43676695/email-validation-react-native-returning-the-result-as-invalid-for-all-the-e
@@ -59,9 +60,14 @@ export default function Registration({
           setRegistrationShown(false);
         })
         .catch(error => {
-          if (error.response.status === 601) {
-            setUserAlreadyExists(true);
+          if (error.response) {
+            if (error.response.status === 601) {
+              setText('Nesprávny email alebo heslo!');
+            }
+          } else {
+            setText('Žiadne internetové pripojenie!');
           }
+          setShowText(true);
         });
     }
   };
@@ -73,11 +79,7 @@ export default function Registration({
         <Text style={styles.subtitleText}>Position of your companion!</Text>
       </View>
       <View>
-        {userAlreadyExists && (
-          <Text style={styles.wrongRegistrationText}>
-            Účet s rovnakým emailom už existuje!
-          </Text>
-        )}
+        {showText && <Text style={styles.wrongRegistrationText}>{text}</Text>}
         <Text style={styles.inputLabel}>Meno</Text>
         <TextInput
           style={styles.input}

@@ -22,6 +22,7 @@ export default function Login({setRefresh}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [opacity, setOpacity] = useState(0);
+  const [text, setText] = useState('');
 
   const [registrationSuccessful, setRegistrationSuccessful] = useState(false);
   const [registrationShown, setRegistrationShown] = useState(false);
@@ -82,7 +83,7 @@ export default function Login({setRefresh}) {
         </View>
         <View>
           <Text nativeID={'wrong_login_text'} style={wrongLoginText}>
-            Nesprávny email alebo heslo!
+            {text}
           </Text>
           {registrationSuccessful && (
             <Text style={styles.successfulRegistrationText}>
@@ -105,7 +106,14 @@ export default function Login({setRefresh}) {
           <Pressable
             style={styles.loginButton}
             onPress={e => {
-              AuthService.login(e, email, password, setRefresh, setOpacity);
+              AuthService.login(
+                e,
+                email,
+                password,
+                setRefresh,
+                setOpacity,
+                setText,
+              );
             }}>
             <Text style={styles.buttonText}>PRIHLÁSIŤ</Text>
           </Pressable>
