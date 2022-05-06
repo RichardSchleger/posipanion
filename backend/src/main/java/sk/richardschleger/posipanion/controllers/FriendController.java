@@ -1,5 +1,8 @@
 package sk.richardschleger.posipanion.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sk.richardschleger.posipanion.entities.Friend;
 import sk.richardschleger.posipanion.entities.User;
+import sk.richardschleger.posipanion.services.FirebaseMessageService;
 import sk.richardschleger.posipanion.services.FriendService;
 import sk.richardschleger.posipanion.services.UserService;
 
@@ -25,11 +29,15 @@ public class FriendController {
     private final UserService userService;
 
     private final FriendService friendService;
+
+    private final FirebaseMessageService firebaseMessageService;
     
     public FriendController(UserService userService,
-                            FriendService friendService){
+                            FriendService friendService,
+                            FirebaseMessageService firebaseMessageService){
         this.userService = userService;
         this.friendService = friendService;
+        this.firebaseMessageService = firebaseMessageService;
     }
 
     @PostMapping("/request/send/{userId}")
@@ -50,6 +58,16 @@ public class FriendController {
                 friend.setConfirmed(false);
 
                 friendService.save(friend);
+
+                List<User> targetUsers = new ArrayList<>();
+                targetUsers.add(newFriend);
+
+                firebaseMessageService.sendMulticast(
+                    targetUsers, 
+                    "Nová žiadosť o priateľstvo!", 
+                    "Používateľ " + currentUser.getUserDetails().getFirstName() + " " + currentUser.getUserDetails().getSurname() + " vám poslal žiadosť o priateľstvo.",
+                    logger);
+
                 logger.info("Friend request sent to user with id {} from user {}", userId, currentUser.getEmail());
             }else{
                 logger.error("User or new friend not found");
@@ -74,6 +92,16 @@ public class FriendController {
                     if(friend.getUser2().equals(currentUser)){
                         friend.setConfirmed(true);
                         friendService.save(friend);
+
+                        List<User> targetUsers = new ArrayList<>();
+                        targetUsers.add(friend.getUser1());
+        
+                        firebaseMessageService.sendMulticast(
+                            targetUsers, 
+                            "Vaša žiadosť o priateľstvo bola prijatá!", 
+                            "Používateľ " + currentUser.getUserDetails().getFirstName() + " " + currentUser.getUserDetails().getSurname() + " prijal vašu žiadosť o priateľstvo.",
+                            logger);
+
                         logger.info("Friend request confirmed between users {} and {}", friend.getUser1().getEmail(), friend.getUser2().getEmail());
                     }else{
                         logger.error("User {} cannot confirm friendship", currentUser.getEmail());
