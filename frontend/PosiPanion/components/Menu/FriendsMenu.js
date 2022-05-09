@@ -186,7 +186,9 @@ export default function FriendsMenu({showMapMenu}) {
           <ScrollView>
             {foundUsers.map((user, index) => (
               <View style={styles.friendContainer} key={'foundUser' + index}>
-                <Text>{user.firstName + ' ' + user.surname}</Text>
+                <Text style={styles.darkText}>
+                  {user.firstName + ' ' + user.surname}
+                </Text>
                 <Pressable
                   style={[styles.button, styles.addFriendButton]}
                   onPress={event => {
@@ -308,5 +310,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+
+  darkText: {
+    color: '#000000',
   },
 });

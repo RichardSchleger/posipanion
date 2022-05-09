@@ -30,6 +30,7 @@
     "react-native-push-notification": "^8.1.1",
     "react-native-sensors": "^7.3.3",
     "react-native-svg": "^12.1.1",
+    "react-native-toast-message": "^2.1.5",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {

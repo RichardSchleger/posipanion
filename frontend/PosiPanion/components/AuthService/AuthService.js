@@ -6,39 +6,51 @@ import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 
 const login = (e, email, password, setRefresh, setOpacity, setText) => {
+  e.preventDefault();
   axios
     .post(API.url + 'authenticate', {
       username: email,
       password: password,
     })
     .then(async r => {
-      messaging()
-        .getToken(firebase.app().options.messagingSenderId)
-        .then(token => {
-          axios
-            .post(
-              API.url + 'fcmtoken',
-              {
-                token: token,
-              },
-              {
-                headers: {Authorization: 'Bearer ' + r.data.token},
-              },
-            )
-            .then(async () => {
-              try {
-                await AsyncStorage.setItem('AuthToken', r.data.token);
-                setRefresh(c => !c);
-              } catch (error) {
-                // error
-              }
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        });
+      try {
+        messaging()
+          .getToken(firebase.app().options.messagingSenderId)
+          .then(token => {
+            axios
+              .post(
+                API.url + 'fcmtoken',
+                {
+                  token: token,
+                },
+                {
+                  headers: {Authorization: 'Bearer ' + r.data.token},
+                },
+              )
+              .then(async () => {
+                try {
+                  await AsyncStorage.setItem('AuthToken', r.data.token);
+                  setRefresh(c => !c);
+                } catch (error) {
+                  // error
+                }
+              })
+              .catch(error => {
+                console.log(error);
+              });
+          });
+        } catch (error) {
+          console.log(error);
+          try {
+            await AsyncStorage.setItem('AuthToken', r.data.token);
+            setRefresh(c => !c);
+          } catch (error) {
+            // error
+          }
+        }
     })
     .catch(error => {
+      console.log(error);
       if (error.response) {
         setText('Nesprávny email alebo heslo!');
       } else {

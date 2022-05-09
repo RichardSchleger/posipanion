@@ -154,7 +154,10 @@ export default function CurrentFriends({
             {friend.lastKnownLatitude && friend.lastKnownLongitude ? (
               <FontAwesomeIcon icon={faCircle} style={styles.activeUserIcon} />
             ) : (
-              ''
+              <FontAwesomeIcon
+                icon={faCircle}
+                style={styles.inactiveUserIcon}
+              />
             )}
           </Text>
           <Pressable
@@ -218,6 +221,10 @@ const styles = StyleSheet.create({
 
   activeUserIcon: {
     color: '#40cf4a',
+  },
+
+  inactiveUserIcon: {
+    color: '#999999',
   },
 
   removeFriendIcon: {

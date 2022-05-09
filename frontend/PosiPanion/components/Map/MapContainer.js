@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 
 import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import {useBackHandler} from '@react-native-community/hooks';
+import Toast from 'react-native-toast-message';
 
 import API from '../Api/API';
 import MenuButton from '../MenuButton/MenuButton';
@@ -427,6 +428,7 @@ export default function MapContainer({setRefresh}) {
         <LoginCode code={code} expiresAt={expiresAt} setCode={setCode} />
       )}
       {rideActive && <FallDetector positionState={validPositionState} />}
+      <Toast/>
     </View>
   );
 }

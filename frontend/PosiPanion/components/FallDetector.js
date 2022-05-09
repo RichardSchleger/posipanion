@@ -74,6 +74,8 @@ export default function FallDetector({positionState}) {
     )
     .subscribe(acc => {
       accValue.current = acc;
+    }, error => {
+      console.log(error);
     });
 
   const gyroscopeSubscription = gyroscope
@@ -91,6 +93,8 @@ export default function FallDetector({positionState}) {
       ) {
         possibleFallDetected.current = true;
       }
+    }, error => {
+      console.log(error);
     });
 
   const cancelFall = e => {

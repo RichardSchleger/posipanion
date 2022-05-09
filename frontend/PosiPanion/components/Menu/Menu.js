@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faCog, faUserFriends} from '@fortawesome/free-solid-svg-icons';
+import Toast from 'react-native-toast-message';
 
 import {
   Animated,
@@ -248,11 +249,20 @@ export default function Menu({
         setMenuShown('activeRide');
       })
       .catch(async error => {
-        if (error.response.status === 606) {
-          if (await AuthService.refreshToken()) {
-            return handleRideStart(e);
+        if (error.response) {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return handleRideStart(e);
+            }
           }
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Nepodarilo sa spustiť jazdu',
+            text2: 'Žiadne pripojenie na internet',
+          });
         }
+        
       });
   };
 
@@ -273,10 +283,18 @@ export default function Menu({
         setMenuShown('map');
       })
       .catch(async error => {
-        if (error.response.status === 606) {
-          if (await AuthService.refreshToken()) {
-            return handleRideEnd(e);
+        if (error.response) {
+          if (error.response.status === 606) {
+            if (await AuthService.refreshToken()) {
+              return handleRideEnd(e);
+            }
           }
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Nepodarilo sa ukončiť jazdu',
+            text2: 'Žiadne pripojenie na internet',
+          });
         }
       });
   };

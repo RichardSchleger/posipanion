@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 199,
   },
 
   container: {

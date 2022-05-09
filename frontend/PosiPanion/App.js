@@ -5,7 +5,7 @@ import MapContainer from './components/Map/MapContainer';
 import {useTimingReducer} from './components/Map/reducer';
 import {useLocation} from './components/hooks';
 
-// import PushNotificationIOS from '@react-native-community/push-notification-ios';
+//import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import Firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
@@ -19,18 +19,30 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loginRefresh, setLoginRefresh] = useState(false);
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0P64wWHZgzx080K14uSVwr29YYgHV5W0",
+    authDomain: "posipanion.firebaseapp.com",
+    projectId: "posipanion",
+    storageBucket: "posipanion.appspot.com",
+    messagingSenderId: "399407603065",
+    appId: "1:399407603065:web:1e6a06090e1a87126723a8",
+    measurementId: "G-T5LQW66JQE"
+  };
+
   useEffect(() => {
-    Firebase.initializeApp(this)
+    Firebase.initializeApp(firebaseConfig)
       .then(r => console.log(r))
       .catch(e => console.log(e));
-
+    
     if(Platform.OS === 'ios') {
 
     } else {
+
       createChannels();
       messaging().setBackgroundMessageHandler(async remoteMessage => {
         console.log('Message handled in the background!', remoteMessage);
       });
+
       PushNotification.configure({
         onRegister: function (token) {
           console.log('TOKEN:', token);
