@@ -97,6 +97,8 @@ export default function FriendsMenu({showMapMenu}) {
             }
           }
         });
+    } else {
+      return [];
     }
   };
 
